@@ -1,3 +1,4 @@
 project
 sbt-launch.jar
 target
+*.json
