@@ -1,18 +1,23 @@
 import com.codahale.jerkson.Json
+
+import java.io.FileWriter
 import scala.io.Source
 
 object CapnpIdentity {
 
+  def rewriteJson(raw: String): String = {
+    raw
+      .replaceAll(""""type"\s*:""", """"ctype":""")
+      .replaceAll(""""object"\s*:""", """"cobject":""")
+      .replaceAll(""""implicit"\s*:""", """"cimplicit":""")
+      .replaceAll(""":\s*null""", """: {}""")
+  }
+
   lazy val rawJson = {
-    val path = "addressbook.capnp.json"
-    val source = scala.io.Source.fromFile(path)
-    val lines = source.mkString
+    val source = Source.stdin
+    val raw = source.mkString
     source.close
-    lines
-      .replaceAll(""""type":""", """"ctype":""")
-      .replaceAll(""""object":""", """"cobject":""")
-      .replaceAll(""""implicit":""", """"cimplicit":""")
-      .replaceAll(""": null""", """: {}""")
+    rewriteJson(raw)
   }
 
   def getSchemas(nodes: Seq[raw.Node]): Map[Long, raw.Node] = {
@@ -301,7 +306,10 @@ object CapnpIdentity {
     }
 
     parsed.requestedFiles.map(requestedFile => {
-      println(genFile(schemasById(requestedFile.id)))
+      val filename = requestedFile.filename + ".identity"
+      val source = new FileWriter(filename)
+      source.write(genFile(schemasById(requestedFile.id)).flatten)
+      source.close
     })
   }
 }
