@@ -1,7 +1,7 @@
 import com.codahale.jerkson.Json
 import scala.io.Source
 
-object CapnpScala {
+object CapnpIdentity {
 
   lazy val rawJson = {
     val path = "addressbook.capnp.json"
