@@ -1,17 +1,21 @@
-import AssemblyKeys._
+//import AssemblyKeys._
 
 name := "capnp-scala"
  
 version := "0.0.1"
  
 scalaVersion := "2.9.1"
- 
+
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
+
+//assemblySettings
+
+//mainClass in assembly := Some("CapnpIdentity")
+
+mainClass in (Compile, run) := Some("CapnpScala")
+
 resolvers += "repo.codahale.com" at "http://repo.codahale.com"
  
 libraryDependencies += "com.codahale" % "jerkson_2.9.1" % "0.5.0"
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
-
-assemblySettings
-
-mainClass in assembly := Some("CapnpIdentity")
+libraryDependencies += "com.foursquare" %% "spindle-runtime" % "1.4.2"

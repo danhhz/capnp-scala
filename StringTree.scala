@@ -9,7 +9,7 @@ class StringTreeNode(children: Seq[StringTree], delim: String) extends StringTre
   lazy val flatten: String = children.map(_.flatten).mkString(delim)
 }
 
-class StringTreeIndent(level: Int, indent: String = "  ") extends StringTree{
+class StringTreeIndent(level: Int, indent: String = "  ") extends StringTree {
   lazy val flatten: String = indent * level
   def next: StringTreeIndent = new StringTreeIndent(level + 1, indent)
 }
@@ -24,5 +24,9 @@ object StringTree {
       case s => new StringTreeLeaf(s.toString)
     })
     new StringTreeNode(children, "")
+  }
+
+  def join(sep: String, xs: Seq[StringTree]): StringTree = {
+    StringTree(xs.flatMap(x => Seq(sep, x)).drop(1))
   }
 }

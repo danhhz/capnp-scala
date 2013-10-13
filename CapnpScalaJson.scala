@@ -54,7 +54,7 @@ package raw {
     int32: Option[Int],
     int64: Option[Long],
     uint8: Option[Short],
-    uint16: Option[Short],
+    uint16: Option[Int],
     uint32: Option[Int],
     uint64: Option[Long],
     float32: Option[Double],
@@ -126,7 +126,7 @@ package raw {
 
   case class NodeUnion_Struct(
     dataWordCount: Option[Short],
-    pointerCount: Short,
+    pointerCount: Option[Short],
     preferredListEncoding: String,
     isGroup: Option[Boolean],
     discriminantCount: Option[Short],
