@@ -1,5 +1,4 @@
 sbt-launch.jar
 target
-*.json
 bin
 *.class

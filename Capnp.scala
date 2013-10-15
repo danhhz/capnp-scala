@@ -2,10 +2,9 @@ package capnp
 
 import com.foursquare.field.{OptionalField => RField}
 
-import java.io.InputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
+import java.io.{ByteArrayOutputStream, InputStream, IOException, RandomAccessFile}
 import java.nio.{ByteBuffer, ByteOrder}
+import java.nio.channels.FileChannel
 
 trait UntypedFieldDescriptor {
   // def id: Int
@@ -37,6 +36,7 @@ trait UntypedMetaStruct {
 }
 trait MetaStruct[U <: Struct[U]] extends UntypedMetaStruct {
   type Self = this.type
+  def create(struct: CapnpStruct): U
   def fields: Seq[FieldDescriptor[_, U, Self]]
 }
 
@@ -46,9 +46,20 @@ trait HasUnion[U <: UnionValue[U]] {
   def union: UnionMeta[U]
 }
 
-trait UnionValue[U <: UnionValue[U]]
+trait UnionValue[U <: UnionValue[U]] {
+
+}
 
 trait UnionMeta[U <: UnionValue[U]]
+
+object Segment {
+  def parseSegments(buf: ByteBuffer, offsetWords: Int = 0) = {
+    val segmentCount: Int = buf.getInt(offsetWords * 8)
+    val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
+    val padding = if (segmentSizes.size % 2 == 0) 4 else 0
+    segmentSizes
+  }
+}
 
 trait Pointer {
   def buf: ByteBuffer
@@ -62,27 +73,44 @@ object Pointer {
   val ListElementCountMask: Int = ~(PointerSizeMask.toInt)
   val ListElementCountShift = 3
 
+  def parseStructFromPath[U <: Struct[U]](meta: MetaStruct[U], path: String): Option[U] = {
+    val file = new RandomAccessFile(path, "r")
+    val channel = file.getChannel
+    val buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size).order(ByteOrder.LITTLE_ENDIAN)
+    file.close
+    parseStruct(meta, buf, 1)
+  }
+
+  def parseStruct[U <: Struct[U]](meta: MetaStruct[U], buf: ByteBuffer, pointerOffsetWords: Int = 0): Option[U] = {
+    apply(buf, pointerOffsetWords).flatMap(_ match {
+      case s: CapnpStruct => Some(meta.create(s))
+      case _ => None
+    })
+  }
+
   def apply(buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer] = {
-    if (buf.getLong(pointerOffsetWords * 8) == 0) None else {
+    val pointerOffsetBytes = pointerOffsetWords * 8
+    println("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ")) 
+    if (buf.getLong(pointerOffsetBytes) == 0) None else {
       val pointerType: Byte = {
-        (buf.get(pointerOffsetWords * 8) & PointerTypeMask).toByte
+        (buf.get(pointerOffsetBytes) & PointerTypeMask).toByte
       }
       val dataOffsetWords: Int = {
-        (buf.getInt(pointerOffsetWords * 8) & DataOffsetMask) >>> DataOffsetShift
+        (buf.getInt(pointerOffsetBytes) & DataOffsetMask) >>> DataOffsetShift
       }
       pointerType match {
         case 0 => Some({
           val dataSectionSizeWords: Short = {
-            buf.getShort(pointerOffsetWords * 8 + 4)
+            buf.getShort(pointerOffsetBytes + 4)
           }
           val pointerSectionSizeWords: Short = {
-            buf.getShort(pointerOffsetWords * 8 + 6)
+            buf.getShort(pointerOffsetBytes + 6)
           }
           new CapnpStruct(buf, pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
         })
         case 1 => Some({
           val pointerSize: Int = {
-            buf.get(pointerOffsetWords * 8 + 4) & PointerSizeMask
+            buf.get(pointerOffsetBytes + 4) & PointerSizeMask
           }
           val listElementCount: Int = {
             if (pointerSize == 7) {
@@ -131,17 +159,43 @@ class CapnpStruct(
 ) extends Pointer {
 
   def getBoolean(offset: Int): Option[java.lang.Boolean] = None
-  def getByte(offset: Int): Option[java.lang.Byte] = Some(buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1))
-  def getShort(offset: Int): Option[java.lang.Short] = Some(buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2))
-  def getInt(offset: Int): Option[java.lang.Integer] = Some(buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4))
-  def getLong(offset: Int): Option[java.lang.Long] = Some(buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8))
-  def getDouble(offset: Int): Option[java.lang.Double] = Some(buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8))
+  def getByte(offset: Int): Option[java.lang.Byte] = {
+    val ret = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
+    val default: java.lang.Byte = 0.toByte
+    if (ret != default) Some(ret) else None    
+  }
+  def getShort(offset: Int): Option[java.lang.Short] = {
+    val ret = buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
+    val default: java.lang.Short = 0.toShort
+    if (ret != default) Some(ret) else None    
+  }
+  def getInt(offset: Int): Option[java.lang.Integer] = {
+    val ret = buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+    val default: java.lang.Integer = 0
+    if (ret != default) Some(ret) else None    
+  }
+  def getLong(offset: Int): Option[java.lang.Long] = {
+    val ret = buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+    val default: java.lang.Long = 0
+    if (ret != default) Some(ret) else None    
+  }
+  def getDouble(offset: Int): Option[java.lang.Double] = {
+    val ret = buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+    val default: java.lang.Double = 0
+    if (ret != default) Some(ret) else None    
+  }
 
-  def getPointer(offset: Int): Option[Pointer] = Pointer(buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
+  def getPointer(offset: Int): Option[Pointer] = {
+    Pointer(buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
+  }
   def getString(offset: Int): Option[String] = getPointer(offset).flatMap(_ match {
     case l: CapnpList => {
-      Some(new String((0 to l.listElementCount - 1).map(l.getByte(_)).toArray))
+      Some(new String((0 to l.listElementCount - 1).map(l.getByte(_)).toArray.dropRight(1)))
     }
+    case _ => None
+  })
+  def getStruct(offset: Int): Option[CapnpStruct] = getPointer(offset).flatMap(_ match {
+    case s: CapnpStruct => Some(s)
     case _ => None
   })
   def getStructList(offset: Int): Option[Seq[CapnpStruct]] = getPointer(offset).map(_ match {
@@ -155,6 +209,7 @@ class CapnpStruct(
 
   def getNone[T](o: Int = 0): Option[T] = None
 }
+
 class CapnpTag(val buf: ByteBuffer, override val pointerOffsetWords: Int) extends Pointer {
   val pointerType: Byte = {
     (buf.get(pointerOffsetWords * 8) & Pointer.PointerTypeMask).toByte
