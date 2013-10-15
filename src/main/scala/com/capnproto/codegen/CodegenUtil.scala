@@ -1,3 +1,5 @@
+// Copyright 2013 Daniel Harrison. All Rights Reserved.
+
 package com.capnproto.codegen
 
 object CodegenUtil {
