@@ -1,3 +1,6 @@
+package com.capnproto.codegen
+
+import com.capnproto.Pointer
 import com.codahale.jerkson.Json
 
 import java.io.FileWriter
@@ -20,7 +23,7 @@ object CapnpScala {
       ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
     }
 
-    val parsed = capnp.Pointer.parseStruct(foo.CodeGeneratorRequest, buf, 1)
+    val parsed = Pointer.parseStruct(foo.CodeGeneratorRequest, buf, 1)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
     val schemasById = getSchemas(parsed.nodes.get)
 
@@ -326,8 +329,8 @@ object CapnpScala {
         "// ", file.displayName, "\n\n",
         "package ", getScalaPackageName, "\n\n",
         "import com.foursquare.spindle.{Enum, EnumMeta}\n",
-        "import capnp.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}\n",
-        "import capnp.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}\n",
+        "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}\n",
+        "import com.capnproto.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}\n",
         "import java.nio.ByteBuffer\n",
         "\n",
         genNestedDecls(file, new StringTreeIndent(0, "  "))

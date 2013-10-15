@@ -1,4 +1,4 @@
-//import AssemblyKeys._
+// import AssemblyKeys._
 
 name := "capnp-scala"
  
@@ -8,11 +8,11 @@ scalaVersion := "2.9.1"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
 
-//assemblySettings
+// assemblySettings
 
-//mainClass in assembly := Some("CapnpIdentity")
+// mainClass in assembly := Some("com.capnproto.codegen.CapnpScala")
 
-mainClass in (Compile, run) := Some("CapnpScala")
+mainClass in (Compile, run) := Some("com.capnproto.codegen.CapnpScala")
 
 resolvers += "repo.codahale.com" at "http://repo.codahale.com"
  

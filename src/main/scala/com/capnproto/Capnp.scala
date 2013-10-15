@@ -1,4 +1,4 @@
-package capnp
+package com.capnproto
 
 import com.foursquare.field.{OptionalField => RField}
 

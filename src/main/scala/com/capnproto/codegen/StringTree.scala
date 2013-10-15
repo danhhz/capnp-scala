@@ -1,3 +1,5 @@
+package com.capnproto.codegen
+
 trait StringTree {
   def flatten: String
   override def toString: String = flatten

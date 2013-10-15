@@ -1,3 +1,5 @@
+package com.capnproto.codegen
+
 object CodegenUtil {
   // List of Scala reserved words from Scala Language Specification (SLS) Section 1.1
   val ScalaReservedWords = Set(

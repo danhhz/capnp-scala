@@ -1,10 +1,10 @@
-// examples/addressbook.capnp
+// src/main/scala/com/capnproto/examples/addressbook.capnp
 
 package foo
 
 import com.foursquare.spindle.{Enum, EnumMeta}
-import capnp.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}
-import capnp.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}
+import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}
+import com.capnproto.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}
 import java.nio.ByteBuffer
 
 object Person extends MetaStruct[Person] {
