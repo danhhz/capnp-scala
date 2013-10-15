@@ -2,7 +2,7 @@
 
 package com.capnproto.codegen
 
-import com.capnproto.Pointer
+import com.capnproto.{Pointer, Segments}
 import com.codahale.jerkson.Json
 
 import java.io.FileWriter
@@ -17,15 +17,14 @@ object CapnpScala {
 
   def main(args: Array[String]): Unit = {
     val buf = {
-      // val source = Source.stdin
-      // val source = Source.fromFile("addressbook.bin")(scala.io.Codec.ISO8859)
       val source = Source.fromInputStream(System.in)(scala.io.Codec.ISO8859)
       val bytes = source.map(_.toByte).toArray
       source.close
       ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
     }
 
-    val parsed = Pointer.parseStruct(foo.CodeGeneratorRequest, buf, 1)
+    val segments = Segments.parseSegments(buf)
+    val parsed = Pointer.parseStruct(foo.CodeGeneratorRequest, segments)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
     val schemasById = getSchemas(parsed.nodes.get)
 
@@ -340,11 +339,12 @@ object CapnpScala {
     }
 
     parsed.requestedFiles.get.map(requestedFile => {
+      val outputPath = requestedFile.filename.get + ".scala"
       val output = genFile(schemasById(requestedFile.id.get)).flatten
-      val source = new FileWriter(requestedFile.filename.get.replace(".capnp", ".scala"))
+      val source = new FileWriter(outputPath)
       source.write(output)
       source.close
-      println("Wrote " + requestedFile.filename.get.replace(".capnp", ".scala"))
+      println("Wrote " + outputPath)
     })
   }
 }

@@ -1,3 +1,4 @@
 #! /bin/bash
 
 sbt run
+# tee schema.bin > /dev/null

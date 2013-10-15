@@ -1,4 +1,4 @@
-// examples/schema.capnp
+// src/main/scala/com/capnproto/examples/schema.capnp
 
 package foo
 
@@ -38,14 +38,6 @@ object Node extends MetaStruct[Node] {
 
     def name: Option[String]
     def id: Option[java.lang.Long]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-      id.foreach(fieldValue => {print("    " * indent + " id: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait NestedNodeProxy extends NestedNode {
@@ -63,20 +55,15 @@ object Node extends MetaStruct[Node] {
     override def name: Option[String] = struct.getString(0)
     override def id: Option[java.lang.Long] = struct.getLong(0)
   }
-  sealed trait Union extends UnionValue[foo.Node.Union] { def pretty(indent: Int = 0): String } 
+  sealed trait Union extends UnionValue[foo.Node.Union]
   object Union extends UnionMeta[foo.Node.Union] {
-    case class Unknown(discriminant: Short) extends foo.Node.Union { def pretty(indent: Int): String = toString }
-    case class file(value: Option[Unit]) extends foo.Node.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class __struct(value: Option[foo.Node.__Struct]) extends foo.Node.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class __enum(value: Option[foo.Node.__Enum]) extends foo.Node.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class interface(value: Option[foo.Node.Interface]) extends foo.Node.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class const(value: Option[foo.Node.Const]) extends foo.Node.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class annotation(value: Option[foo.Node.Annotation]) extends foo.Node.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
+    case class Unknown(discriminant: Short) extends foo.Node.Union
+    case class file(value: Option[Unit]) extends foo.Node.Union
+    case class __struct(value: Option[foo.Node.__Struct]) extends foo.Node.Union
+    case class __enum(value: Option[foo.Node.__Enum]) extends foo.Node.Union
+    case class interface(value: Option[foo.Node.Interface]) extends foo.Node.Union
+    case class const(value: Option[foo.Node.Const]) extends foo.Node.Union
+    case class annotation(value: Option[foo.Node.Annotation]) extends foo.Node.Union
   }
 
   object __Struct extends MetaStruct[__Struct] {
@@ -134,19 +121,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def discriminantCount: Option[java.lang.Short]
     def discriminantOffset: Option[java.lang.Integer]
     def __fields: Option[Seq[foo.Field]]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      dataWordCount.foreach(fieldValue => {print("    " * indent + " dataWordCount: "); println(fieldValue);})
-      pointerCount.foreach(fieldValue => {print("    " * indent + " pointerCount: "); println(fieldValue);})
-      preferredListEncoding.foreach(fieldValue => {print("    " * indent + " preferredListEncoding: "); println(fieldValue);})
-      isGroup.foreach(fieldValue => {print("    " * indent + " isGroup: "); println(fieldValue);})
-      discriminantCount.foreach(fieldValue => {print("    " * indent + " discriminantCount: "); println(fieldValue);})
-      discriminantOffset.foreach(fieldValue => {print("    " * indent + " discriminantOffset: "); println(fieldValue);})
-      __fields.foreach(fieldValue => {print("    " * indent + " __fields: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-      ""
-    }
   }
 
   trait __StructProxy extends __Struct {
@@ -193,13 +167,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def enumerants: Option[Seq[foo.Enumerant]]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      enumerants.foreach(fieldValue => {print("    " * indent + " enumerants: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-      ""
-    }
   }
 
   trait __EnumProxy extends __Enum {
@@ -234,13 +201,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def methods: Option[Seq[foo.Method]]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      methods.foreach(fieldValue => {print("    " * indent + " methods: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-      ""
-    }
   }
 
   trait InterfaceProxy extends Interface {
@@ -281,14 +241,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
 
     def __type: Option[foo.__Type]
     def value: Option[foo.Value]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      __type.foreach(fieldValue => {print("    " * indent + " __type: "); print("\n"); fieldValue.pretty(indent + 1);})
-      value.foreach(fieldValue => {print("    " * indent + " value: "); print("\n"); fieldValue.pretty(indent + 1);})
-
-      ""
-    }
   }
 
   trait ConstProxy extends Const {
@@ -397,25 +349,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def targetsMethod: Option[java.lang.Boolean]
     def targetsParam: Option[java.lang.Boolean]
     def targetsAnnotation: Option[java.lang.Boolean]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      __type.foreach(fieldValue => {print("    " * indent + " __type: "); print("\n"); fieldValue.pretty(indent + 1);})
-      targetsFile.foreach(fieldValue => {print("    " * indent + " targetsFile: "); println(fieldValue);})
-      targetsConst.foreach(fieldValue => {print("    " * indent + " targetsConst: "); println(fieldValue);})
-      targetsEnum.foreach(fieldValue => {print("    " * indent + " targetsEnum: "); println(fieldValue);})
-      targetsEnumerant.foreach(fieldValue => {print("    " * indent + " targetsEnumerant: "); println(fieldValue);})
-      targetsStruct.foreach(fieldValue => {print("    " * indent + " targetsStruct: "); println(fieldValue);})
-      targetsField.foreach(fieldValue => {print("    " * indent + " targetsField: "); println(fieldValue);})
-      targetsUnion.foreach(fieldValue => {print("    " * indent + " targetsUnion: "); println(fieldValue);})
-      targetsGroup.foreach(fieldValue => {print("    " * indent + " targetsGroup: "); println(fieldValue);})
-      targetsInterface.foreach(fieldValue => {print("    " * indent + " targetsInterface: "); println(fieldValue);})
-      targetsMethod.foreach(fieldValue => {print("    " * indent + " targetsMethod: "); println(fieldValue);})
-      targetsParam.foreach(fieldValue => {print("    " * indent + " targetsParam: "); println(fieldValue);})
-      targetsAnnotation.foreach(fieldValue => {print("    " * indent + " targetsAnnotation: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait AnnotationProxy extends Annotation {
@@ -534,18 +467,6 @@ trait Node extends Struct[Node] with HasUnion[foo.Node.Union] {
   def interface: Option[foo.Node.Interface]
   def const: Option[foo.Node.Const]
   def annotation: Option[foo.Node.Annotation]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    id.foreach(fieldValue => {print("    " * indent + " id: "); println(fieldValue);})
-    displayName.foreach(fieldValue => {print("    " * indent + " displayName: "); println(fieldValue);})
-    displayNamePrefixLength.foreach(fieldValue => {print("    " * indent + " displayNamePrefixLength: "); println(fieldValue);})
-    scopeId.foreach(fieldValue => {print("    " * indent + " scopeId: "); println(fieldValue);})
-    nestedNodes.foreach(fieldValue => {print("    " * indent + " nestedNodes: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-    annotations.foreach(fieldValue => {print("    " * indent + " annotations: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-    print("    " * indent + " union: "); switch.pretty(indent)
-    ""
-  }
 }
 
 trait NodeProxy extends Node with HasUnion[foo.Node.Union] {
@@ -610,13 +531,11 @@ object Field extends MetaStruct[Field] {
   override val recordName: String = "Field"
   override val fields: Seq[FieldDescriptor[_, Field, Field.type]] = Seq(name, codeOrder, annotations, discriminantValue, slot, group, ordinal)
 
-  sealed trait Union extends UnionValue[foo.Field.Union] { def pretty(indent: Int = 0): String } 
+  sealed trait Union extends UnionValue[foo.Field.Union]
   object Union extends UnionMeta[foo.Field.Union] {
-    case class Unknown(discriminant: Short) extends foo.Field.Union { def pretty(indent: Int): String = toString }
-    case class slot(value: Option[foo.Field.Slot]) extends foo.Field.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class group(value: Option[foo.Field.Group]) extends foo.Field.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
+    case class Unknown(discriminant: Short) extends foo.Field.Union
+    case class slot(value: Option[foo.Field.Slot]) extends foo.Field.Union
+    case class group(value: Option[foo.Field.Group]) extends foo.Field.Union
   }
 
   object Slot extends MetaStruct[Slot] {
@@ -650,15 +569,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def offset: Option[java.lang.Integer]
     def __type: Option[foo.__Type]
     def defaultValue: Option[foo.Value]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      offset.foreach(fieldValue => {print("    " * indent + " offset: "); println(fieldValue);})
-      __type.foreach(fieldValue => {print("    " * indent + " __type: "); print("\n"); fieldValue.pretty(indent + 1);})
-      defaultValue.foreach(fieldValue => {print("    " * indent + " defaultValue: "); print("\n"); fieldValue.pretty(indent + 1);})
-
-      ""
-    }
   }
 
   trait SlotProxy extends Slot {
@@ -697,13 +607,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      typeId.foreach(fieldValue => {print("    " * indent + " typeId: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait GroupProxy extends Group {
@@ -725,11 +628,11 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     override val recordName: String = "Ordinal"
     override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
 
-    sealed trait Union extends UnionValue[foo.Field.Ordinal.Union] { def pretty(indent: Int = 0): String } 
+    sealed trait Union extends UnionValue[foo.Field.Ordinal.Union]
     object Union extends UnionMeta[foo.Field.Ordinal.Union] {
-      case class Unknown(discriminant: Short) extends foo.Field.Ordinal.Union { def pretty(indent: Int): String = toString }
-      case class __implicit(value: Option[Unit]) extends foo.Field.Ordinal.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-      case class explicit(value: Option[java.lang.Short]) extends foo.Field.Ordinal.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
+      case class Unknown(discriminant: Short) extends foo.Field.Ordinal.Union
+      case class __implicit(value: Option[Unit]) extends foo.Field.Ordinal.Union
+      case class explicit(value: Option[java.lang.Short]) extends foo.Field.Ordinal.Union
     }
 
 
@@ -751,12 +654,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
 
     def __implicit: Option[Unit]
     def explicit: Option[java.lang.Short]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      print("    " * indent + " union: "); switch.pretty(indent)
-      ""
-    }
   }
 
   trait OrdinalProxy extends Ordinal with HasUnion[foo.Field.Ordinal.Union] {
@@ -834,17 +731,6 @@ trait Field extends Struct[Field] with HasUnion[foo.Field.Union] {
   def slot: Option[foo.Field.Slot]
   def group: Option[foo.Field.Group]
   def ordinal: Option[foo.Field.Ordinal]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-    codeOrder.foreach(fieldValue => {print("    " * indent + " codeOrder: "); println(fieldValue);})
-    annotations.foreach(fieldValue => {print("    " * indent + " annotations: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-    discriminantValue.foreach(fieldValue => {print("    " * indent + " discriminantValue: "); println(fieldValue);})
-    ordinal.foreach(fieldValue => {print("    " * indent + " ordinal: "); print("\n"); fieldValue.pretty(indent + 1);})
-    print("    " * indent + " union: "); switch.pretty(indent)
-    ""
-  }
 }
 
 trait FieldProxy extends Field with HasUnion[foo.Field.Union] {
@@ -918,15 +804,6 @@ trait Enumerant extends Struct[Enumerant] {
   def name: Option[String]
   def codeOrder: Option[java.lang.Short]
   def annotations: Option[Seq[foo.Annotation]]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-    codeOrder.foreach(fieldValue => {print("    " * indent + " codeOrder: "); println(fieldValue);})
-    annotations.foreach(fieldValue => {print("    " * indent + " annotations: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-    ""
-  }
 }
 
 trait EnumerantProxy extends Enumerant {
@@ -990,16 +867,6 @@ object Method extends MetaStruct[Method] {
     def __type: Option[foo.__Type]
     def defaultValue: Option[foo.Value]
     def annotations: Option[Seq[foo.Annotation]]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-      __type.foreach(fieldValue => {print("    " * indent + " __type: "); print("\n"); fieldValue.pretty(indent + 1);})
-      defaultValue.foreach(fieldValue => {print("    " * indent + " defaultValue: "); print("\n"); fieldValue.pretty(indent + 1);})
-      annotations.foreach(fieldValue => {print("    " * indent + " annotations: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-      ""
-    }
   }
 
   trait ParamProxy extends Param {
@@ -1064,18 +931,6 @@ trait Method extends Struct[Method] {
   def requiredParamCount: Option[java.lang.Short]
   def returnType: Option[foo.__Type]
   def annotations: Option[Seq[foo.Annotation]]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-    codeOrder.foreach(fieldValue => {print("    " * indent + " codeOrder: "); println(fieldValue);})
-    params.foreach(fieldValue => {print("    " * indent + " params: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-    requiredParamCount.foreach(fieldValue => {print("    " * indent + " requiredParamCount: "); println(fieldValue);})
-    returnType.foreach(fieldValue => {print("    " * indent + " returnType: "); print("\n"); fieldValue.pretty(indent + 1);})
-    annotations.foreach(fieldValue => {print("    " * indent + " annotations: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-    ""
-  }
 }
 
 trait MethodProxy extends Method {
@@ -1108,32 +963,28 @@ object __Type extends MetaStruct[__Type] {
   override val recordName: String = "Type"
   override val fields: Seq[FieldDescriptor[_, __Type, __Type.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 
-  sealed trait Union extends UnionValue[foo.__Type.Union] { def pretty(indent: Int = 0): String } 
+  sealed trait Union extends UnionValue[foo.__Type.Union]
   object Union extends UnionMeta[foo.__Type.Union] {
-    case class Unknown(discriminant: Short) extends foo.__Type.Union { def pretty(indent: Int): String = toString }
-    case class void(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class bool(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int8(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int16(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int32(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int64(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint8(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint16(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint32(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint64(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class float32(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class float64(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class text(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class data(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class list(value: Option[foo.__Type.List]) extends foo.__Type.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class __enum(value: Option[foo.__Type.__Enum]) extends foo.__Type.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class __struct(value: Option[foo.__Type.__Struct]) extends foo.__Type.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class interface(value: Option[foo.__Type.Interface]) extends foo.__Type.Union { def pretty(indent: Int): String = { value.map(fieldValue => {
-print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).getOrElse(println("None")); ""}}
-    case class __object(value: Option[Unit]) extends foo.__Type.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
+    case class Unknown(discriminant: Short) extends foo.__Type.Union
+    case class void(value: Option[Unit]) extends foo.__Type.Union
+    case class bool(value: Option[Unit]) extends foo.__Type.Union
+    case class int8(value: Option[Unit]) extends foo.__Type.Union
+    case class int16(value: Option[Unit]) extends foo.__Type.Union
+    case class int32(value: Option[Unit]) extends foo.__Type.Union
+    case class int64(value: Option[Unit]) extends foo.__Type.Union
+    case class uint8(value: Option[Unit]) extends foo.__Type.Union
+    case class uint16(value: Option[Unit]) extends foo.__Type.Union
+    case class uint32(value: Option[Unit]) extends foo.__Type.Union
+    case class uint64(value: Option[Unit]) extends foo.__Type.Union
+    case class float32(value: Option[Unit]) extends foo.__Type.Union
+    case class float64(value: Option[Unit]) extends foo.__Type.Union
+    case class text(value: Option[Unit]) extends foo.__Type.Union
+    case class data(value: Option[Unit]) extends foo.__Type.Union
+    case class list(value: Option[foo.__Type.List]) extends foo.__Type.Union
+    case class __enum(value: Option[foo.__Type.__Enum]) extends foo.__Type.Union
+    case class __struct(value: Option[foo.__Type.__Struct]) extends foo.__Type.Union
+    case class interface(value: Option[foo.__Type.Interface]) extends foo.__Type.Union
+    case class __object(value: Option[Unit]) extends foo.__Type.Union
   }
 
   object List extends MetaStruct[List] {
@@ -1155,13 +1006,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def elementType: Option[foo.__Type]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      elementType.foreach(fieldValue => {print("    " * indent + " elementType: "); print("\n"); fieldValue.pretty(indent + 1);})
-
-      ""
-    }
   }
 
   trait ListProxy extends List {
@@ -1196,13 +1040,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      typeId.foreach(fieldValue => {print("    " * indent + " typeId: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait __EnumProxy extends __Enum {
@@ -1237,13 +1074,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      typeId.foreach(fieldValue => {print("    " * indent + " typeId: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait __StructProxy extends __Struct {
@@ -1278,13 +1108,6 @@ print("(\n"); fieldValue.pretty(indent + 1); print("    " * indent + ")\n");}).g
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      typeId.foreach(fieldValue => {print("    " * indent + " typeId: "); println(fieldValue);})
-
-      ""
-    }
   }
 
   trait InterfaceProxy extends Interface {
@@ -1421,12 +1244,6 @@ trait __Type extends Struct[__Type] with HasUnion[foo.__Type.Union] {
   def __struct: Option[foo.__Type.__Struct]
   def interface: Option[foo.__Type.Interface]
   def __object: Option[Unit]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    print("    " * indent + " union: "); switch.pretty(indent)
-    ""
-  }
 }
 
 trait __TypeProxy extends __Type with HasUnion[foo.__Type.Union] {
@@ -1517,28 +1334,28 @@ object Value extends MetaStruct[Value] {
   override val recordName: String = "Value"
   override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 
-  sealed trait Union extends UnionValue[foo.Value.Union] { def pretty(indent: Int = 0): String } 
+  sealed trait Union extends UnionValue[foo.Value.Union]
   object Union extends UnionMeta[foo.Value.Union] {
-    case class Unknown(discriminant: Short) extends foo.Value.Union { def pretty(indent: Int): String = toString }
-    case class void(value: Option[Unit]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class bool(value: Option[java.lang.Boolean]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int8(value: Option[java.lang.Byte]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int16(value: Option[java.lang.Short]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int32(value: Option[java.lang.Integer]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class int64(value: Option[java.lang.Long]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint8(value: Option[java.lang.Byte]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint16(value: Option[java.lang.Short]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint32(value: Option[java.lang.Integer]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class uint64(value: Option[java.lang.Long]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class float32(value: Option[java.lang.Double]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class float64(value: Option[java.lang.Double]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class text(value: Option[String]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class data(value: Option[ByteBuffer]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class list(value: Option[AnyRef]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class __enum(value: Option[java.lang.Short]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class __struct(value: Option[AnyRef]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class interface(value: Option[Unit]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
-    case class __object(value: Option[AnyRef]) extends foo.Value.Union { def pretty(indent: Int): String = { println(value.toString); "" }}
+    case class Unknown(discriminant: Short) extends foo.Value.Union
+    case class void(value: Option[Unit]) extends foo.Value.Union
+    case class bool(value: Option[java.lang.Boolean]) extends foo.Value.Union
+    case class int8(value: Option[java.lang.Byte]) extends foo.Value.Union
+    case class int16(value: Option[java.lang.Short]) extends foo.Value.Union
+    case class int32(value: Option[java.lang.Integer]) extends foo.Value.Union
+    case class int64(value: Option[java.lang.Long]) extends foo.Value.Union
+    case class uint8(value: Option[java.lang.Byte]) extends foo.Value.Union
+    case class uint16(value: Option[java.lang.Short]) extends foo.Value.Union
+    case class uint32(value: Option[java.lang.Integer]) extends foo.Value.Union
+    case class uint64(value: Option[java.lang.Long]) extends foo.Value.Union
+    case class float32(value: Option[java.lang.Double]) extends foo.Value.Union
+    case class float64(value: Option[java.lang.Double]) extends foo.Value.Union
+    case class text(value: Option[String]) extends foo.Value.Union
+    case class data(value: Option[ByteBuffer]) extends foo.Value.Union
+    case class list(value: Option[AnyRef]) extends foo.Value.Union
+    case class __enum(value: Option[java.lang.Short]) extends foo.Value.Union
+    case class __struct(value: Option[AnyRef]) extends foo.Value.Union
+    case class interface(value: Option[Unit]) extends foo.Value.Union
+    case class __object(value: Option[AnyRef]) extends foo.Value.Union
   }
 
 
@@ -1662,12 +1479,6 @@ trait Value extends Struct[Value] with HasUnion[foo.Value.Union] {
   def __struct: Option[AnyRef]
   def interface: Option[Unit]
   def __object: Option[AnyRef]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    print("    " * indent + " union: "); switch.pretty(indent)
-    ""
-  }
 }
 
 trait ValueProxy extends Value with HasUnion[foo.Value.Union] {
@@ -1773,14 +1584,6 @@ trait Annotation extends Struct[Annotation] {
 
   def id: Option[java.lang.Long]
   def value: Option[foo.Value]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    id.foreach(fieldValue => {print("    " * indent + " id: "); println(fieldValue);})
-    value.foreach(fieldValue => {print("    " * indent + " value: "); print("\n"); fieldValue.pretty(indent + 1);})
-
-    ""
-  }
 }
 
 trait AnnotationProxy extends Annotation {
@@ -1871,14 +1674,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
       def id: Option[java.lang.Long]
       def name: Option[String]
-      override def toString: String = pretty(0)
-      def pretty(indent: Int = 0): String = {
-        println("    " * indent + "[" + meta.recordName + "]")
-        id.foreach(fieldValue => {print("    " * indent + " id: "); println(fieldValue);})
-        name.foreach(fieldValue => {print("    " * indent + " name: "); println(fieldValue);})
-
-        ""
-      }
     }
 
     trait __ImportProxy extends __Import {
@@ -1921,15 +1716,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     def id: Option[java.lang.Long]
     def filename: Option[String]
     def imports: Option[Seq[foo.CodeGeneratorRequest.RequestedFile.__Import]]
-    override def toString: String = pretty(0)
-    def pretty(indent: Int = 0): String = {
-      println("    " * indent + "[" + meta.recordName + "]")
-      id.foreach(fieldValue => {print("    " * indent + " id: "); println(fieldValue);})
-      filename.foreach(fieldValue => {print("    " * indent + " filename: "); println(fieldValue);})
-      imports.foreach(fieldValue => {print("    " * indent + " imports: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-      ""
-    }
   }
 
   trait RequestedFileProxy extends RequestedFile {
@@ -1968,14 +1754,6 @@ trait CodeGeneratorRequest extends Struct[CodeGeneratorRequest] {
 
   def nodes: Option[Seq[foo.Node]]
   def requestedFiles: Option[Seq[foo.CodeGeneratorRequest.RequestedFile]]
-  override def toString: String = pretty(0)
-  def pretty(indent: Int = 0): String = {
-    println("    " * indent + "[" + meta.recordName + "]")
-    nodes.foreach(fieldValue => {print("    " * indent + " nodes: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-    requestedFiles.foreach(fieldValue => {print("    " * indent + " requestedFiles: "); print("[\n"); fieldValue.map(_.pretty(indent + 1)); print("    " * indent + " ]\n");})
-
-    ""
-  }
 }
 
 trait CodeGeneratorRequestProxy extends CodeGeneratorRequest {

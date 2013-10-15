@@ -48,90 +48,119 @@ trait HasUnion[U <: UnionValue[U]] {
   def union: UnionMeta[U]
 }
 
-trait UnionValue[U <: UnionValue[U]] {
-
-}
+trait UnionValue[U <: UnionValue[U]]
 
 trait UnionMeta[U <: UnionValue[U]]
 
-object Segment {
-  def parseSegments(buf: ByteBuffer, offsetWords: Int = 0) = {
-    val segmentCount: Int = buf.getInt(offsetWords * 8)
+case class Segment(val buf: ByteBuffer, val offsetWords: Int)
+case class Segments(val segments: Seq[Segment]) {
+}
+object Segments {
+  def parseSegments(buf: ByteBuffer, offsetWords: Int = 0): Segments = {
+    val segmentCount: Int = buf.getInt(offsetWords * 8) + 1
     val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
-    val padding = if (segmentSizes.size % 2 == 0) 4 else 0
-    segmentSizes
+    val segmentsOffsetWords = offsetWords + (segmentCount + 2) / 2
+    val offsets = segmentSizes.foldLeft(List[(Int,Int)]())({ case (os, s) => {
+      val acc = os.headOption.map(_._2).getOrElse(segmentsOffsetWords)
+      (acc, acc + s) :: os
+    }}).reverse
+    val segments = offsets.map({ case (begin, end) => {
+      val ret = buf.duplicate
+      ret.order(ByteOrder.LITTLE_ENDIAN).position(begin * 8).limit(end * 8)
+      new Segment(ret, begin)
+    }})
+    new Segments(segments)
   }
 }
 
 trait Pointer {
+  def segments: Segments
   def buf: ByteBuffer
   def pointerOffsetWords: Int
 }
 object Pointer {
   val PointerTypeMask: Byte = 3
-  val DataOffsetMask: Int = ~(PointerTypeMask.toInt)
   val DataOffsetShift = 2
   val PointerSizeMask: Byte = 7
-  val ListElementCountMask: Int = ~(PointerSizeMask.toInt)
   val ListElementCountShift = 3
+  val LandingPadWordsMask: Int = 4
+  val LandingPadWordsShift: Int = 2
+  val LandingPadOffsetShift: Int = 3
 
   def parseStructFromPath[U <: Struct[U]](meta: MetaStruct[U], path: String): Option[U] = {
     val file = new RandomAccessFile(path, "r")
     val channel = file.getChannel
     val buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size).order(ByteOrder.LITTLE_ENDIAN)
     file.close
-    parseStruct(meta, buf, 1)
+    parseStruct(meta, Segments.parseSegments(buf))
   }
 
-  def parseStruct[U <: Struct[U]](meta: MetaStruct[U], buf: ByteBuffer, pointerOffsetWords: Int = 0): Option[U] = {
-    apply(buf, pointerOffsetWords).flatMap(_ match {
+  def parseStruct[U <: Struct[U]](meta: MetaStruct[U], segments: Segments): Option[U] = {
+    fromFirstSegment(segments).flatMap(_ match {
       case s: CapnpStruct => Some(meta.create(s))
       case _ => None
     })
   }
 
-  def apply(buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer] = {
+  def fromFirstSegment(segments: Segments): Option[Pointer] = {
+    apply(segments, segments.segments.head.buf, segments.segments.head.offsetWords)
+  }
+
+  def apply(segments: Segments, buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer] = {
     val pointerOffsetBytes = pointerOffsetWords * 8
-    println("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ")) 
+    // println("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ")) 
     if (buf.getLong(pointerOffsetBytes) == 0) None else {
-      val pointerType: Byte = {
-        (buf.get(pointerOffsetBytes) & PointerTypeMask).toByte
-      }
-      val dataOffsetWords: Int = {
-        (buf.getInt(pointerOffsetBytes) & DataOffsetMask) >>> DataOffsetShift
-      }
+      val pointerType: Int = buf.get(pointerOffsetBytes) & PointerTypeMask
+      val dataOffsetWords: Int = buf.getInt(pointerOffsetBytes) >>> DataOffsetShift
       pointerType match {
         case 0 => Some({
-          val dataSectionSizeWords: Short = {
-            buf.getShort(pointerOffsetBytes + 4)
-          }
-          val pointerSectionSizeWords: Short = {
-            buf.getShort(pointerOffsetBytes + 6)
-          }
-          new CapnpStruct(buf, pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
+          val dataSectionSizeWords: Short = buf.getShort(pointerOffsetBytes + 4)
+          val pointerSectionSizeWords: Short = buf.getShort(pointerOffsetBytes + 6)
+          new CapnpStruct(segments, buf, pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
         })
         case 1 => Some({
-          val pointerSize: Int = {
-            buf.get(pointerOffsetBytes + 4) & PointerSizeMask
-          }
+          val pointerSize: Int = buf.get(pointerOffsetBytes + 4) & PointerSizeMask
           val listElementCount: Int = {
             if (pointerSize == 7) {
-              val tag = new CapnpTag(buf, pointerOffsetWords + 1 + dataOffsetWords)
+              val tag = new CapnpTag(segments, buf, pointerOffsetWords + 1 + dataOffsetWords)
               tag.elementCountWords
             } else {
-              (buf.getInt(pointerOffsetWords * 8 + 4) & ListElementCountMask) >>> ListElementCountShift
+              buf.getInt(pointerOffsetWords * 8 + 4) >>> ListElementCountShift
             }
           }
-          new CapnpList(buf, pointerOffsetWords, dataOffsetWords, pointerSize, listElementCount)
+          new CapnpList(segments, buf, pointerOffsetWords, dataOffsetWords, pointerSize, listElementCount)
         })
-        case 2 => throw new IllegalArgumentException("Inter-Segment Pointers are not yet supported")
+        case 2 => {
+          val landingPadWords: Int = ((buf.get(pointerOffsetBytes) & LandingPadWordsMask) >>> LandingPadWordsShift) + 1
+          val pointerOffsetWords: Int = buf.getInt(pointerOffsetBytes) >>> LandingPadOffsetShift
+          val segmentid: Int = buf.getInt(pointerOffsetBytes + 4)
+          val segment = segments.segments(segmentid)
+          val far = new CapnpFarSegmentPointer(segments, segment.buf, segment.offsetWords + pointerOffsetWords, landingPadWords)
+          far.getPointer
+        }
         case _ => throw new IllegalArgumentException("Unknown pointer type: " + pointerType)
       }
     }
   }
 }
 
+class CapnpFarSegmentPointer(
+  override val segments: Segments,
+  override val buf: ByteBuffer,
+  override val pointerOffsetWords: Int,
+  val landingPadWords: Int
+) extends Pointer {
+  def getPointer: Option[Pointer] = {
+    if (landingPadWords == 1) {
+      Pointer(segments, buf, pointerOffsetWords)
+    } else {
+      throw new IllegalArgumentException("Double far pointers are not yet supported")
+    }
+  }
+}
+
 class CapnpList(
+  override val segments: Segments,
   override val buf: ByteBuffer,
   override val pointerOffsetWords: Int,
   val dataOffsetWords: Int,
@@ -146,13 +175,14 @@ class CapnpList(
 
   def getComposite(offset: Int): Pointer = {
     if (pointerSize != 7) throw new IllegalArgumentException("This list is not Composites.")
-    val tag = new CapnpTag(buf, pointerOffsetWords + 1 + dataOffsetWords)
+    val tag = new CapnpTag(segments, buf, pointerOffsetWords + 1 + dataOffsetWords)
     val offsetWords = offset * (tag.dataSectionSizeWords + tag.pointerSectionSizeWords)
-    new CapnpStruct(buf, pointerOffsetWords + 1 + dataOffsetWords, offsetWords, tag.dataSectionSizeWords, tag.pointerSectionSizeWords)
+    new CapnpStruct(segments, buf, pointerOffsetWords + 1 + dataOffsetWords, offsetWords, tag.dataSectionSizeWords, tag.pointerSectionSizeWords)
   }
 }
 
 class CapnpStruct(
+  override val segments: Segments,
   override val buf: ByteBuffer,
   override val pointerOffsetWords: Int,
   val dataOffsetWords: Int,
@@ -188,7 +218,7 @@ class CapnpStruct(
   }
 
   def getPointer(offset: Int): Option[Pointer] = {
-    Pointer(buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
+    Pointer(segments, buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
   }
   def getString(offset: Int): Option[String] = getPointer(offset).flatMap(_ match {
     case l: CapnpList => {
@@ -212,17 +242,13 @@ class CapnpStruct(
   def getNone[T](o: Int = 0): Option[T] = None
 }
 
-class CapnpTag(val buf: ByteBuffer, override val pointerOffsetWords: Int) extends Pointer {
-  val pointerType: Byte = {
-    (buf.get(pointerOffsetWords * 8) & Pointer.PointerTypeMask).toByte
-  }
-  val elementCountWords: Int = {
-    (buf.getInt(pointerOffsetWords * 8) & Pointer.DataOffsetMask) >>> Pointer.DataOffsetShift
-  }
-  val dataSectionSizeWords: Short = {
-    buf.getShort(pointerOffsetWords * 8 + 4)
-  }
-  val pointerSectionSizeWords: Short = {
-    buf.getShort(pointerOffsetWords * 8 + 6)
-  }
+class CapnpTag(
+  override val segments: Segments,
+  override val buf: ByteBuffer,
+  override val pointerOffsetWords: Int
+) extends Pointer {
+  val pointerType: Int = buf.get(pointerOffsetWords * 8) & Pointer.PointerTypeMask
+  val elementCountWords: Int = buf.getInt(pointerOffsetWords * 8) >>> Pointer.DataOffsetShift
+  val dataSectionSizeWords: Short = buf.getShort(pointerOffsetWords * 8 + 4)
+  val pointerSectionSizeWords: Short = buf.getShort(pointerOffsetWords * 8 + 6)
 }
