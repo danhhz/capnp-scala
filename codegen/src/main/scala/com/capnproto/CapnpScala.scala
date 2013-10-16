@@ -3,11 +3,9 @@
 package com.capnproto.codegen
 
 import com.capnproto.{Pointer, Segments}
-import com.codahale.jerkson.Json
 
 import java.io.FileWriter
 import java.nio.{ByteBuffer, ByteOrder}
-import scala.io.Source
 
 object CapnpScala {
 
@@ -16,15 +14,7 @@ object CapnpScala {
   }
 
   def main(args: Array[String]): Unit = {
-    val buf = {
-      val source = Source.fromInputStream(System.in)(scala.io.Codec.ISO8859)
-      val bytes = source.map(_.toByte).toArray
-      source.close
-      ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-    }
-
-    val segments = Segments.parseSegments(buf)
-    val parsed = Pointer.parseStruct(foo.CodeGeneratorRequest, segments)
+    val parsed = Segments.fromInputStream(System.in).asStruct(foo.CodeGeneratorRequest)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
     val schemasById = getSchemas(parsed.nodes.get)
 
@@ -115,7 +105,7 @@ object CapnpScala {
 
     def getUnqualifiedName(schema: foo.Node): String = {
       val parent = schemasById.get(schema.scopeId.get).get
-      val nodeNameOpt = parent.nestedNodes.flatten.find(_.id == schema.id).map(_.name.get)
+      val nodeNameOpt = parent.nestedNodes.getOrElse(Nil).find(_.id == schema.id).map(_.name.get)
       nodeNameOpt.orElse({
         parent.__struct.flatMap(_.__fields.get.find(_.group.exists(_.typeId == schema.id))).map(f => scalaCaseName(f.name.get))
       }).map(scalaEscapeName(_)).getOrElse("?")
@@ -320,7 +310,7 @@ object CapnpScala {
 
     def genNestedDecls(schema: foo.Node, indent: StringTreeIndent): StringTree = {
       val id = schema.id.get;
-      StringTree.join("\n", schema.nestedNodes.flatten.map(nested => {
+      StringTree.join("\n", schema.nestedNodes.getOrElse(Nil).map(nested => {
         genDecl(schemasById(nested.id.get), nested.name.get, id, indent)
       }).toSeq)
     }

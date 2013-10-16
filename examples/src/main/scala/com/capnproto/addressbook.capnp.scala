@@ -1,4 +1,4 @@
-// src/main/scala/com/capnproto/examples/addressbook.capnp
+// examples/src/main/scala/com/capnproto/addressbook.capnp
 
 package foo
 

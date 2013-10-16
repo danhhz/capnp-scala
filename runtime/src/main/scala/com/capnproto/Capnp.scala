@@ -7,6 +7,7 @@ import com.foursquare.field.{OptionalField => RField}
 import java.io.{ByteArrayOutputStream, InputStream, IOException, RandomAccessFile}
 import java.nio.{ByteBuffer, ByteOrder}
 import java.nio.channels.FileChannel
+import scala.io.Source
 
 trait UntypedFieldDescriptor {
   // def id: Int
@@ -54,9 +55,20 @@ trait UnionMeta[U <: UnionValue[U]]
 
 case class Segment(val buf: ByteBuffer, val offsetWords: Int)
 case class Segments(val segments: Seq[Segment]) {
+  def asStruct[U <: Struct[U]](meta: MetaStruct[U]): Option[U] = Pointer.parseStruct(meta, this)
 }
 object Segments {
-  def parseSegments(buf: ByteBuffer, offsetWords: Int = 0): Segments = {
+  def fromInputStream(is: InputStream): Segments = {
+    val buf = {
+      val source = Source.fromInputStream(is)(scala.io.Codec.ISO8859)
+      val bytes = source.map(_.toByte).toArray
+      source.close
+      ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+    }
+    Segments.fromByteBuffer(buf)
+  }
+
+  def fromByteBuffer(buf: ByteBuffer, offsetWords: Int = 0): Segments = {
     val segmentCount: Int = buf.getInt(offsetWords * 8) + 1
     val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
     val segmentsOffsetWords = offsetWords + (segmentCount + 2) / 2
@@ -92,7 +104,7 @@ object Pointer {
     val channel = file.getChannel
     val buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size).order(ByteOrder.LITTLE_ENDIAN)
     file.close
-    parseStruct(meta, Segments.parseSegments(buf))
+    parseStruct(meta, Segments.fromByteBuffer(buf))
   }
 
   def parseStruct[U <: Struct[U]](meta: MetaStruct[U], segments: Segments): Option[U] = {
