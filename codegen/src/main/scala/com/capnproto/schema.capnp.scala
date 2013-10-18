@@ -1,23 +1,76 @@
-// src/main/scala/com/capnproto/examples/schema.capnp
+// examples/src/main/scala/com/capnproto/schema.capnp
 
 package foo
 
 import com.foursquare.spindle.{Enum, EnumMeta}
-import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}
-import com.capnproto.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}
+import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct, StructBuilder, MetaStructBuilder}
+import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag}
 import java.nio.ByteBuffer
 
 object Node extends MetaStruct[Node] {
   override type Self = Node.type
-  override def create(struct: CapnpStruct): Node = new NodeMutable(struct)
   override val recordName: String = "Node"
+  override def create(struct: CapnpStruct): Node = new NodeMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Node, Node.type]] = Seq(id, displayName, displayNamePrefixLength, scopeId, nestedNodes, annotations, file, __struct, __enum, interface, const, annotation)
+
+  object Builder extends MetaStructBuilder[foo.Node, foo.Node.Builder] {
+    override type Self = foo.Node.Builder.type
+    override val recordName: String = "Node"
+    override val dataSectionSizeWords: Short = 5
+    override val pointerSectionSizeWords: Short = 5
+    override def create(struct: CapnpStructBuilder): foo.Node.Builder = new foo.Node.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Node.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.NodeMutable(struct) with StructBuilder[foo.Node, foo.Node.Builder] {
+    override type MetaBuilderT = foo.Node.Builder.type
+
+    override def meta: Node.type = Node
+    override def metaBuilder: MetaBuilderT = foo.Node.Builder
+    def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
+    def setDisplayName(value: String): Builder = { struct.setString(0, value); this }
+    def setDisplayNamePrefixLength(value: java.lang.Integer): Builder = { struct.setInt(2, value); this }
+    def setScopeId(value: java.lang.Long): Builder = { struct.setLong(2, value); this }
+    def setNestedNodes(value: Seq[foo.Node.NestedNode]): Builder = { struct.setNone(); this }
+    def initNestedNodes(count: Int): Seq[foo.Node.NestedNode.Builder] = {
+      val list = struct.initPointerList(1, count, foo.Node.NestedNode.Builder)
+      Range(0, count).map(i => new foo.Node.NestedNode.Builder(list.initStruct(i, foo.Node.NestedNode.Builder)))
+    }
+    def setAnnotations(value: Seq[foo.Annotation]): Builder = { struct.setNone(); this }
+    def initAnnotations(count: Int): Seq[foo.Annotation.Builder] = {
+      val list = struct.initPointerList(2, count, foo.Annotation.Builder)
+      Range(0, count).map(i => new foo.Annotation.Builder(list.initStruct(i, foo.Annotation.Builder)))
+    }
+    def setFile(value: Unit): Builder = { struct.setNone(); struct.setShort(6, -1); this }
+    override def __struct: Option[foo.Node.__Struct.Builder] = Some(new foo.Node.__Struct.Builder(struct))
+    override def __enum: Option[foo.Node.__Enum.Builder] = Some(new foo.Node.__Enum.Builder(struct))
+    override def interface: Option[foo.Node.Interface.Builder] = Some(new foo.Node.Interface.Builder(struct))
+    override def const: Option[foo.Node.Const.Builder] = Some(new foo.Node.Const.Builder(struct))
+    override def annotation: Option[foo.Node.Annotation.Builder] = Some(new foo.Node.Annotation.Builder(struct))
+  }
 
   object NestedNode extends MetaStruct[NestedNode] {
     override type Self = NestedNode.type
-    override def create(struct: CapnpStruct): NestedNode = new NestedNodeMutable(struct)
     override val recordName: String = "NestedNode"
+    override def create(struct: CapnpStruct): NestedNode = new NestedNodeMutable(struct)
     override val fields: Seq[FieldDescriptor[_, NestedNode, NestedNode.type]] = Seq(name, id)
+
+    object Builder extends MetaStructBuilder[foo.Node.NestedNode, foo.Node.NestedNode.Builder] {
+      override type Self = foo.Node.NestedNode.Builder.type
+      override val recordName: String = "NestedNode"
+      override val dataSectionSizeWords: Short = 1
+      override val pointerSectionSizeWords: Short = 1
+      override def create(struct: CapnpStructBuilder): foo.Node.NestedNode.Builder = new foo.Node.NestedNode.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.NestedNode.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.NestedNodeMutable(struct) with StructBuilder[foo.Node.NestedNode, foo.Node.NestedNode.Builder] {
+      override type MetaBuilderT = foo.Node.NestedNode.Builder.type
+
+      override def meta: NestedNode.type = NestedNode
+      override def metaBuilder: MetaBuilderT = foo.Node.NestedNode.Builder
+      def setName(value: String): Builder = { struct.setString(0, value); this }
+      def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
+    }
+
 
 
     val name = new FieldDescriptor[String, NestedNode, NestedNode.type](
@@ -34,6 +87,7 @@ object Node extends MetaStruct[Node] {
   trait NestedNode extends Struct[NestedNode] {
     override type MetaT = NestedNode.type
 
+    override def meta: NestedNode.type = NestedNode
     def struct: CapnpStruct
 
     def name: Option[String]
@@ -50,7 +104,6 @@ object Node extends MetaStruct[Node] {
   }
 
   class NestedNodeMutable(override val struct: CapnpStruct) extends NestedNode {
-    override def meta: NestedNode.type = NestedNode
 
     override def name: Option[String] = struct.getString(0)
     override def id: Option[java.lang.Long] = struct.getLong(0)
@@ -66,11 +119,39 @@ object Node extends MetaStruct[Node] {
     case class annotation(value: Option[foo.Node.Annotation]) extends foo.Node.Union
   }
 
+
   object __Struct extends MetaStruct[__Struct] {
     override type Self = __Struct.type
-    override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     override val recordName: String = "__Struct"
+    override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(dataWordCount, pointerCount, preferredListEncoding, isGroup, discriminantCount, discriminantOffset, __fields)
+
+    object Builder extends MetaStructBuilder[foo.Node.__Struct, foo.Node.__Struct.Builder] {
+      override type Self = foo.Node.__Struct.Builder.type
+      override val recordName: String = "__Struct"
+      override val dataSectionSizeWords: Short = 5
+      override val pointerSectionSizeWords: Short = 5
+      override def create(struct: CapnpStructBuilder): foo.Node.__Struct.Builder = new foo.Node.__Struct.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.__Struct.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.__StructMutable(struct) with StructBuilder[foo.Node.__Struct, foo.Node.__Struct.Builder] {
+      override type MetaBuilderT = foo.Node.__Struct.Builder.type
+
+      override def meta: __Struct.type = __Struct
+      override def metaBuilder: MetaBuilderT = foo.Node.__Struct.Builder
+      def setDataWordCount(value: java.lang.Short): Builder = { struct.setShort(7, value); this }
+      def setPointerCount(value: java.lang.Short): Builder = { struct.setShort(12, value); this }
+      def setPreferredListEncoding(value: foo.ElementSize): Builder = { struct.setShort(13, value.id.toShort); this }
+      def setIsGroup(value: java.lang.Boolean): Builder = { struct.setBoolean(224, value); this }
+      def setDiscriminantCount(value: java.lang.Short): Builder = { struct.setShort(15, value); this }
+      def setDiscriminantOffset(value: java.lang.Integer): Builder = { struct.setInt(8, value); this }
+      def set__Fields(value: Seq[foo.Field]): Builder = { struct.setNone(); this }
+      def init__Fields(count: Int): Seq[foo.Field.Builder] = {
+        val list = struct.initPointerList(3, count, foo.Field.Builder)
+        Range(0, count).map(i => new foo.Field.Builder(list.initStruct(i, foo.Field.Builder)))
+      }
+    }
+
 
 
     val dataWordCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
@@ -112,6 +193,7 @@ object Node extends MetaStruct[Node] {
   trait __Struct extends Struct[__Struct] {
     override type MetaT = __Struct.type
 
+    override def meta: __Struct.type = __Struct
     def struct: CapnpStruct
 
     def dataWordCount: Option[java.lang.Short]
@@ -138,7 +220,6 @@ object Node extends MetaStruct[Node] {
   }
 
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-    override def meta: __Struct.type = __Struct
 
     override def dataWordCount: Option[java.lang.Short] = struct.getShort(7)
     override def pointerCount: Option[java.lang.Short] = struct.getShort(12)
@@ -150,9 +231,30 @@ object Node extends MetaStruct[Node] {
   }
   object __Enum extends MetaStruct[__Enum] {
     override type Self = __Enum.type
-    override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     override val recordName: String = "__Enum"
+    override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(enumerants)
+
+    object Builder extends MetaStructBuilder[foo.Node.__Enum, foo.Node.__Enum.Builder] {
+      override type Self = foo.Node.__Enum.Builder.type
+      override val recordName: String = "__Enum"
+      override val dataSectionSizeWords: Short = 5
+      override val pointerSectionSizeWords: Short = 5
+      override def create(struct: CapnpStructBuilder): foo.Node.__Enum.Builder = new foo.Node.__Enum.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.__Enum.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.__EnumMutable(struct) with StructBuilder[foo.Node.__Enum, foo.Node.__Enum.Builder] {
+      override type MetaBuilderT = foo.Node.__Enum.Builder.type
+
+      override def meta: __Enum.type = __Enum
+      override def metaBuilder: MetaBuilderT = foo.Node.__Enum.Builder
+      def setEnumerants(value: Seq[foo.Enumerant]): Builder = { struct.setNone(); this }
+      def initEnumerants(count: Int): Seq[foo.Enumerant.Builder] = {
+        val list = struct.initPointerList(3, count, foo.Enumerant.Builder)
+        Range(0, count).map(i => new foo.Enumerant.Builder(list.initStruct(i, foo.Enumerant.Builder)))
+      }
+    }
+
 
 
     val enumerants = new FieldDescriptor[Seq[foo.Enumerant], __Enum, __Enum.type](
@@ -164,6 +266,7 @@ object Node extends MetaStruct[Node] {
   trait __Enum extends Struct[__Enum] {
     override type MetaT = __Enum.type
 
+    override def meta: __Enum.type = __Enum
     def struct: CapnpStruct
 
     def enumerants: Option[Seq[foo.Enumerant]]
@@ -178,15 +281,35 @@ object Node extends MetaStruct[Node] {
   }
 
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
-    override def meta: __Enum.type = __Enum
 
     override def enumerants: Option[Seq[foo.Enumerant]] = struct.getStructList(3).map(_.map(new foo.EnumerantMutable(_)))
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
-    override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     override val recordName: String = "Interface"
+    override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(methods)
+
+    object Builder extends MetaStructBuilder[foo.Node.Interface, foo.Node.Interface.Builder] {
+      override type Self = foo.Node.Interface.Builder.type
+      override val recordName: String = "Interface"
+      override val dataSectionSizeWords: Short = 5
+      override val pointerSectionSizeWords: Short = 5
+      override def create(struct: CapnpStructBuilder): foo.Node.Interface.Builder = new foo.Node.Interface.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.Interface.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.InterfaceMutable(struct) with StructBuilder[foo.Node.Interface, foo.Node.Interface.Builder] {
+      override type MetaBuilderT = foo.Node.Interface.Builder.type
+
+      override def meta: Interface.type = Interface
+      override def metaBuilder: MetaBuilderT = foo.Node.Interface.Builder
+      def setMethods(value: Seq[foo.Method]): Builder = { struct.setNone(); this }
+      def initMethods(count: Int): Seq[foo.Method.Builder] = {
+        val list = struct.initPointerList(3, count, foo.Method.Builder)
+        Range(0, count).map(i => new foo.Method.Builder(list.initStruct(i, foo.Method.Builder)))
+      }
+    }
+
 
 
     val methods = new FieldDescriptor[Seq[foo.Method], Interface, Interface.type](
@@ -198,6 +321,7 @@ object Node extends MetaStruct[Node] {
   trait Interface extends Struct[Interface] {
     override type MetaT = Interface.type
 
+    override def meta: Interface.type = Interface
     def struct: CapnpStruct
 
     def methods: Option[Seq[foo.Method]]
@@ -212,15 +336,32 @@ object Node extends MetaStruct[Node] {
   }
 
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
-    override def meta: Interface.type = Interface
 
     override def methods: Option[Seq[foo.Method]] = struct.getStructList(3).map(_.map(new foo.MethodMutable(_)))
   }
   object Const extends MetaStruct[Const] {
     override type Self = Const.type
-    override def create(struct: CapnpStruct): Const = new ConstMutable(struct)
     override val recordName: String = "Const"
+    override def create(struct: CapnpStruct): Const = new ConstMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Const, Const.type]] = Seq(__type, value)
+
+    object Builder extends MetaStructBuilder[foo.Node.Const, foo.Node.Const.Builder] {
+      override type Self = foo.Node.Const.Builder.type
+      override val recordName: String = "Const"
+      override val dataSectionSizeWords: Short = 5
+      override val pointerSectionSizeWords: Short = 5
+      override def create(struct: CapnpStructBuilder): foo.Node.Const.Builder = new foo.Node.Const.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.Const.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.ConstMutable(struct) with StructBuilder[foo.Node.Const, foo.Node.Const.Builder] {
+      override type MetaBuilderT = foo.Node.Const.Builder.type
+
+      override def meta: Const.type = Const
+      override def metaBuilder: MetaBuilderT = foo.Node.Const.Builder
+      def set__Type(value: foo.__Type): Builder = { struct.setNone(); this }
+      def setValue(value: foo.Value): Builder = { struct.setNone(); this }
+    }
+
 
 
     val __type = new FieldDescriptor[foo.__Type, Const, Const.type](
@@ -237,6 +378,7 @@ object Node extends MetaStruct[Node] {
   trait Const extends Struct[Const] {
     override type MetaT = Const.type
 
+    override def meta: Const.type = Const
     def struct: CapnpStruct
 
     def __type: Option[foo.__Type]
@@ -253,16 +395,44 @@ object Node extends MetaStruct[Node] {
   }
 
   class ConstMutable(override val struct: CapnpStruct) extends Const {
-    override def meta: Const.type = Const
 
     override def __type: Option[foo.__Type] = struct.getStruct(3).map(new foo.__TypeMutable(_))
     override def value: Option[foo.Value] = struct.getStruct(4).map(new foo.ValueMutable(_))
   }
   object Annotation extends MetaStruct[Annotation] {
     override type Self = Annotation.type
-    override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
     override val recordName: String = "Annotation"
+    override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(__type, targetsFile, targetsConst, targetsEnum, targetsEnumerant, targetsStruct, targetsField, targetsUnion, targetsGroup, targetsInterface, targetsMethod, targetsParam, targetsAnnotation)
+
+    object Builder extends MetaStructBuilder[foo.Node.Annotation, foo.Node.Annotation.Builder] {
+      override type Self = foo.Node.Annotation.Builder.type
+      override val recordName: String = "Annotation"
+      override val dataSectionSizeWords: Short = 5
+      override val pointerSectionSizeWords: Short = 5
+      override def create(struct: CapnpStructBuilder): foo.Node.Annotation.Builder = new foo.Node.Annotation.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Node.Annotation.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Node.AnnotationMutable(struct) with StructBuilder[foo.Node.Annotation, foo.Node.Annotation.Builder] {
+      override type MetaBuilderT = foo.Node.Annotation.Builder.type
+
+      override def meta: Annotation.type = Annotation
+      override def metaBuilder: MetaBuilderT = foo.Node.Annotation.Builder
+      def set__Type(value: foo.__Type): Builder = { struct.setNone(); this }
+      def setTargetsFile(value: java.lang.Boolean): Builder = { struct.setBoolean(112, value); this }
+      def setTargetsConst(value: java.lang.Boolean): Builder = { struct.setBoolean(113, value); this }
+      def setTargetsEnum(value: java.lang.Boolean): Builder = { struct.setBoolean(114, value); this }
+      def setTargetsEnumerant(value: java.lang.Boolean): Builder = { struct.setBoolean(115, value); this }
+      def setTargetsStruct(value: java.lang.Boolean): Builder = { struct.setBoolean(116, value); this }
+      def setTargetsField(value: java.lang.Boolean): Builder = { struct.setBoolean(117, value); this }
+      def setTargetsUnion(value: java.lang.Boolean): Builder = { struct.setBoolean(118, value); this }
+      def setTargetsGroup(value: java.lang.Boolean): Builder = { struct.setBoolean(119, value); this }
+      def setTargetsInterface(value: java.lang.Boolean): Builder = { struct.setBoolean(120, value); this }
+      def setTargetsMethod(value: java.lang.Boolean): Builder = { struct.setBoolean(121, value); this }
+      def setTargetsParam(value: java.lang.Boolean): Builder = { struct.setBoolean(122, value); this }
+      def setTargetsAnnotation(value: java.lang.Boolean): Builder = { struct.setBoolean(123, value); this }
+    }
+
 
 
     val __type = new FieldDescriptor[foo.__Type, Annotation, Annotation.type](
@@ -334,6 +504,7 @@ object Node extends MetaStruct[Node] {
   trait Annotation extends Struct[Annotation] {
     override type MetaT = Annotation.type
 
+    override def meta: Annotation.type = Annotation
     def struct: CapnpStruct
 
     def __type: Option[foo.__Type]
@@ -372,7 +543,6 @@ object Node extends MetaStruct[Node] {
   }
 
   class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
-    override def meta: Annotation.type = Annotation
 
     override def __type: Option[foo.__Type] = struct.getStruct(3).map(new foo.__TypeMutable(_))
     override def targetsFile: Option[java.lang.Boolean] = struct.getBoolean(112)
@@ -453,6 +623,7 @@ object Node extends MetaStruct[Node] {
 trait Node extends Struct[Node] with HasUnion[foo.Node.Union] {
   override type MetaT = Node.type
 
+  override def meta: Node.type = Node
   def struct: CapnpStruct
 
   def id: Option[java.lang.Long]
@@ -492,7 +663,6 @@ trait NodeProxy extends Node with HasUnion[foo.Node.Union] {
 }
 
 class NodeMutable(override val struct: CapnpStruct) extends Node {
-  override def meta: Node.type = Node
 
   override def discriminant: Short = (struct.getShort(6).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: foo.Node.Union = discriminant match {
@@ -527,9 +697,35 @@ class NodeMutable(override val struct: CapnpStruct) extends Node {
 
 object Field extends MetaStruct[Field] {
   override type Self = Field.type
-  override def create(struct: CapnpStruct): Field = new FieldMutable(struct)
   override val recordName: String = "Field"
+  override def create(struct: CapnpStruct): Field = new FieldMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Field, Field.type]] = Seq(name, codeOrder, annotations, discriminantValue, slot, group, ordinal)
+
+  object Builder extends MetaStructBuilder[foo.Field, foo.Field.Builder] {
+    override type Self = foo.Field.Builder.type
+    override val recordName: String = "Field"
+    override val dataSectionSizeWords: Short = 3
+    override val pointerSectionSizeWords: Short = 4
+    override def create(struct: CapnpStructBuilder): foo.Field.Builder = new foo.Field.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Field.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.FieldMutable(struct) with StructBuilder[foo.Field, foo.Field.Builder] {
+    override type MetaBuilderT = foo.Field.Builder.type
+
+    override def meta: Field.type = Field
+    override def metaBuilder: MetaBuilderT = foo.Field.Builder
+    def setName(value: String): Builder = { struct.setString(0, value); this }
+    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value); this }
+    def setAnnotations(value: Seq[foo.Annotation]): Builder = { struct.setNone(); this }
+    def initAnnotations(count: Int): Seq[foo.Annotation.Builder] = {
+      val list = struct.initPointerList(1, count, foo.Annotation.Builder)
+      Range(0, count).map(i => new foo.Annotation.Builder(list.initStruct(i, foo.Annotation.Builder)))
+    }
+    def setDiscriminantValue(value: java.lang.Short): Builder = { struct.setShort(1, value); this }
+    override def slot: Option[foo.Field.Slot.Builder] = Some(new foo.Field.Slot.Builder(struct))
+    override def group: Option[foo.Field.Group.Builder] = Some(new foo.Field.Group.Builder(struct))
+    override def ordinal: Option[foo.Field.Ordinal.Builder] = Some(new foo.Field.Ordinal.Builder(struct))
+  }
 
   sealed trait Union extends UnionValue[foo.Field.Union]
   object Union extends UnionMeta[foo.Field.Union] {
@@ -538,11 +734,31 @@ object Field extends MetaStruct[Field] {
     case class group(value: Option[foo.Field.Group]) extends foo.Field.Union
   }
 
+
   object Slot extends MetaStruct[Slot] {
     override type Self = Slot.type
-    override def create(struct: CapnpStruct): Slot = new SlotMutable(struct)
     override val recordName: String = "Slot"
+    override def create(struct: CapnpStruct): Slot = new SlotMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue)
+
+    object Builder extends MetaStructBuilder[foo.Field.Slot, foo.Field.Slot.Builder] {
+      override type Self = foo.Field.Slot.Builder.type
+      override val recordName: String = "Slot"
+      override val dataSectionSizeWords: Short = 3
+      override val pointerSectionSizeWords: Short = 4
+      override def create(struct: CapnpStructBuilder): foo.Field.Slot.Builder = new foo.Field.Slot.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Field.Slot.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Field.SlotMutable(struct) with StructBuilder[foo.Field.Slot, foo.Field.Slot.Builder] {
+      override type MetaBuilderT = foo.Field.Slot.Builder.type
+
+      override def meta: Slot.type = Slot
+      override def metaBuilder: MetaBuilderT = foo.Field.Slot.Builder
+      def setOffset(value: java.lang.Integer): Builder = { struct.setInt(1, value); this }
+      def set__Type(value: foo.__Type): Builder = { struct.setNone(); this }
+      def setDefaultValue(value: foo.Value): Builder = { struct.setNone(); this }
+    }
+
 
 
     val offset = new FieldDescriptor[java.lang.Integer, Slot, Slot.type](
@@ -564,6 +780,7 @@ object Field extends MetaStruct[Field] {
   trait Slot extends Struct[Slot] {
     override type MetaT = Slot.type
 
+    override def meta: Slot.type = Slot
     def struct: CapnpStruct
 
     def offset: Option[java.lang.Integer]
@@ -582,7 +799,6 @@ object Field extends MetaStruct[Field] {
   }
 
   class SlotMutable(override val struct: CapnpStruct) extends Slot {
-    override def meta: Slot.type = Slot
 
     override def offset: Option[java.lang.Integer] = struct.getInt(1)
     override def __type: Option[foo.__Type] = struct.getStruct(2).map(new foo.__TypeMutable(_))
@@ -590,9 +806,26 @@ object Field extends MetaStruct[Field] {
   }
   object Group extends MetaStruct[Group] {
     override type Self = Group.type
-    override def create(struct: CapnpStruct): Group = new GroupMutable(struct)
     override val recordName: String = "Group"
+    override def create(struct: CapnpStruct): Group = new GroupMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Group, Group.type]] = Seq(typeId)
+
+    object Builder extends MetaStructBuilder[foo.Field.Group, foo.Field.Group.Builder] {
+      override type Self = foo.Field.Group.Builder.type
+      override val recordName: String = "Group"
+      override val dataSectionSizeWords: Short = 3
+      override val pointerSectionSizeWords: Short = 4
+      override def create(struct: CapnpStructBuilder): foo.Field.Group.Builder = new foo.Field.Group.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Field.Group.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Field.GroupMutable(struct) with StructBuilder[foo.Field.Group, foo.Field.Group.Builder] {
+      override type MetaBuilderT = foo.Field.Group.Builder.type
+
+      override def meta: Group.type = Group
+      override def metaBuilder: MetaBuilderT = foo.Field.Group.Builder
+      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(2, value); this }
+    }
+
 
 
     val typeId = new FieldDescriptor[java.lang.Long, Group, Group.type](
@@ -604,6 +837,7 @@ object Field extends MetaStruct[Field] {
   trait Group extends Struct[Group] {
     override type MetaT = Group.type
 
+    override def meta: Group.type = Group
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
@@ -618,15 +852,31 @@ object Field extends MetaStruct[Field] {
   }
 
   class GroupMutable(override val struct: CapnpStruct) extends Group {
-    override def meta: Group.type = Group
 
     override def typeId: Option[java.lang.Long] = struct.getLong(2)
   }
   object Ordinal extends MetaStruct[Ordinal] {
     override type Self = Ordinal.type
-    override def create(struct: CapnpStruct): Ordinal = new OrdinalMutable(struct)
     override val recordName: String = "Ordinal"
+    override def create(struct: CapnpStruct): Ordinal = new OrdinalMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
+
+    object Builder extends MetaStructBuilder[foo.Field.Ordinal, foo.Field.Ordinal.Builder] {
+      override type Self = foo.Field.Ordinal.Builder.type
+      override val recordName: String = "Ordinal"
+      override val dataSectionSizeWords: Short = 3
+      override val pointerSectionSizeWords: Short = 4
+      override def create(struct: CapnpStructBuilder): foo.Field.Ordinal.Builder = new foo.Field.Ordinal.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Field.Ordinal.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Field.OrdinalMutable(struct) with StructBuilder[foo.Field.Ordinal, foo.Field.Ordinal.Builder] {
+      override type MetaBuilderT = foo.Field.Ordinal.Builder.type
+
+      override def meta: Ordinal.type = Ordinal
+      override def metaBuilder: MetaBuilderT = foo.Field.Ordinal.Builder
+      def set__Implicit(value: Unit): Builder = { struct.setNone(); struct.setShort(5, -1); this }
+      def setExplicit(value: java.lang.Short): Builder = { struct.setShort(6, value); struct.setShort(5, -2); this }
+    }
 
     sealed trait Union extends UnionValue[foo.Field.Ordinal.Union]
     object Union extends UnionMeta[foo.Field.Ordinal.Union] {
@@ -634,6 +884,7 @@ object Field extends MetaStruct[Field] {
       case class __implicit(value: Option[Unit]) extends foo.Field.Ordinal.Union
       case class explicit(value: Option[java.lang.Short]) extends foo.Field.Ordinal.Union
     }
+
 
 
     val __implicit = new FieldDescriptor[Unit, Ordinal, Ordinal.type](
@@ -650,6 +901,7 @@ object Field extends MetaStruct[Field] {
   trait Ordinal extends Struct[Ordinal] with HasUnion[foo.Field.Ordinal.Union] {
     override type MetaT = Ordinal.type
 
+    override def meta: Ordinal.type = Ordinal
     def struct: CapnpStruct
 
     def __implicit: Option[Unit]
@@ -669,7 +921,6 @@ object Field extends MetaStruct[Field] {
   }
 
   class OrdinalMutable(override val struct: CapnpStruct) extends Ordinal {
-    override def meta: Ordinal.type = Ordinal
 
     override def discriminant: Short = (struct.getShort(5).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
     override def switch: foo.Field.Ordinal.Union = discriminant match {
@@ -722,6 +973,7 @@ object Field extends MetaStruct[Field] {
 trait Field extends Struct[Field] with HasUnion[foo.Field.Union] {
   override type MetaT = Field.type
 
+  override def meta: Field.type = Field
   def struct: CapnpStruct
 
   def name: Option[String]
@@ -751,7 +1003,6 @@ trait FieldProxy extends Field with HasUnion[foo.Field.Union] {
 }
 
 class FieldMutable(override val struct: CapnpStruct) extends Field {
-  override def meta: Field.type = Field
 
   override def discriminant: Short = (struct.getShort(4).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: foo.Field.Union = discriminant match {
@@ -775,9 +1026,32 @@ class FieldMutable(override val struct: CapnpStruct) extends Field {
 
 object Enumerant extends MetaStruct[Enumerant] {
   override type Self = Enumerant.type
-  override def create(struct: CapnpStruct): Enumerant = new EnumerantMutable(struct)
   override val recordName: String = "Enumerant"
+  override def create(struct: CapnpStruct): Enumerant = new EnumerantMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Enumerant, Enumerant.type]] = Seq(name, codeOrder, annotations)
+
+  object Builder extends MetaStructBuilder[foo.Enumerant, foo.Enumerant.Builder] {
+    override type Self = foo.Enumerant.Builder.type
+    override val recordName: String = "Enumerant"
+    override val dataSectionSizeWords: Short = 1
+    override val pointerSectionSizeWords: Short = 2
+    override def create(struct: CapnpStructBuilder): foo.Enumerant.Builder = new foo.Enumerant.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Enumerant.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.EnumerantMutable(struct) with StructBuilder[foo.Enumerant, foo.Enumerant.Builder] {
+    override type MetaBuilderT = foo.Enumerant.Builder.type
+
+    override def meta: Enumerant.type = Enumerant
+    override def metaBuilder: MetaBuilderT = foo.Enumerant.Builder
+    def setName(value: String): Builder = { struct.setString(0, value); this }
+    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value); this }
+    def setAnnotations(value: Seq[foo.Annotation]): Builder = { struct.setNone(); this }
+    def initAnnotations(count: Int): Seq[foo.Annotation.Builder] = {
+      val list = struct.initPointerList(1, count, foo.Annotation.Builder)
+      Range(0, count).map(i => new foo.Annotation.Builder(list.initStruct(i, foo.Annotation.Builder)))
+    }
+  }
+
 
 
   val name = new FieldDescriptor[String, Enumerant, Enumerant.type](
@@ -799,6 +1073,7 @@ object Enumerant extends MetaStruct[Enumerant] {
 trait Enumerant extends Struct[Enumerant] {
   override type MetaT = Enumerant.type
 
+  override def meta: Enumerant.type = Enumerant
   def struct: CapnpStruct
 
   def name: Option[String]
@@ -817,7 +1092,6 @@ trait EnumerantProxy extends Enumerant {
 }
 
 class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
-  override def meta: Enumerant.type = Enumerant
 
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
@@ -826,15 +1100,68 @@ class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
 
 object Method extends MetaStruct[Method] {
   override type Self = Method.type
-  override def create(struct: CapnpStruct): Method = new MethodMutable(struct)
   override val recordName: String = "Method"
+  override def create(struct: CapnpStruct): Method = new MethodMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, params, requiredParamCount, returnType, annotations)
+
+  object Builder extends MetaStructBuilder[foo.Method, foo.Method.Builder] {
+    override type Self = foo.Method.Builder.type
+    override val recordName: String = "Method"
+    override val dataSectionSizeWords: Short = 1
+    override val pointerSectionSizeWords: Short = 4
+    override def create(struct: CapnpStructBuilder): foo.Method.Builder = new foo.Method.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Method.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.MethodMutable(struct) with StructBuilder[foo.Method, foo.Method.Builder] {
+    override type MetaBuilderT = foo.Method.Builder.type
+
+    override def meta: Method.type = Method
+    override def metaBuilder: MetaBuilderT = foo.Method.Builder
+    def setName(value: String): Builder = { struct.setString(0, value); this }
+    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value); this }
+    def setParams(value: Seq[foo.Method.Param]): Builder = { struct.setNone(); this }
+    def initParams(count: Int): Seq[foo.Method.Param.Builder] = {
+      val list = struct.initPointerList(1, count, foo.Method.Param.Builder)
+      Range(0, count).map(i => new foo.Method.Param.Builder(list.initStruct(i, foo.Method.Param.Builder)))
+    }
+    def setRequiredParamCount(value: java.lang.Short): Builder = { struct.setShort(1, value); this }
+    def setReturnType(value: foo.__Type): Builder = { struct.setNone(); this }
+    def setAnnotations(value: Seq[foo.Annotation]): Builder = { struct.setNone(); this }
+    def initAnnotations(count: Int): Seq[foo.Annotation.Builder] = {
+      val list = struct.initPointerList(3, count, foo.Annotation.Builder)
+      Range(0, count).map(i => new foo.Annotation.Builder(list.initStruct(i, foo.Annotation.Builder)))
+    }
+  }
 
   object Param extends MetaStruct[Param] {
     override type Self = Param.type
-    override def create(struct: CapnpStruct): Param = new ParamMutable(struct)
     override val recordName: String = "Param"
+    override def create(struct: CapnpStruct): Param = new ParamMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Param, Param.type]] = Seq(name, __type, defaultValue, annotations)
+
+    object Builder extends MetaStructBuilder[foo.Method.Param, foo.Method.Param.Builder] {
+      override type Self = foo.Method.Param.Builder.type
+      override val recordName: String = "Param"
+      override val dataSectionSizeWords: Short = 0
+      override val pointerSectionSizeWords: Short = 4
+      override def create(struct: CapnpStructBuilder): foo.Method.Param.Builder = new foo.Method.Param.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.Method.Param.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.Method.ParamMutable(struct) with StructBuilder[foo.Method.Param, foo.Method.Param.Builder] {
+      override type MetaBuilderT = foo.Method.Param.Builder.type
+
+      override def meta: Param.type = Param
+      override def metaBuilder: MetaBuilderT = foo.Method.Param.Builder
+      def setName(value: String): Builder = { struct.setString(0, value); this }
+      def set__Type(value: foo.__Type): Builder = { struct.setNone(); this }
+      def setDefaultValue(value: foo.Value): Builder = { struct.setNone(); this }
+      def setAnnotations(value: Seq[foo.Annotation]): Builder = { struct.setNone(); this }
+      def initAnnotations(count: Int): Seq[foo.Annotation.Builder] = {
+        val list = struct.initPointerList(3, count, foo.Annotation.Builder)
+        Range(0, count).map(i => new foo.Annotation.Builder(list.initStruct(i, foo.Annotation.Builder)))
+      }
+    }
+
 
 
     val name = new FieldDescriptor[String, Param, Param.type](
@@ -861,6 +1188,7 @@ object Method extends MetaStruct[Method] {
   trait Param extends Struct[Param] {
     override type MetaT = Param.type
 
+    override def meta: Param.type = Param
     def struct: CapnpStruct
 
     def name: Option[String]
@@ -881,13 +1209,13 @@ object Method extends MetaStruct[Method] {
   }
 
   class ParamMutable(override val struct: CapnpStruct) extends Param {
-    override def meta: Param.type = Param
 
     override def name: Option[String] = struct.getString(0)
     override def __type: Option[foo.__Type] = struct.getStruct(1).map(new foo.__TypeMutable(_))
     override def defaultValue: Option[foo.Value] = struct.getStruct(2).map(new foo.ValueMutable(_))
     override def annotations: Option[Seq[foo.Annotation]] = struct.getStructList(3).map(_.map(new foo.AnnotationMutable(_)))
   }
+
 
   val name = new FieldDescriptor[String, Method, Method.type](
     name = "name",
@@ -923,6 +1251,7 @@ object Method extends MetaStruct[Method] {
 trait Method extends Struct[Method] {
   override type MetaT = Method.type
 
+  override def meta: Method.type = Method
   def struct: CapnpStruct
 
   def name: Option[String]
@@ -947,7 +1276,6 @@ trait MethodProxy extends Method {
 }
 
 class MethodMutable(override val struct: CapnpStruct) extends Method {
-  override def meta: Method.type = Method
 
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
@@ -959,9 +1287,43 @@ class MethodMutable(override val struct: CapnpStruct) extends Method {
 
 object __Type extends MetaStruct[__Type] {
   override type Self = __Type.type
-  override def create(struct: CapnpStruct): __Type = new __TypeMutable(struct)
   override val recordName: String = "Type"
+  override def create(struct: CapnpStruct): __Type = new __TypeMutable(struct)
   override val fields: Seq[FieldDescriptor[_, __Type, __Type.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
+
+  object Builder extends MetaStructBuilder[foo.__Type, foo.__Type.Builder] {
+    override type Self = foo.__Type.Builder.type
+    override val recordName: String = "Type"
+    override val dataSectionSizeWords: Short = 2
+    override val pointerSectionSizeWords: Short = 1
+    override def create(struct: CapnpStructBuilder): foo.__Type.Builder = new foo.__Type.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.__Type.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.__TypeMutable(struct) with StructBuilder[foo.__Type, foo.__Type.Builder] {
+    override type MetaBuilderT = foo.__Type.Builder.type
+
+    override def meta: __Type.type = __Type
+    override def metaBuilder: MetaBuilderT = foo.__Type.Builder
+    def setVoid(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -1); this }
+    def setBool(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -2); this }
+    def setInt8(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -3); this }
+    def setInt16(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -4); this }
+    def setInt32(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -5); this }
+    def setInt64(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -6); this }
+    def setUint8(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -7); this }
+    def setUint16(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -8); this }
+    def setUint32(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -9); this }
+    def setUint64(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -10); this }
+    def setFloat32(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -11); this }
+    def setFloat64(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -12); this }
+    def setText(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -13); this }
+    def setData(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -14); this }
+    override def list: Option[foo.__Type.List.Builder] = Some(new foo.__Type.List.Builder(struct))
+    override def __enum: Option[foo.__Type.__Enum.Builder] = Some(new foo.__Type.__Enum.Builder(struct))
+    override def __struct: Option[foo.__Type.__Struct.Builder] = Some(new foo.__Type.__Struct.Builder(struct))
+    override def interface: Option[foo.__Type.Interface.Builder] = Some(new foo.__Type.Interface.Builder(struct))
+    def set__Object(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -19); this }
+  }
 
   sealed trait Union extends UnionValue[foo.__Type.Union]
   object Union extends UnionMeta[foo.__Type.Union] {
@@ -987,11 +1349,29 @@ object __Type extends MetaStruct[__Type] {
     case class __object(value: Option[Unit]) extends foo.__Type.Union
   }
 
+
   object List extends MetaStruct[List] {
     override type Self = List.type
-    override def create(struct: CapnpStruct): List = new ListMutable(struct)
     override val recordName: String = "List"
+    override def create(struct: CapnpStruct): List = new ListMutable(struct)
     override val fields: Seq[FieldDescriptor[_, List, List.type]] = Seq(elementType)
+
+    object Builder extends MetaStructBuilder[foo.__Type.List, foo.__Type.List.Builder] {
+      override type Self = foo.__Type.List.Builder.type
+      override val recordName: String = "List"
+      override val dataSectionSizeWords: Short = 2
+      override val pointerSectionSizeWords: Short = 1
+      override def create(struct: CapnpStructBuilder): foo.__Type.List.Builder = new foo.__Type.List.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.__Type.List.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.__Type.ListMutable(struct) with StructBuilder[foo.__Type.List, foo.__Type.List.Builder] {
+      override type MetaBuilderT = foo.__Type.List.Builder.type
+
+      override def meta: List.type = List
+      override def metaBuilder: MetaBuilderT = foo.__Type.List.Builder
+      def setElementType(value: foo.__Type): Builder = { struct.setNone(); this }
+    }
+
 
 
     val elementType = new FieldDescriptor[foo.__Type, List, List.type](
@@ -1003,6 +1383,7 @@ object __Type extends MetaStruct[__Type] {
   trait List extends Struct[List] {
     override type MetaT = List.type
 
+    override def meta: List.type = List
     def struct: CapnpStruct
 
     def elementType: Option[foo.__Type]
@@ -1017,15 +1398,31 @@ object __Type extends MetaStruct[__Type] {
   }
 
   class ListMutable(override val struct: CapnpStruct) extends List {
-    override def meta: List.type = List
 
     override def elementType: Option[foo.__Type] = struct.getStruct(0).map(new foo.__TypeMutable(_))
   }
   object __Enum extends MetaStruct[__Enum] {
     override type Self = __Enum.type
-    override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     override val recordName: String = "__Enum"
+    override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(typeId)
+
+    object Builder extends MetaStructBuilder[foo.__Type.__Enum, foo.__Type.__Enum.Builder] {
+      override type Self = foo.__Type.__Enum.Builder.type
+      override val recordName: String = "__Enum"
+      override val dataSectionSizeWords: Short = 2
+      override val pointerSectionSizeWords: Short = 1
+      override def create(struct: CapnpStructBuilder): foo.__Type.__Enum.Builder = new foo.__Type.__Enum.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.__Type.__Enum.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.__Type.__EnumMutable(struct) with StructBuilder[foo.__Type.__Enum, foo.__Type.__Enum.Builder] {
+      override type MetaBuilderT = foo.__Type.__Enum.Builder.type
+
+      override def meta: __Enum.type = __Enum
+      override def metaBuilder: MetaBuilderT = foo.__Type.__Enum.Builder
+      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
+    }
+
 
 
     val typeId = new FieldDescriptor[java.lang.Long, __Enum, __Enum.type](
@@ -1037,6 +1434,7 @@ object __Type extends MetaStruct[__Type] {
   trait __Enum extends Struct[__Enum] {
     override type MetaT = __Enum.type
 
+    override def meta: __Enum.type = __Enum
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
@@ -1051,15 +1449,31 @@ object __Type extends MetaStruct[__Type] {
   }
 
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
-    override def meta: __Enum.type = __Enum
 
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
   object __Struct extends MetaStruct[__Struct] {
     override type Self = __Struct.type
-    override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     override val recordName: String = "__Struct"
+    override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(typeId)
+
+    object Builder extends MetaStructBuilder[foo.__Type.__Struct, foo.__Type.__Struct.Builder] {
+      override type Self = foo.__Type.__Struct.Builder.type
+      override val recordName: String = "__Struct"
+      override val dataSectionSizeWords: Short = 2
+      override val pointerSectionSizeWords: Short = 1
+      override def create(struct: CapnpStructBuilder): foo.__Type.__Struct.Builder = new foo.__Type.__Struct.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.__Type.__Struct.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.__Type.__StructMutable(struct) with StructBuilder[foo.__Type.__Struct, foo.__Type.__Struct.Builder] {
+      override type MetaBuilderT = foo.__Type.__Struct.Builder.type
+
+      override def meta: __Struct.type = __Struct
+      override def metaBuilder: MetaBuilderT = foo.__Type.__Struct.Builder
+      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
+    }
+
 
 
     val typeId = new FieldDescriptor[java.lang.Long, __Struct, __Struct.type](
@@ -1071,6 +1485,7 @@ object __Type extends MetaStruct[__Type] {
   trait __Struct extends Struct[__Struct] {
     override type MetaT = __Struct.type
 
+    override def meta: __Struct.type = __Struct
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
@@ -1085,15 +1500,31 @@ object __Type extends MetaStruct[__Type] {
   }
 
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-    override def meta: __Struct.type = __Struct
 
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
-    override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     override val recordName: String = "Interface"
+    override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(typeId)
+
+    object Builder extends MetaStructBuilder[foo.__Type.Interface, foo.__Type.Interface.Builder] {
+      override type Self = foo.__Type.Interface.Builder.type
+      override val recordName: String = "Interface"
+      override val dataSectionSizeWords: Short = 2
+      override val pointerSectionSizeWords: Short = 1
+      override def create(struct: CapnpStructBuilder): foo.__Type.Interface.Builder = new foo.__Type.Interface.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.__Type.Interface.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.__Type.InterfaceMutable(struct) with StructBuilder[foo.__Type.Interface, foo.__Type.Interface.Builder] {
+      override type MetaBuilderT = foo.__Type.Interface.Builder.type
+
+      override def meta: Interface.type = Interface
+      override def metaBuilder: MetaBuilderT = foo.__Type.Interface.Builder
+      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
+    }
+
 
 
     val typeId = new FieldDescriptor[java.lang.Long, Interface, Interface.type](
@@ -1105,6 +1536,7 @@ object __Type extends MetaStruct[__Type] {
   trait Interface extends Struct[Interface] {
     override type MetaT = Interface.type
 
+    override def meta: Interface.type = Interface
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
@@ -1119,7 +1551,6 @@ object __Type extends MetaStruct[__Type] {
   }
 
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
-    override def meta: Interface.type = Interface
 
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
@@ -1223,6 +1654,7 @@ object __Type extends MetaStruct[__Type] {
 trait __Type extends Struct[__Type] with HasUnion[foo.__Type.Union] {
   override type MetaT = __Type.type
 
+  override def meta: __Type.type = __Type
   def struct: CapnpStruct
 
   def void: Option[Unit]
@@ -1276,7 +1708,6 @@ trait __TypeProxy extends __Type with HasUnion[foo.__Type.Union] {
 }
 
 class __TypeMutable(override val struct: CapnpStruct) extends __Type {
-  override def meta: __Type.type = __Type
 
   override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: foo.__Type.Union = discriminant match {
@@ -1330,9 +1761,43 @@ class __TypeMutable(override val struct: CapnpStruct) extends __Type {
 
 object Value extends MetaStruct[Value] {
   override type Self = Value.type
-  override def create(struct: CapnpStruct): Value = new ValueMutable(struct)
   override val recordName: String = "Value"
+  override def create(struct: CapnpStruct): Value = new ValueMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
+
+  object Builder extends MetaStructBuilder[foo.Value, foo.Value.Builder] {
+    override type Self = foo.Value.Builder.type
+    override val recordName: String = "Value"
+    override val dataSectionSizeWords: Short = 2
+    override val pointerSectionSizeWords: Short = 1
+    override def create(struct: CapnpStructBuilder): foo.Value.Builder = new foo.Value.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Value.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.ValueMutable(struct) with StructBuilder[foo.Value, foo.Value.Builder] {
+    override type MetaBuilderT = foo.Value.Builder.type
+
+    override def meta: Value.type = Value
+    override def metaBuilder: MetaBuilderT = foo.Value.Builder
+    def setVoid(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -1); this }
+    def setBool(value: java.lang.Boolean): Builder = { struct.setBoolean(16, value); struct.setShort(0, -2); this }
+    def setInt8(value: java.lang.Byte): Builder = { struct.setByte(2, value); struct.setShort(0, -3); this }
+    def setInt16(value: java.lang.Short): Builder = { struct.setShort(1, value); struct.setShort(0, -4); this }
+    def setInt32(value: java.lang.Integer): Builder = { struct.setInt(1, value); struct.setShort(0, -5); this }
+    def setInt64(value: java.lang.Long): Builder = { struct.setLong(1, value); struct.setShort(0, -6); this }
+    def setUint8(value: java.lang.Byte): Builder = { struct.setByte(2, value); struct.setShort(0, -7); this }
+    def setUint16(value: java.lang.Short): Builder = { struct.setShort(1, value); struct.setShort(0, -8); this }
+    def setUint32(value: java.lang.Integer): Builder = { struct.setInt(1, value); struct.setShort(0, -9); this }
+    def setUint64(value: java.lang.Long): Builder = { struct.setLong(1, value); struct.setShort(0, -10); this }
+    def setFloat32(value: java.lang.Double): Builder = { struct.setDouble(1, value); struct.setShort(0, -11); this }
+    def setFloat64(value: java.lang.Double): Builder = { struct.setDouble(1, value); struct.setShort(0, -12); this }
+    def setText(value: String): Builder = { struct.setString(0, value); struct.setShort(0, -13); this }
+    def setData(value: Array[Byte]): Builder = { struct.setData(0, value); struct.setShort(0, -14); this }
+    def setList(value: AnyRef): Builder = { struct.setNone(); struct.setShort(0, -15); this }
+    def set__Enum(value: java.lang.Short): Builder = { struct.setShort(1, value); struct.setShort(0, -16); this }
+    def set__Struct(value: AnyRef): Builder = { struct.setNone(); struct.setShort(0, -17); this }
+    def setInterface(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -18); this }
+    def set__Object(value: AnyRef): Builder = { struct.setNone(); struct.setShort(0, -19); this }
+  }
 
   sealed trait Union extends UnionValue[foo.Value.Union]
   object Union extends UnionMeta[foo.Value.Union] {
@@ -1350,13 +1815,14 @@ object Value extends MetaStruct[Value] {
     case class float32(value: Option[java.lang.Double]) extends foo.Value.Union
     case class float64(value: Option[java.lang.Double]) extends foo.Value.Union
     case class text(value: Option[String]) extends foo.Value.Union
-    case class data(value: Option[ByteBuffer]) extends foo.Value.Union
+    case class data(value: Option[Array[Byte]]) extends foo.Value.Union
     case class list(value: Option[AnyRef]) extends foo.Value.Union
     case class __enum(value: Option[java.lang.Short]) extends foo.Value.Union
     case class __struct(value: Option[AnyRef]) extends foo.Value.Union
     case class interface(value: Option[Unit]) extends foo.Value.Union
     case class __object(value: Option[AnyRef]) extends foo.Value.Union
   }
+
 
 
   val void = new FieldDescriptor[Unit, Value, Value.type](
@@ -1424,7 +1890,7 @@ object Value extends MetaStruct[Value] {
     meta = Value
   )
 
-  val data = new FieldDescriptor[ByteBuffer, Value, Value.type](
+  val data = new FieldDescriptor[Array[Byte], Value, Value.type](
     name = "data",
     meta = Value
   )
@@ -1458,6 +1924,7 @@ object Value extends MetaStruct[Value] {
 trait Value extends Struct[Value] with HasUnion[foo.Value.Union] {
   override type MetaT = Value.type
 
+  override def meta: Value.type = Value
   def struct: CapnpStruct
 
   def void: Option[Unit]
@@ -1473,7 +1940,7 @@ trait Value extends Struct[Value] with HasUnion[foo.Value.Union] {
   def float32: Option[java.lang.Double]
   def float64: Option[java.lang.Double]
   def text: Option[String]
-  def data: Option[ByteBuffer]
+  def data: Option[Array[Byte]]
   def list: Option[AnyRef]
   def __enum: Option[java.lang.Short]
   def __struct: Option[AnyRef]
@@ -1502,7 +1969,7 @@ trait ValueProxy extends Value with HasUnion[foo.Value.Union] {
   override def float32: Option[java.lang.Double]
   override def float64: Option[java.lang.Double]
   override def text: Option[String]
-  override def data: Option[ByteBuffer]
+  override def data: Option[Array[Byte]]
   override def list: Option[AnyRef]
   override def __enum: Option[java.lang.Short]
   override def __struct: Option[AnyRef]
@@ -1511,7 +1978,6 @@ trait ValueProxy extends Value with HasUnion[foo.Value.Union] {
 }
 
 class ValueMutable(override val struct: CapnpStruct) extends Value {
-  override def meta: Value.type = Value
 
   override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: foo.Value.Union = discriminant match {
@@ -1551,7 +2017,7 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
   override def float32: Option[java.lang.Double] = struct.getDouble(1)
   override def float64: Option[java.lang.Double] = struct.getDouble(1)
   override def text: Option[String] = struct.getString(0)
-  override def data: Option[ByteBuffer] = struct.getNone(0)
+  override def data: Option[Array[Byte]] = struct.getData(0)
   override def list: Option[AnyRef] = struct.getNone(0)
   override def __enum: Option[java.lang.Short] = struct.getShort(1)
   override def __struct: Option[AnyRef] = struct.getNone(0)
@@ -1561,9 +2027,27 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
 
 object Annotation extends MetaStruct[Annotation] {
   override type Self = Annotation.type
-  override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
   override val recordName: String = "Annotation"
+  override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
   override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(id, value)
+
+  object Builder extends MetaStructBuilder[foo.Annotation, foo.Annotation.Builder] {
+    override type Self = foo.Annotation.Builder.type
+    override val recordName: String = "Annotation"
+    override val dataSectionSizeWords: Short = 1
+    override val pointerSectionSizeWords: Short = 1
+    override def create(struct: CapnpStructBuilder): foo.Annotation.Builder = new foo.Annotation.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.Annotation.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.AnnotationMutable(struct) with StructBuilder[foo.Annotation, foo.Annotation.Builder] {
+    override type MetaBuilderT = foo.Annotation.Builder.type
+
+    override def meta: Annotation.type = Annotation
+    override def metaBuilder: MetaBuilderT = foo.Annotation.Builder
+    def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
+    def setValue(value: foo.Value): Builder = { struct.setNone(); this }
+  }
+
 
 
   val id = new FieldDescriptor[java.lang.Long, Annotation, Annotation.type](
@@ -1580,6 +2064,7 @@ object Annotation extends MetaStruct[Annotation] {
 trait Annotation extends Struct[Annotation] {
   override type MetaT = Annotation.type
 
+  override def meta: Annotation.type = Annotation
   def struct: CapnpStruct
 
   def id: Option[java.lang.Long]
@@ -1596,7 +2081,6 @@ trait AnnotationProxy extends Annotation {
 }
 
 class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
-  override def meta: Annotation.type = Annotation
 
   override def id: Option[java.lang.Long] = struct.getLong(0)
   override def value: Option[foo.Value] = struct.getStruct(0).map(new foo.ValueMutable(_))
@@ -1639,21 +2123,86 @@ sealed class ElementSize(
 
 object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
   override type Self = CodeGeneratorRequest.type
-  override def create(struct: CapnpStruct): CodeGeneratorRequest = new CodeGeneratorRequestMutable(struct)
   override val recordName: String = "CodeGeneratorRequest"
+  override def create(struct: CapnpStruct): CodeGeneratorRequest = new CodeGeneratorRequestMutable(struct)
   override val fields: Seq[FieldDescriptor[_, CodeGeneratorRequest, CodeGeneratorRequest.type]] = Seq(nodes, requestedFiles)
+
+  object Builder extends MetaStructBuilder[foo.CodeGeneratorRequest, foo.CodeGeneratorRequest.Builder] {
+    override type Self = foo.CodeGeneratorRequest.Builder.type
+    override val recordName: String = "CodeGeneratorRequest"
+    override val dataSectionSizeWords: Short = 0
+    override val pointerSectionSizeWords: Short = 2
+    override def create(struct: CapnpStructBuilder): foo.CodeGeneratorRequest.Builder = new foo.CodeGeneratorRequest.Builder(struct)
+    override def fields: Seq[UntypedFieldDescriptor] = foo.CodeGeneratorRequest.fields
+  }
+  class Builder(override val struct: CapnpStructBuilder) extends foo.CodeGeneratorRequestMutable(struct) with StructBuilder[foo.CodeGeneratorRequest, foo.CodeGeneratorRequest.Builder] {
+    override type MetaBuilderT = foo.CodeGeneratorRequest.Builder.type
+
+    override def meta: CodeGeneratorRequest.type = CodeGeneratorRequest
+    override def metaBuilder: MetaBuilderT = foo.CodeGeneratorRequest.Builder
+    def setNodes(value: Seq[foo.Node]): Builder = { struct.setNone(); this }
+    def initNodes(count: Int): Seq[foo.Node.Builder] = {
+      val list = struct.initPointerList(0, count, foo.Node.Builder)
+      Range(0, count).map(i => new foo.Node.Builder(list.initStruct(i, foo.Node.Builder)))
+    }
+    def setRequestedFiles(value: Seq[foo.CodeGeneratorRequest.RequestedFile]): Builder = { struct.setNone(); this }
+    def initRequestedFiles(count: Int): Seq[foo.CodeGeneratorRequest.RequestedFile.Builder] = {
+      val list = struct.initPointerList(1, count, foo.CodeGeneratorRequest.RequestedFile.Builder)
+      Range(0, count).map(i => new foo.CodeGeneratorRequest.RequestedFile.Builder(list.initStruct(i, foo.CodeGeneratorRequest.RequestedFile.Builder)))
+    }
+  }
 
   object RequestedFile extends MetaStruct[RequestedFile] {
     override type Self = RequestedFile.type
-    override def create(struct: CapnpStruct): RequestedFile = new RequestedFileMutable(struct)
     override val recordName: String = "RequestedFile"
+    override def create(struct: CapnpStruct): RequestedFile = new RequestedFileMutable(struct)
     override val fields: Seq[FieldDescriptor[_, RequestedFile, RequestedFile.type]] = Seq(id, filename, imports)
+
+    object Builder extends MetaStructBuilder[foo.CodeGeneratorRequest.RequestedFile, foo.CodeGeneratorRequest.RequestedFile.Builder] {
+      override type Self = foo.CodeGeneratorRequest.RequestedFile.Builder.type
+      override val recordName: String = "RequestedFile"
+      override val dataSectionSizeWords: Short = 1
+      override val pointerSectionSizeWords: Short = 2
+      override def create(struct: CapnpStructBuilder): foo.CodeGeneratorRequest.RequestedFile.Builder = new foo.CodeGeneratorRequest.RequestedFile.Builder(struct)
+      override def fields: Seq[UntypedFieldDescriptor] = foo.CodeGeneratorRequest.RequestedFile.fields
+    }
+    class Builder(override val struct: CapnpStructBuilder) extends foo.CodeGeneratorRequest.RequestedFileMutable(struct) with StructBuilder[foo.CodeGeneratorRequest.RequestedFile, foo.CodeGeneratorRequest.RequestedFile.Builder] {
+      override type MetaBuilderT = foo.CodeGeneratorRequest.RequestedFile.Builder.type
+
+      override def meta: RequestedFile.type = RequestedFile
+      override def metaBuilder: MetaBuilderT = foo.CodeGeneratorRequest.RequestedFile.Builder
+      def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
+      def setFilename(value: String): Builder = { struct.setString(0, value); this }
+      def setImports(value: Seq[foo.CodeGeneratorRequest.RequestedFile.__Import]): Builder = { struct.setNone(); this }
+      def initImports(count: Int): Seq[foo.CodeGeneratorRequest.RequestedFile.__Import.Builder] = {
+        val list = struct.initPointerList(1, count, foo.CodeGeneratorRequest.RequestedFile.__Import.Builder)
+        Range(0, count).map(i => new foo.CodeGeneratorRequest.RequestedFile.__Import.Builder(list.initStruct(i, foo.CodeGeneratorRequest.RequestedFile.__Import.Builder)))
+      }
+    }
 
     object __Import extends MetaStruct[__Import] {
       override type Self = __Import.type
-      override def create(struct: CapnpStruct): __Import = new __ImportMutable(struct)
       override val recordName: String = "Import"
+      override def create(struct: CapnpStruct): __Import = new __ImportMutable(struct)
       override val fields: Seq[FieldDescriptor[_, __Import, __Import.type]] = Seq(id, name)
+
+      object Builder extends MetaStructBuilder[foo.CodeGeneratorRequest.RequestedFile.__Import, foo.CodeGeneratorRequest.RequestedFile.__Import.Builder] {
+        override type Self = foo.CodeGeneratorRequest.RequestedFile.__Import.Builder.type
+        override val recordName: String = "Import"
+        override val dataSectionSizeWords: Short = 1
+        override val pointerSectionSizeWords: Short = 1
+        override def create(struct: CapnpStructBuilder): foo.CodeGeneratorRequest.RequestedFile.__Import.Builder = new foo.CodeGeneratorRequest.RequestedFile.__Import.Builder(struct)
+        override def fields: Seq[UntypedFieldDescriptor] = foo.CodeGeneratorRequest.RequestedFile.__Import.fields
+      }
+      class Builder(override val struct: CapnpStructBuilder) extends foo.CodeGeneratorRequest.RequestedFile.__ImportMutable(struct) with StructBuilder[foo.CodeGeneratorRequest.RequestedFile.__Import, foo.CodeGeneratorRequest.RequestedFile.__Import.Builder] {
+        override type MetaBuilderT = foo.CodeGeneratorRequest.RequestedFile.__Import.Builder.type
+
+        override def meta: __Import.type = __Import
+        override def metaBuilder: MetaBuilderT = foo.CodeGeneratorRequest.RequestedFile.__Import.Builder
+        def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
+        def setName(value: String): Builder = { struct.setString(0, value); this }
+      }
+
 
 
       val id = new FieldDescriptor[java.lang.Long, __Import, __Import.type](
@@ -1670,6 +2219,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     trait __Import extends Struct[__Import] {
       override type MetaT = __Import.type
 
+      override def meta: __Import.type = __Import
       def struct: CapnpStruct
 
       def id: Option[java.lang.Long]
@@ -1686,11 +2236,11 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     }
 
     class __ImportMutable(override val struct: CapnpStruct) extends __Import {
-      override def meta: __Import.type = __Import
 
       override def id: Option[java.lang.Long] = struct.getLong(0)
       override def name: Option[String] = struct.getString(0)
     }
+
 
     val id = new FieldDescriptor[java.lang.Long, RequestedFile, RequestedFile.type](
       name = "id",
@@ -1711,6 +2261,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
   trait RequestedFile extends Struct[RequestedFile] {
     override type MetaT = RequestedFile.type
 
+    override def meta: RequestedFile.type = RequestedFile
     def struct: CapnpStruct
 
     def id: Option[java.lang.Long]
@@ -1729,12 +2280,12 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
   }
 
   class RequestedFileMutable(override val struct: CapnpStruct) extends RequestedFile {
-    override def meta: RequestedFile.type = RequestedFile
 
     override def id: Option[java.lang.Long] = struct.getLong(0)
     override def filename: Option[String] = struct.getString(0)
     override def imports: Option[Seq[foo.CodeGeneratorRequest.RequestedFile.__Import]] = struct.getStructList(1).map(_.map(new foo.CodeGeneratorRequest.RequestedFile.__ImportMutable(_)))
   }
+
 
   val nodes = new FieldDescriptor[Seq[foo.Node], CodeGeneratorRequest, CodeGeneratorRequest.type](
     name = "nodes",
@@ -1750,6 +2301,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 trait CodeGeneratorRequest extends Struct[CodeGeneratorRequest] {
   override type MetaT = CodeGeneratorRequest.type
 
+  override def meta: CodeGeneratorRequest.type = CodeGeneratorRequest
   def struct: CapnpStruct
 
   def nodes: Option[Seq[foo.Node]]
@@ -1766,7 +2318,6 @@ trait CodeGeneratorRequestProxy extends CodeGeneratorRequest {
 }
 
 class CodeGeneratorRequestMutable(override val struct: CapnpStruct) extends CodeGeneratorRequest {
-  override def meta: CodeGeneratorRequest.type = CodeGeneratorRequest
 
   override def nodes: Option[Seq[foo.Node]] = struct.getStructList(0).map(_.map(new foo.NodeMutable(_)))
   override def requestedFiles: Option[Seq[foo.CodeGeneratorRequest.RequestedFile]] = struct.getStructList(1).map(_.map(new foo.CodeGeneratorRequest.RequestedFileMutable(_)))

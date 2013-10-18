@@ -2,7 +2,7 @@
 
 package com.capnproto.codegen
 
-import com.capnproto.{Pointer, Segments}
+import com.capnproto.{Pointer, CapnpArena}
 
 import java.io.FileWriter
 import java.nio.{ByteBuffer, ByteOrder}
@@ -14,7 +14,7 @@ object CapnpScala {
   }
 
   def main(args: Array[String]): Unit = {
-    val parsed = Segments.fromInputStream(System.in).asStruct(foo.CodeGeneratorRequest)
+    val parsed = CapnpArena.fromInputStream(System.in).getRoot(foo.CodeGeneratorRequest)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
     val schemasById = getSchemas(parsed.nodes.get)
 
@@ -37,7 +37,7 @@ object CapnpScala {
         case foo.__Type.Union.float32(_) => "java.lang.Double"
         case foo.__Type.Union.float64(_) => "java.lang.Double"
         case foo.__Type.Union.text(_) => "String"
-        case foo.__Type.Union.data(_) => "ByteBuffer"
+        case foo.__Type.Union.data(_) => "Array[Byte]"
         case foo.__Type.Union.list(_) => StringTree("Seq[", genType(ctype.list.get.elementType.get, scope), "]")
         case foo.__Type.Union.__enum(_) => nodeName(getDependency(scope, ctype.__enum.get.typeId.get))
         case foo.__Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.get.typeId.get))
@@ -62,18 +62,43 @@ object CapnpScala {
         case foo.__Type.Union.float32(_) => StringTree("getDouble(", offset, ")")
         case foo.__Type.Union.float64(_) => StringTree("getDouble(", offset, ")")
         case foo.__Type.Union.text(_) => StringTree("getString(", offset, ")")
-        case foo.__Type.Union.data(_) => StringTree("getNone(", offset, ")")
-        case foo.__Type.Union.list(_) => {
-          StringTree("getStructList(", offset, ").map(_.map(new ", genType(ctype.list.get.elementType.get, scope), "Mutable(_)))")
-        }
-        case foo.__Type.Union.__enum(_) => {
-          StringTree("getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".Unknown(id.toShort)))")
-        }
-        case foo.__Type.Union.__struct(_) => {
-          StringTree("getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.get.typeId.get)), "Mutable(_))")
-        }
+        case foo.__Type.Union.data(_) => StringTree("getData(", offset, ")")
+        case foo.__Type.Union.list(_) => StringTree(
+          "getStructList(", offset, ").map(_.map(new ", genType(ctype.list.get.elementType.get, scope), "Mutable(_)))"
+        )
+        case foo.__Type.Union.__enum(_) => StringTree(
+          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".Unknown(id.toShort)))"
+        )
+        case foo.__Type.Union.__struct(_) => StringTree(
+          "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.get.typeId.get)), "Mutable(_))"
+        )
         case foo.__Type.Union.interface(_) => StringTree("getNone(", offset, ")")
         case foo.__Type.Union.__object(_) => StringTree("getNone(", offset, ")")
+        case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
+      }
+    }
+
+    def genSetter(ctype: foo.__Type, scope: foo.Node, offset: Int): StringTree = {
+      ctype.switch match {
+        case foo.__Type.Union.void(_) => StringTree("setNone()")
+        case foo.__Type.Union.bool(_) => StringTree("setBoolean(", offset, ", value)")
+        case foo.__Type.Union.int8(_) => StringTree("setByte(", offset, ", value)")
+        case foo.__Type.Union.int16(_) => StringTree("setShort(", offset, ", value)")
+        case foo.__Type.Union.int32(_) => StringTree("setInt(", offset, ", value)")
+        case foo.__Type.Union.int64(_) => StringTree("setLong(", offset, ", value)")
+        case foo.__Type.Union.uint8(_) => StringTree("setByte(", offset, ", value)")
+        case foo.__Type.Union.uint16(_) => StringTree("setShort(", offset, ", value)")
+        case foo.__Type.Union.uint32(_) => StringTree("setInt(", offset, ", value)")
+        case foo.__Type.Union.uint64(_) => StringTree("setLong(", offset, ", value)")
+        case foo.__Type.Union.float32(_) => StringTree("setDouble(", offset, ", value)")
+        case foo.__Type.Union.float64(_) => StringTree("setDouble(", offset, ", value)")
+        case foo.__Type.Union.text(_) => StringTree("setString(", offset, ", value)")
+        case foo.__Type.Union.data(_) => StringTree("setData(", offset, ", value)")
+        case foo.__Type.Union.list(_) => StringTree("setNone()")
+        case foo.__Type.Union.__enum(_) => StringTree("setShort(", offset, ", value.id.toShort)")
+        case foo.__Type.Union.__struct(_) => StringTree("setNone()")
+        case foo.__Type.Union.interface(_) => StringTree("setNone()")
+        case foo.__Type.Union.__object(_) => StringTree("setNone()")
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
@@ -93,7 +118,7 @@ object CapnpScala {
         case foo.__Type.Union.float32(_) => StringTree(value.float32.get)
         case foo.__Type.Union.float64(_) => StringTree(value.float64.get)
         case foo.__Type.Union.text(_) => StringTree("\"", value.text.get, "\"")
-        case foo.__Type.Union.data(_) => StringTree("\"", value.data.get, "\"")
+        case foo.__Type.Union.data(_) => StringTree("Array(", value.data.get.mkString(", "), ")")
         case foo.__Type.Union.list(_) => StringTree("TODO(ctype.list(_))")
         case foo.__Type.Union.__enum(_) => StringTree(ctype.__enum.get)
         case foo.__Type.Union.__struct(_) => StringTree("TODO(ctype.__struct(_))")
@@ -178,12 +203,53 @@ object CapnpScala {
           StringTree(
             indent, "object ", name, " extends MetaStruct[", name, "] {\n",
             indent.next, "override type Self = ", name, ".type\n",
-            indent.next, "override def create(struct: CapnpStruct): ", name, " = new ", name, "Mutable(struct)\n",
             indent.next, "override val recordName: String = \"", nameRaw, "\"\n",
+            indent.next, "override def create(struct: CapnpStruct): ", name, " = new ", name, "Mutable(struct)\n",
             indent.next, "override val fields: Seq[FieldDescriptor[_, ", name, ", ", name, ".type]] = Seq(",
             StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get)))),
             ")\n",
             "\n",
+            indent.next, "object Builder extends MetaStructBuilder[", nodeName(schema), ", ", nodeName(schema), ".Builder] {\n",
+            indent.next.next, "override type Self = ", nodeName(schema), ".Builder.type\n",
+            indent.next.next, "override val recordName: String = \"", nameRaw, "\"\n",
+            indent.next.next, "override val dataSectionSizeWords: Short = ", struct.dataWordCount.getOrElse(0), "\n",
+            indent.next.next, "override val pointerSectionSizeWords: Short = ", struct.pointerCount.getOrElse(0), "\n",
+            indent.next.next, "override def create(struct: CapnpStructBuilder): ", nodeName(schema), ".Builder = new ", nodeName(schema), ".Builder(struct)\n",
+            indent.next.next, "override def fields: Seq[UntypedFieldDescriptor] = ", nodeName(schema), ".fields\n",
+            indent.next, "}\n",
+            indent.next, "class Builder(override val struct: CapnpStructBuilder) extends ", nodeName(schema), "Mutable(struct) with StructBuilder[", nodeName(schema), ", ", nodeName(schema), ".Builder] {\n",
+            indent.next.next, "override type MetaBuilderT = ", nodeName(schema), ".Builder.type\n\n",
+            indent.next.next, "override def meta: ", name, ".type = ", name, "\n",
+            indent.next.next, "override def metaBuilder: MetaBuilderT = ", nodeName(schema), ".Builder\n",
+            fields.map(field => StringTree(
+              field.switch match {
+                case foo.Field.Union.slot(slot) => StringTree(
+                  indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(value: ", fieldScalaType(field, schema), "): Builder = { ",
+                  "struct.", genSetter(slot.get.__type.get, schema, slot.get.offset.map(_.toInt).getOrElse(0)), "; ",
+                  field.discriminantValue.map(d => StringTree(
+                    "struct.setShort(", struct.discriminantOffset.getOrElse(0), ", ", d, "); "
+                  )),
+                  "this }\n",
+                  slot.get.__type.get.switch match {
+                    case foo.__Type.Union.list(list) => list.get.elementType.get.switch match {
+                      case foo.__Type.Union.__struct(_) => StringTree(
+                        indent.next.next, "def init", scalaCaseName(scalaEscapeName(field.name.get)), "(count: Int): Seq[", genType(list.get.elementType.get, schema), ".Builder] = {\n",
+                        indent.next.next.next, "val list = struct.initPointerList(", slot.get.offset.getOrElse(0), ", count, ", genType(list.get.elementType.get, schema), ".Builder)\n",
+                        indent.next.next.next, "Range(0, count).map(i => new ", genType(list.get.elementType.get, schema), ".Builder(list.initStruct(i, ", genType(list.get.elementType.get, schema), ".Builder)))\n",
+                        indent.next.next, "}\n"
+                      )
+                      case _ => StringTree()
+                    }
+                    case _ => StringTree()
+                  }
+                )
+                case foo.Field.Union.group(group) => StringTree(
+                  indent.next.next, "override def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), ".Builder] = Some(new ", fieldScalaType(field, schema), ".Builder(struct))\n"
+                )
+                case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
+              }
+            )),
+            indent.next, "}\n\n",
             genNestedDecls(schema, indent.next),
             if (unionFields.isEmpty) StringTree() else StringTree(
               indent.next, "sealed trait Union extends UnionValue[", nodeName(schema), ".Union]\n",
@@ -193,17 +259,11 @@ object CapnpScala {
                 indent.next.next, "case class ", scalaEscapeName(unionField.name.get), "(value: Option[", fieldScalaType(unionField, schema), "]) extends ", nodeName(schema), ".Union\n"
               )),
               indent.next, "}\n\n"
-            ),
+            ), "\n",
             groupFields.map(groupField => {
               val groupNode = getDependency(schema, groupField.group.get.typeId.get)
               genGroupDecl(groupNode, groupField.name.get, groupNode.scopeId.get, indent.next)
-            }),
-            // indent.next, "def apply(",
-            // StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get), ": ", fieldScalaType(field, schema)))),
-            // "): ", name, " = {\n",
-            // indent.next.next, "new ", name, "Mutable(", StringTree.join(", ", fields.map(f => StringTree(scalaEscapeName(f.name.get)))), ")\n",
-            // indent.next, "}\n",
-            "\n",
+            }), "\n",
             StringTree.join("\n", fields.map(field => StringTree(
               indent.next, "val ", scalaEscapeName(field.name.get), " = new FieldDescriptor[", fieldScalaType(field, schema), ", ", name, ", ", name, ".type](\n",
               indent.next.next, "name = \"", field.name.get, "\",\n",
@@ -217,6 +277,7 @@ object CapnpScala {
             if (unionFields.isEmpty) StringTree() else StringTree(" with HasUnion[", nodeName(schema), ".Union]"),
             " {\n",
             indent.next, "override type MetaT = ", name, ".type\n\n",
+            indent.next, "override def meta: ", name, ".type = ", name, "\n",
             indent.next, "def struct: CapnpStruct\n\n",
             fields.map(field => StringTree(
               indent.next, "def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), "]\n"
@@ -249,7 +310,6 @@ object CapnpScala {
 
 
             indent, "class ", name, "Mutable(override val struct: CapnpStruct) extends ", name, " {\n",
-            indent.next, "override def meta: ", name, ".type = ", name, "\n",
             "\n",
             if (unionFields.isEmpty) StringTree() else StringTree(
               indent.next, "override def discriminant: Short = (struct.getShort(", struct.discriminantOffset.getOrElse(0).toString, ").getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)\n",
@@ -320,8 +380,8 @@ object CapnpScala {
         "// ", file.displayName, "\n\n",
         "package ", getScalaPackageName, "\n\n",
         "import com.foursquare.spindle.{Enum, EnumMeta}\n",
-        "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct}\n",
-        "import com.capnproto.{CapnpStruct, Pointer => CapnpPointer, CapnpList, CapnpTag}\n",
+        "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct, StructBuilder, MetaStructBuilder}\n",
+        "import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag}\n",
         "import java.nio.ByteBuffer\n",
         "\n",
         genNestedDecls(file, new StringTreeIndent(0, "  "))

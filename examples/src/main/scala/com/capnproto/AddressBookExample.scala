@@ -6,8 +6,38 @@ import foo.{AddressBook, Person}
 
 object AddressBookExample {
 
+  def writeAddressBook: Unit = {
+    val arena = new CapnpArenaBuilder()
+    val addressbook = arena.getRootBuilder(AddressBook.Builder)
+    val peopleBuilders = addressbook.initPeople(2)
+
+    val alice = peopleBuilders(0)
+      .setId(123)
+      .setName("Alice")
+      .setEmail("alice@example.com")
+    alice.initPhones(1)(0)
+      .setNumber("555-1212")
+      .set__Type(Person.PhoneNumber.__Type.mobile)
+    alice.employment.get.setSchool("MIT")
+
+    val bob = peopleBuilders(1)
+      .setId(456)
+     .setName("Bob")
+      .setEmail("bob@example.com")
+    val bobPhones = bob.initPhones(2)
+    bobPhones(0)
+      .setNumber("555-4567")
+      .set__Type(Person.PhoneNumber.__Type.home)
+    bobPhones(1)
+      .setNumber("555-7654")
+      .set__Type(Person.PhoneNumber.__Type.work)
+    bob.employment.get.setUnemployed()
+
+    arena.writeToOutputStream(new java.io.FileOutputStream("/tmp/addressbook.bin"))
+  }
+
   def readAddressBook: Unit = {
-    val addressbook = Segments.fromInputStream(System.in).asStruct(AddressBook)
+    val addressbook = CapnpArena.fromInputStream(System.in).getRoot(AddressBook)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
     addressbook.people.getOrElse(Nil).foreach(person => {
       println(person.name.getOrElse("") + ": " + person.email.getOrElse(""))
@@ -37,6 +67,7 @@ object AddressBookExample {
 
 	def main(args: Array[String]): Unit = {
     args(0) match {
+      case "write" => writeAddressBook
       case "read" => readAddressBook
       case _ => printUsage
     }
