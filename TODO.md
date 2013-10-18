@@ -2,7 +2,6 @@ TODO
 ====
 
 * packed message support
-* struct builders
 * scala package support
 * port runtime stuff to java
 * jni implementation of runtime
