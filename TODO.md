@@ -9,7 +9,7 @@ TODO
 * pretty printer
 * json printer
 * dynamic api
-* annotation to skip generating Unknown for enum/union
+* support exhaustiveMatch for union fields
 * replace __Type style escaping with \`Type\`
 * support default values
 * support consts
