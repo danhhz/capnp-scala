@@ -374,10 +374,13 @@ object CapnpScala {
           )
         }
         case Node.Union.__enum(enum) => {
+          val exhaustiveMatch = schema.annotations.exists(_.id.exists(_ == -4568588524881625937L))
           StringTree(
             indent, "object ", name, " extends EnumMeta[", name, "] {\n",
             genNestedDecls(schema, indent.next),
-            indent.next, "case class Unknown(override val id: Int) extends ", name, "(", name, ", id, null, null)\n\n",
+            if (exhaustiveMatch) StringTree() else StringTree(
+              indent.next, "case class Unknown(override val id: Int) extends ", name, "(", name, ", id, null, null)\n\n"
+            ),
             StringTree.join("\n", enum.enumerants.sortBy(_.codeOrder).zipWithIndex.map({ case (e, i) => StringTree(
               indent.next, "val ", e.name.get, " = new ", name, "(this, ", i.toString, ", \"", e.name.get, "\", \"", e.name.get, "\")"
             )})), "\n\n",

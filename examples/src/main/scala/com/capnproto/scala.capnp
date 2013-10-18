@@ -5,3 +5,5 @@
 annotation namespace @0xdf2b65486e98418d (file): Text;
 
 annotation toJson @0xd80b5575a4ded1d5 (struct): Void;
+
+annotation exhaustiveMatch @0xc0991cf129813caf (enum, union): Void;
