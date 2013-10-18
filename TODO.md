@@ -2,7 +2,6 @@ TODO
 ====
 
 * packed message support
-* scala package support
 * port runtime stuff to java
 * jni implementation of runtime
 * hook in [https://github.com/kaos/capnp_test]

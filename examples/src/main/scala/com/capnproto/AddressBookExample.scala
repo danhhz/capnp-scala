@@ -2,7 +2,7 @@
 
 package com.capnproto
 
-import foo.{AddressBook, Person}
+import com.capnproto.addressbook.{AddressBook, Person}
 
 object AddressBookExample {
 

@@ -1,6 +1,7 @@
 # addressbook.capnp
 @0x9eb32e19f86ee174;
-$import "/capnp/c++.capnp".namespace("addressbook");
+$import "c++.capnp".namespace("addressbook");
+$import "scala.capnp".namespace("com.capnproto.addressbook");
 struct Person @0x98808e9832e8bc18 {  # 8 bytes, 4 ptrs
   id @0 :UInt32;  # bits[0, 32)
   name @1 :Text;  # ptr[0]

@@ -22,9 +22,11 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using Cxx = import "c++.capnp";
+using Scala = import "scala.capnp";
 
 @0xa93fc509624c72d9;
 $Cxx.namespace("capnp::schema");
+$Scala.namespace("com.capnproto.schema");
 
 using Id = UInt64;
 # The globally-unique ID of a file, type, or annotation.
