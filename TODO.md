@@ -13,3 +13,5 @@ TODO
 * replace __Type style escaping with \`Type\`
 * support default values
 * support consts
+* annotations for retired and deprecated
+* annotation for enhancedType
