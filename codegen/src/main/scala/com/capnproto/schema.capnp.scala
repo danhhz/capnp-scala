@@ -41,11 +41,11 @@ object Node extends MetaStruct[Node] {
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
     }
     def setFile(value: Unit): Builder = { struct.setNone(); struct.setShort(6, -1); this }
-    override def __struct: Option[com.capnproto.schema.Node.__Struct.Builder] = Some(new com.capnproto.schema.Node.__Struct.Builder(struct))
-    override def __enum: Option[com.capnproto.schema.Node.__Enum.Builder] = Some(new com.capnproto.schema.Node.__Enum.Builder(struct))
-    override def interface: Option[com.capnproto.schema.Node.Interface.Builder] = Some(new com.capnproto.schema.Node.Interface.Builder(struct))
-    override def const: Option[com.capnproto.schema.Node.Const.Builder] = Some(new com.capnproto.schema.Node.Const.Builder(struct))
-    override def annotation: Option[com.capnproto.schema.Node.Annotation.Builder] = Some(new com.capnproto.schema.Node.Annotation.Builder(struct))
+    override def __struct: com.capnproto.schema.Node.__Struct.Builder = new com.capnproto.schema.Node.__Struct.Builder(struct)
+    override def __enum: com.capnproto.schema.Node.__Enum.Builder = new com.capnproto.schema.Node.__Enum.Builder(struct)
+    override def interface: com.capnproto.schema.Node.Interface.Builder = new com.capnproto.schema.Node.Interface.Builder(struct)
+    override def const: com.capnproto.schema.Node.Const.Builder = new com.capnproto.schema.Node.Const.Builder(struct)
+    override def annotation: com.capnproto.schema.Node.Annotation.Builder = new com.capnproto.schema.Node.Annotation.Builder(struct)
   }
 
   object NestedNode extends MetaStruct[NestedNode] {
@@ -112,11 +112,11 @@ object Node extends MetaStruct[Node] {
   object Union extends UnionMeta[com.capnproto.schema.Node.Union] {
     case class Unknown(discriminant: Short) extends com.capnproto.schema.Node.Union
     case class file(value: Option[Unit]) extends com.capnproto.schema.Node.Union
-    case class __struct(value: Option[com.capnproto.schema.Node.__Struct]) extends com.capnproto.schema.Node.Union
-    case class __enum(value: Option[com.capnproto.schema.Node.__Enum]) extends com.capnproto.schema.Node.Union
-    case class interface(value: Option[com.capnproto.schema.Node.Interface]) extends com.capnproto.schema.Node.Union
-    case class const(value: Option[com.capnproto.schema.Node.Const]) extends com.capnproto.schema.Node.Union
-    case class annotation(value: Option[com.capnproto.schema.Node.Annotation]) extends com.capnproto.schema.Node.Union
+    case class __struct(value: com.capnproto.schema.Node.__Struct) extends com.capnproto.schema.Node.Union
+    case class __enum(value: com.capnproto.schema.Node.__Enum) extends com.capnproto.schema.Node.Union
+    case class interface(value: com.capnproto.schema.Node.Interface) extends com.capnproto.schema.Node.Union
+    case class const(value: com.capnproto.schema.Node.Const) extends com.capnproto.schema.Node.Union
+    case class annotation(value: com.capnproto.schema.Node.Annotation) extends com.capnproto.schema.Node.Union
   }
 
 
@@ -202,7 +202,7 @@ object Node extends MetaStruct[Node] {
     def isGroup: Option[java.lang.Boolean]
     def discriminantCount: Option[java.lang.Short]
     def discriminantOffset: Option[java.lang.Integer]
-    def __fields: Option[Seq[com.capnproto.schema.Field]]
+    def __fields: Seq[com.capnproto.schema.Field]
   }
 
   trait __StructProxy extends __Struct {
@@ -216,7 +216,7 @@ object Node extends MetaStruct[Node] {
     override def isGroup: Option[java.lang.Boolean]
     override def discriminantCount: Option[java.lang.Short]
     override def discriminantOffset: Option[java.lang.Integer]
-    override def __fields: Option[Seq[com.capnproto.schema.Field]]
+    override def __fields: Seq[com.capnproto.schema.Field]
   }
 
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
@@ -227,7 +227,7 @@ object Node extends MetaStruct[Node] {
     override def isGroup: Option[java.lang.Boolean] = struct.getBoolean(224)
     override def discriminantCount: Option[java.lang.Short] = struct.getShort(15)
     override def discriminantOffset: Option[java.lang.Integer] = struct.getInt(8)
-    override def __fields: Option[Seq[com.capnproto.schema.Field]] = struct.getStructList(3).map(_.map(new com.capnproto.schema.FieldMutable(_)))
+    override def __fields: Seq[com.capnproto.schema.Field] = struct.getStructList(3).map(new com.capnproto.schema.FieldMutable(_))
   }
   object __Enum extends MetaStruct[__Enum] {
     override type Self = __Enum.type
@@ -269,7 +269,7 @@ object Node extends MetaStruct[Node] {
     override def meta: __Enum.type = __Enum
     def struct: CapnpStruct
 
-    def enumerants: Option[Seq[com.capnproto.schema.Enumerant]]
+    def enumerants: Seq[com.capnproto.schema.Enumerant]
   }
 
   trait __EnumProxy extends __Enum {
@@ -277,12 +277,12 @@ object Node extends MetaStruct[Node] {
 
     override def struct: CapnpStruct = underlying.struct
 
-    override def enumerants: Option[Seq[com.capnproto.schema.Enumerant]]
+    override def enumerants: Seq[com.capnproto.schema.Enumerant]
   }
 
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
 
-    override def enumerants: Option[Seq[com.capnproto.schema.Enumerant]] = struct.getStructList(3).map(_.map(new com.capnproto.schema.EnumerantMutable(_)))
+    override def enumerants: Seq[com.capnproto.schema.Enumerant] = struct.getStructList(3).map(new com.capnproto.schema.EnumerantMutable(_))
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
@@ -324,7 +324,7 @@ object Node extends MetaStruct[Node] {
     override def meta: Interface.type = Interface
     def struct: CapnpStruct
 
-    def methods: Option[Seq[com.capnproto.schema.Method]]
+    def methods: Seq[com.capnproto.schema.Method]
   }
 
   trait InterfaceProxy extends Interface {
@@ -332,12 +332,12 @@ object Node extends MetaStruct[Node] {
 
     override def struct: CapnpStruct = underlying.struct
 
-    override def methods: Option[Seq[com.capnproto.schema.Method]]
+    override def methods: Seq[com.capnproto.schema.Method]
   }
 
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
 
-    override def methods: Option[Seq[com.capnproto.schema.Method]] = struct.getStructList(3).map(_.map(new com.capnproto.schema.MethodMutable(_)))
+    override def methods: Seq[com.capnproto.schema.Method] = struct.getStructList(3).map(new com.capnproto.schema.MethodMutable(_))
   }
   object Const extends MetaStruct[Const] {
     override type Self = Const.type
@@ -630,14 +630,14 @@ trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
   def displayName: Option[String]
   def displayNamePrefixLength: Option[java.lang.Integer]
   def scopeId: Option[java.lang.Long]
-  def nestedNodes: Option[Seq[com.capnproto.schema.Node.NestedNode]]
-  def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode]
+  def annotations: Seq[com.capnproto.schema.Annotation]
   def file: Option[Unit]
-  def __struct: Option[com.capnproto.schema.Node.__Struct]
-  def __enum: Option[com.capnproto.schema.Node.__Enum]
-  def interface: Option[com.capnproto.schema.Node.Interface]
-  def const: Option[com.capnproto.schema.Node.Const]
-  def annotation: Option[com.capnproto.schema.Node.Annotation]
+  def __struct: com.capnproto.schema.Node.__Struct
+  def __enum: com.capnproto.schema.Node.__Enum
+  def interface: com.capnproto.schema.Node.Interface
+  def const: com.capnproto.schema.Node.Const
+  def annotation: com.capnproto.schema.Node.Annotation
 }
 
 trait NodeProxy extends Node with HasUnion[com.capnproto.schema.Node.Union] {
@@ -652,14 +652,14 @@ trait NodeProxy extends Node with HasUnion[com.capnproto.schema.Node.Union] {
   override def displayName: Option[String]
   override def displayNamePrefixLength: Option[java.lang.Integer]
   override def scopeId: Option[java.lang.Long]
-  override def nestedNodes: Option[Seq[com.capnproto.schema.Node.NestedNode]]
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  override def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode]
+  override def annotations: Seq[com.capnproto.schema.Annotation]
   override def file: Option[Unit]
-  override def __struct: Option[com.capnproto.schema.Node.__Struct]
-  override def __enum: Option[com.capnproto.schema.Node.__Enum]
-  override def interface: Option[com.capnproto.schema.Node.Interface]
-  override def const: Option[com.capnproto.schema.Node.Const]
-  override def annotation: Option[com.capnproto.schema.Node.Annotation]
+  override def __struct: com.capnproto.schema.Node.__Struct
+  override def __enum: com.capnproto.schema.Node.__Enum
+  override def interface: com.capnproto.schema.Node.Interface
+  override def const: com.capnproto.schema.Node.Const
+  override def annotation: com.capnproto.schema.Node.Annotation
 }
 
 class NodeMutable(override val struct: CapnpStruct) extends Node {
@@ -680,18 +680,18 @@ class NodeMutable(override val struct: CapnpStruct) extends Node {
   override def displayName: Option[String] = struct.getString(0)
   override def displayNamePrefixLength: Option[java.lang.Integer] = struct.getInt(2)
   override def scopeId: Option[java.lang.Long] = struct.getLong(2)
-  override def nestedNodes: Option[Seq[com.capnproto.schema.Node.NestedNode]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.Node.NestedNodeMutable(_)))
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]] = struct.getStructList(2).map(_.map(new com.capnproto.schema.AnnotationMutable(_)))
+  override def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode] = struct.getStructList(1).map(new com.capnproto.schema.Node.NestedNodeMutable(_))
+  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(2).map(new com.capnproto.schema.AnnotationMutable(_))
   override def file: Option[Unit] = struct.getNone()
-  override def __struct: Option[com.capnproto.schema.Node.__Struct] = Some(new com.capnproto.schema.Node.__StructMutable(struct))
+  override def __struct: com.capnproto.schema.Node.__Struct = new com.capnproto.schema.Node.__StructMutable(struct)
 
-  override def __enum: Option[com.capnproto.schema.Node.__Enum] = Some(new com.capnproto.schema.Node.__EnumMutable(struct))
+  override def __enum: com.capnproto.schema.Node.__Enum = new com.capnproto.schema.Node.__EnumMutable(struct)
 
-  override def interface: Option[com.capnproto.schema.Node.Interface] = Some(new com.capnproto.schema.Node.InterfaceMutable(struct))
+  override def interface: com.capnproto.schema.Node.Interface = new com.capnproto.schema.Node.InterfaceMutable(struct)
 
-  override def const: Option[com.capnproto.schema.Node.Const] = Some(new com.capnproto.schema.Node.ConstMutable(struct))
+  override def const: com.capnproto.schema.Node.Const = new com.capnproto.schema.Node.ConstMutable(struct)
 
-  override def annotation: Option[com.capnproto.schema.Node.Annotation] = Some(new com.capnproto.schema.Node.AnnotationMutable(struct))
+  override def annotation: com.capnproto.schema.Node.Annotation = new com.capnproto.schema.Node.AnnotationMutable(struct)
 
 }
 
@@ -722,16 +722,16 @@ object Field extends MetaStruct[Field] {
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
     }
     def setDiscriminantValue(value: java.lang.Short): Builder = { struct.setShort(1, value); this }
-    override def slot: Option[com.capnproto.schema.Field.Slot.Builder] = Some(new com.capnproto.schema.Field.Slot.Builder(struct))
-    override def group: Option[com.capnproto.schema.Field.Group.Builder] = Some(new com.capnproto.schema.Field.Group.Builder(struct))
-    override def ordinal: Option[com.capnproto.schema.Field.Ordinal.Builder] = Some(new com.capnproto.schema.Field.Ordinal.Builder(struct))
+    override def slot: com.capnproto.schema.Field.Slot.Builder = new com.capnproto.schema.Field.Slot.Builder(struct)
+    override def group: com.capnproto.schema.Field.Group.Builder = new com.capnproto.schema.Field.Group.Builder(struct)
+    override def ordinal: com.capnproto.schema.Field.Ordinal.Builder = new com.capnproto.schema.Field.Ordinal.Builder(struct)
   }
 
   sealed trait Union extends UnionValue[com.capnproto.schema.Field.Union]
   object Union extends UnionMeta[com.capnproto.schema.Field.Union] {
     case class Unknown(discriminant: Short) extends com.capnproto.schema.Field.Union
-    case class slot(value: Option[com.capnproto.schema.Field.Slot]) extends com.capnproto.schema.Field.Union
-    case class group(value: Option[com.capnproto.schema.Field.Group]) extends com.capnproto.schema.Field.Union
+    case class slot(value: com.capnproto.schema.Field.Slot) extends com.capnproto.schema.Field.Union
+    case class group(value: com.capnproto.schema.Field.Group) extends com.capnproto.schema.Field.Union
   }
 
 
@@ -978,11 +978,11 @@ trait Field extends Struct[Field] with HasUnion[com.capnproto.schema.Field.Union
 
   def name: Option[String]
   def codeOrder: Option[java.lang.Short]
-  def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  def annotations: Seq[com.capnproto.schema.Annotation]
   def discriminantValue: Option[java.lang.Short]
-  def slot: Option[com.capnproto.schema.Field.Slot]
-  def group: Option[com.capnproto.schema.Field.Group]
-  def ordinal: Option[com.capnproto.schema.Field.Ordinal]
+  def slot: com.capnproto.schema.Field.Slot
+  def group: com.capnproto.schema.Field.Group
+  def ordinal: com.capnproto.schema.Field.Ordinal
 }
 
 trait FieldProxy extends Field with HasUnion[com.capnproto.schema.Field.Union] {
@@ -995,11 +995,11 @@ trait FieldProxy extends Field with HasUnion[com.capnproto.schema.Field.Union] {
 
   override def name: Option[String]
   override def codeOrder: Option[java.lang.Short]
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  override def annotations: Seq[com.capnproto.schema.Annotation]
   override def discriminantValue: Option[java.lang.Short]
-  override def slot: Option[com.capnproto.schema.Field.Slot]
-  override def group: Option[com.capnproto.schema.Field.Group]
-  override def ordinal: Option[com.capnproto.schema.Field.Ordinal]
+  override def slot: com.capnproto.schema.Field.Slot
+  override def group: com.capnproto.schema.Field.Group
+  override def ordinal: com.capnproto.schema.Field.Ordinal
 }
 
 class FieldMutable(override val struct: CapnpStruct) extends Field {
@@ -1014,13 +1014,13 @@ class FieldMutable(override val struct: CapnpStruct) extends Field {
 
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.AnnotationMutable(_)))
+  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(1).map(new com.capnproto.schema.AnnotationMutable(_))
   override def discriminantValue: Option[java.lang.Short] = struct.getShort(1)
-  override def slot: Option[com.capnproto.schema.Field.Slot] = Some(new com.capnproto.schema.Field.SlotMutable(struct))
+  override def slot: com.capnproto.schema.Field.Slot = new com.capnproto.schema.Field.SlotMutable(struct)
 
-  override def group: Option[com.capnproto.schema.Field.Group] = Some(new com.capnproto.schema.Field.GroupMutable(struct))
+  override def group: com.capnproto.schema.Field.Group = new com.capnproto.schema.Field.GroupMutable(struct)
 
-  override def ordinal: Option[com.capnproto.schema.Field.Ordinal] = Some(new com.capnproto.schema.Field.OrdinalMutable(struct))
+  override def ordinal: com.capnproto.schema.Field.Ordinal = new com.capnproto.schema.Field.OrdinalMutable(struct)
 
 }
 
@@ -1078,7 +1078,7 @@ trait Enumerant extends Struct[Enumerant] {
 
   def name: Option[String]
   def codeOrder: Option[java.lang.Short]
-  def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 trait EnumerantProxy extends Enumerant {
@@ -1088,14 +1088,14 @@ trait EnumerantProxy extends Enumerant {
 
   override def name: Option[String]
   override def codeOrder: Option[java.lang.Short]
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  override def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
 
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.AnnotationMutable(_)))
+  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(1).map(new com.capnproto.schema.AnnotationMutable(_))
 }
 
 object Method extends MetaStruct[Method] {
@@ -1194,7 +1194,7 @@ object Method extends MetaStruct[Method] {
     def name: Option[String]
     def __type: Option[com.capnproto.schema.__Type]
     def defaultValue: Option[com.capnproto.schema.Value]
-    def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+    def annotations: Seq[com.capnproto.schema.Annotation]
   }
 
   trait ParamProxy extends Param {
@@ -1205,7 +1205,7 @@ object Method extends MetaStruct[Method] {
     override def name: Option[String]
     override def __type: Option[com.capnproto.schema.__Type]
     override def defaultValue: Option[com.capnproto.schema.Value]
-    override def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+    override def annotations: Seq[com.capnproto.schema.Annotation]
   }
 
   class ParamMutable(override val struct: CapnpStruct) extends Param {
@@ -1213,7 +1213,7 @@ object Method extends MetaStruct[Method] {
     override def name: Option[String] = struct.getString(0)
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(1).map(new com.capnproto.schema.__TypeMutable(_))
     override def defaultValue: Option[com.capnproto.schema.Value] = struct.getStruct(2).map(new com.capnproto.schema.ValueMutable(_))
-    override def annotations: Option[Seq[com.capnproto.schema.Annotation]] = struct.getStructList(3).map(_.map(new com.capnproto.schema.AnnotationMutable(_)))
+    override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(3).map(new com.capnproto.schema.AnnotationMutable(_))
   }
 
 
@@ -1256,10 +1256,10 @@ trait Method extends Struct[Method] {
 
   def name: Option[String]
   def codeOrder: Option[java.lang.Short]
-  def params: Option[Seq[com.capnproto.schema.Method.Param]]
+  def params: Seq[com.capnproto.schema.Method.Param]
   def requiredParamCount: Option[java.lang.Short]
   def returnType: Option[com.capnproto.schema.__Type]
-  def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 trait MethodProxy extends Method {
@@ -1269,20 +1269,20 @@ trait MethodProxy extends Method {
 
   override def name: Option[String]
   override def codeOrder: Option[java.lang.Short]
-  override def params: Option[Seq[com.capnproto.schema.Method.Param]]
+  override def params: Seq[com.capnproto.schema.Method.Param]
   override def requiredParamCount: Option[java.lang.Short]
   override def returnType: Option[com.capnproto.schema.__Type]
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]]
+  override def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 class MethodMutable(override val struct: CapnpStruct) extends Method {
 
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
-  override def params: Option[Seq[com.capnproto.schema.Method.Param]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.Method.ParamMutable(_)))
+  override def params: Seq[com.capnproto.schema.Method.Param] = struct.getStructList(1).map(new com.capnproto.schema.Method.ParamMutable(_))
   override def requiredParamCount: Option[java.lang.Short] = struct.getShort(1)
   override def returnType: Option[com.capnproto.schema.__Type] = struct.getStruct(2).map(new com.capnproto.schema.__TypeMutable(_))
-  override def annotations: Option[Seq[com.capnproto.schema.Annotation]] = struct.getStructList(3).map(_.map(new com.capnproto.schema.AnnotationMutable(_)))
+  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(3).map(new com.capnproto.schema.AnnotationMutable(_))
 }
 
 object __Type extends MetaStruct[__Type] {
@@ -1318,10 +1318,10 @@ object __Type extends MetaStruct[__Type] {
     def setFloat64(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -12); this }
     def setText(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -13); this }
     def setData(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -14); this }
-    override def list: Option[com.capnproto.schema.__Type.List.Builder] = Some(new com.capnproto.schema.__Type.List.Builder(struct))
-    override def __enum: Option[com.capnproto.schema.__Type.__Enum.Builder] = Some(new com.capnproto.schema.__Type.__Enum.Builder(struct))
-    override def __struct: Option[com.capnproto.schema.__Type.__Struct.Builder] = Some(new com.capnproto.schema.__Type.__Struct.Builder(struct))
-    override def interface: Option[com.capnproto.schema.__Type.Interface.Builder] = Some(new com.capnproto.schema.__Type.Interface.Builder(struct))
+    override def list: com.capnproto.schema.__Type.List.Builder = new com.capnproto.schema.__Type.List.Builder(struct)
+    override def __enum: com.capnproto.schema.__Type.__Enum.Builder = new com.capnproto.schema.__Type.__Enum.Builder(struct)
+    override def __struct: com.capnproto.schema.__Type.__Struct.Builder = new com.capnproto.schema.__Type.__Struct.Builder(struct)
+    override def interface: com.capnproto.schema.__Type.Interface.Builder = new com.capnproto.schema.__Type.Interface.Builder(struct)
     def set__Object(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -19); this }
   }
 
@@ -1342,10 +1342,10 @@ object __Type extends MetaStruct[__Type] {
     case class float64(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
     case class text(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
     case class data(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
-    case class list(value: Option[com.capnproto.schema.__Type.List]) extends com.capnproto.schema.__Type.Union
-    case class __enum(value: Option[com.capnproto.schema.__Type.__Enum]) extends com.capnproto.schema.__Type.Union
-    case class __struct(value: Option[com.capnproto.schema.__Type.__Struct]) extends com.capnproto.schema.__Type.Union
-    case class interface(value: Option[com.capnproto.schema.__Type.Interface]) extends com.capnproto.schema.__Type.Union
+    case class list(value: com.capnproto.schema.__Type.List) extends com.capnproto.schema.__Type.Union
+    case class __enum(value: com.capnproto.schema.__Type.__Enum) extends com.capnproto.schema.__Type.Union
+    case class __struct(value: com.capnproto.schema.__Type.__Struct) extends com.capnproto.schema.__Type.Union
+    case class interface(value: com.capnproto.schema.__Type.Interface) extends com.capnproto.schema.__Type.Union
     case class __object(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
   }
 
@@ -1671,10 +1671,10 @@ trait __Type extends Struct[__Type] with HasUnion[com.capnproto.schema.__Type.Un
   def float64: Option[Unit]
   def text: Option[Unit]
   def data: Option[Unit]
-  def list: Option[com.capnproto.schema.__Type.List]
-  def __enum: Option[com.capnproto.schema.__Type.__Enum]
-  def __struct: Option[com.capnproto.schema.__Type.__Struct]
-  def interface: Option[com.capnproto.schema.__Type.Interface]
+  def list: com.capnproto.schema.__Type.List
+  def __enum: com.capnproto.schema.__Type.__Enum
+  def __struct: com.capnproto.schema.__Type.__Struct
+  def interface: com.capnproto.schema.__Type.Interface
   def __object: Option[Unit]
 }
 
@@ -1700,10 +1700,10 @@ trait __TypeProxy extends __Type with HasUnion[com.capnproto.schema.__Type.Union
   override def float64: Option[Unit]
   override def text: Option[Unit]
   override def data: Option[Unit]
-  override def list: Option[com.capnproto.schema.__Type.List]
-  override def __enum: Option[com.capnproto.schema.__Type.__Enum]
-  override def __struct: Option[com.capnproto.schema.__Type.__Struct]
-  override def interface: Option[com.capnproto.schema.__Type.Interface]
+  override def list: com.capnproto.schema.__Type.List
+  override def __enum: com.capnproto.schema.__Type.__Enum
+  override def __struct: com.capnproto.schema.__Type.__Struct
+  override def interface: com.capnproto.schema.__Type.Interface
   override def __object: Option[Unit]
 }
 
@@ -1748,13 +1748,13 @@ class __TypeMutable(override val struct: CapnpStruct) extends __Type {
   override def float64: Option[Unit] = struct.getNone()
   override def text: Option[Unit] = struct.getNone()
   override def data: Option[Unit] = struct.getNone()
-  override def list: Option[com.capnproto.schema.__Type.List] = Some(new com.capnproto.schema.__Type.ListMutable(struct))
+  override def list: com.capnproto.schema.__Type.List = new com.capnproto.schema.__Type.ListMutable(struct)
 
-  override def __enum: Option[com.capnproto.schema.__Type.__Enum] = Some(new com.capnproto.schema.__Type.__EnumMutable(struct))
+  override def __enum: com.capnproto.schema.__Type.__Enum = new com.capnproto.schema.__Type.__EnumMutable(struct)
 
-  override def __struct: Option[com.capnproto.schema.__Type.__Struct] = Some(new com.capnproto.schema.__Type.__StructMutable(struct))
+  override def __struct: com.capnproto.schema.__Type.__Struct = new com.capnproto.schema.__Type.__StructMutable(struct)
 
-  override def interface: Option[com.capnproto.schema.__Type.Interface] = Some(new com.capnproto.schema.__Type.InterfaceMutable(struct))
+  override def interface: com.capnproto.schema.__Type.Interface = new com.capnproto.schema.__Type.InterfaceMutable(struct)
 
   override def __object: Option[Unit] = struct.getNone()
 }
@@ -2266,7 +2266,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     def id: Option[java.lang.Long]
     def filename: Option[String]
-    def imports: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]]
+    def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]
   }
 
   trait RequestedFileProxy extends RequestedFile {
@@ -2276,14 +2276,14 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     override def id: Option[java.lang.Long]
     override def filename: Option[String]
-    override def imports: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]]
+    override def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]
   }
 
   class RequestedFileMutable(override val struct: CapnpStruct) extends RequestedFile {
 
     override def id: Option[java.lang.Long] = struct.getLong(0)
     override def filename: Option[String] = struct.getString(0)
-    override def imports: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__ImportMutable(_)))
+    override def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import] = struct.getStructList(1).map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__ImportMutable(_))
   }
 
 
@@ -2304,8 +2304,8 @@ trait CodeGeneratorRequest extends Struct[CodeGeneratorRequest] {
   override def meta: CodeGeneratorRequest.type = CodeGeneratorRequest
   def struct: CapnpStruct
 
-  def nodes: Option[Seq[com.capnproto.schema.Node]]
-  def requestedFiles: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]]
+  def nodes: Seq[com.capnproto.schema.Node]
+  def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]
 }
 
 trait CodeGeneratorRequestProxy extends CodeGeneratorRequest {
@@ -2313,12 +2313,12 @@ trait CodeGeneratorRequestProxy extends CodeGeneratorRequest {
 
   override def struct: CapnpStruct = underlying.struct
 
-  override def nodes: Option[Seq[com.capnproto.schema.Node]]
-  override def requestedFiles: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]]
+  override def nodes: Seq[com.capnproto.schema.Node]
+  override def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]
 }
 
 class CodeGeneratorRequestMutable(override val struct: CapnpStruct) extends CodeGeneratorRequest {
 
-  override def nodes: Option[Seq[com.capnproto.schema.Node]] = struct.getStructList(0).map(_.map(new com.capnproto.schema.NodeMutable(_)))
-  override def requestedFiles: Option[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]] = struct.getStructList(1).map(_.map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFileMutable(_)))
+  override def nodes: Seq[com.capnproto.schema.Node] = struct.getStructList(0).map(new com.capnproto.schema.NodeMutable(_))
+  override def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile] = struct.getStructList(1).map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFileMutable(_))
 }

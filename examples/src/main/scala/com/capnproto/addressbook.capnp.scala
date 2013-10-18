@@ -34,7 +34,7 @@ object Person extends MetaStruct[Person] {
       val list = struct.initPointerList(2, count, com.capnproto.addressbook.Person.PhoneNumber.Builder)
       Range(0, count).map(i => new com.capnproto.addressbook.Person.PhoneNumber.Builder(list.initStruct(i, com.capnproto.addressbook.Person.PhoneNumber.Builder)))
     }
-    override def employment: Option[com.capnproto.addressbook.Person.Employment.Builder] = Some(new com.capnproto.addressbook.Person.Employment.Builder(struct))
+    override def employment: com.capnproto.addressbook.Person.Employment.Builder = new com.capnproto.addressbook.Person.Employment.Builder(struct)
   }
 
   object PhoneNumber extends MetaStruct[PhoneNumber] {
@@ -258,8 +258,8 @@ trait Person extends Struct[Person] {
   def id: Option[java.lang.Integer]
   def name: Option[String]
   def email: Option[String]
-  def phones: Option[Seq[com.capnproto.addressbook.Person.PhoneNumber]]
-  def employment: Option[com.capnproto.addressbook.Person.Employment]
+  def phones: Seq[com.capnproto.addressbook.Person.PhoneNumber]
+  def employment: com.capnproto.addressbook.Person.Employment
 }
 
 trait PersonProxy extends Person {
@@ -270,8 +270,8 @@ trait PersonProxy extends Person {
   override def id: Option[java.lang.Integer]
   override def name: Option[String]
   override def email: Option[String]
-  override def phones: Option[Seq[com.capnproto.addressbook.Person.PhoneNumber]]
-  override def employment: Option[com.capnproto.addressbook.Person.Employment]
+  override def phones: Seq[com.capnproto.addressbook.Person.PhoneNumber]
+  override def employment: com.capnproto.addressbook.Person.Employment
 }
 
 class PersonMutable(override val struct: CapnpStruct) extends Person {
@@ -279,8 +279,8 @@ class PersonMutable(override val struct: CapnpStruct) extends Person {
   override def id: Option[java.lang.Integer] = struct.getInt(0)
   override def name: Option[String] = struct.getString(0)
   override def email: Option[String] = struct.getString(1)
-  override def phones: Option[Seq[com.capnproto.addressbook.Person.PhoneNumber]] = struct.getStructList(2).map(_.map(new com.capnproto.addressbook.Person.PhoneNumberMutable(_)))
-  override def employment: Option[com.capnproto.addressbook.Person.Employment] = Some(new com.capnproto.addressbook.Person.EmploymentMutable(struct))
+  override def phones: Seq[com.capnproto.addressbook.Person.PhoneNumber] = struct.getStructList(2).map(new com.capnproto.addressbook.Person.PhoneNumberMutable(_))
+  override def employment: com.capnproto.addressbook.Person.Employment = new com.capnproto.addressbook.Person.EmploymentMutable(struct)
 
 }
 
@@ -324,7 +324,7 @@ trait AddressBook extends Struct[AddressBook] {
   override def meta: AddressBook.type = AddressBook
   def struct: CapnpStruct
 
-  def people: Option[Seq[com.capnproto.addressbook.Person]]
+  def people: Seq[com.capnproto.addressbook.Person]
 }
 
 trait AddressBookProxy extends AddressBook {
@@ -332,10 +332,10 @@ trait AddressBookProxy extends AddressBook {
 
   override def struct: CapnpStruct = underlying.struct
 
-  override def people: Option[Seq[com.capnproto.addressbook.Person]]
+  override def people: Seq[com.capnproto.addressbook.Person]
 }
 
 class AddressBookMutable(override val struct: CapnpStruct) extends AddressBook {
 
-  override def people: Option[Seq[com.capnproto.addressbook.Person]] = struct.getStructList(0).map(_.map(new com.capnproto.addressbook.PersonMutable(_)))
+  override def people: Seq[com.capnproto.addressbook.Person] = struct.getStructList(0).map(new com.capnproto.addressbook.PersonMutable(_))
 }

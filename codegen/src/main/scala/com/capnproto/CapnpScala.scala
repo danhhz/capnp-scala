@@ -17,7 +17,7 @@ object CapnpScala {
   def main(args: Array[String]): Unit = {
     val parsed = CapnpArena.fromInputStream(System.in).getRoot(CodeGeneratorRequest)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
-    val schemasById = getSchemas(parsed.nodes.get)
+    val schemasById = getSchemas(parsed.nodes)
 
     def getDependency(scope: Node, id: Long): Node = {
       schemasById.get(id).get
@@ -39,10 +39,10 @@ object CapnpScala {
         case __Type.Union.float64(_) => "java.lang.Double"
         case __Type.Union.text(_) => "String"
         case __Type.Union.data(_) => "Array[Byte]"
-        case __Type.Union.list(_) => StringTree("Seq[", genType(ctype.list.get.elementType.get, scope), "]")
-        case __Type.Union.__enum(_) => nodeName(getDependency(scope, ctype.__enum.get.typeId.get))
-        case __Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.get.typeId.get))
-        case __Type.Union.interface(_) => nodeName(getDependency(scope, ctype.interface.get.typeId.get))
+        case __Type.Union.list(_) => StringTree("Seq[", genType(ctype.list.elementType.get, scope), "]")
+        case __Type.Union.__enum(_) => nodeName(getDependency(scope, ctype.__enum.typeId.get))
+        case __Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.typeId.get))
+        case __Type.Union.interface(_) => nodeName(getDependency(scope, ctype.interface.typeId.get))
         case __Type.Union.__object(_) => "AnyRef"
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       })
@@ -65,13 +65,13 @@ object CapnpScala {
         case __Type.Union.text(_) => StringTree("getString(", offset, ")")
         case __Type.Union.data(_) => StringTree("getData(", offset, ")")
         case __Type.Union.list(_) => StringTree(
-          "getStructList(", offset, ").map(_.map(new ", genType(ctype.list.get.elementType.get, scope), "Mutable(_)))"
+          "getStructList(", offset, ").map(new ", genType(ctype.list.elementType.get, scope), "Mutable(_))"
         )
         case __Type.Union.__enum(_) => StringTree(
-          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.get.typeId.get)), ".Unknown(id.toShort)))"
+          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
         )
         case __Type.Union.__struct(_) => StringTree(
-          "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.get.typeId.get)), "Mutable(_))"
+          "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.typeId.get)), "Mutable(_))"
         )
         case __Type.Union.interface(_) => StringTree("getNone(", offset, ")")
         case __Type.Union.__object(_) => StringTree("getNone(", offset, ")")
@@ -121,7 +121,7 @@ object CapnpScala {
         case __Type.Union.text(_) => StringTree("\"", value.text.get, "\"")
         case __Type.Union.data(_) => StringTree("Array(", value.data.get.mkString(", "), ")")
         case __Type.Union.list(_) => StringTree("TODO(ctype.list(_))")
-        case __Type.Union.__enum(_) => StringTree(ctype.__enum.get)
+        case __Type.Union.__enum(_) => StringTree(ctype.__enum)
         case __Type.Union.__struct(_) => StringTree("TODO(ctype.__struct(_))")
         case __Type.Union.interface(_) => StringTree("")
         case __Type.Union.__object(_) => StringTree("")
@@ -131,14 +131,14 @@ object CapnpScala {
 
     def getUnqualifiedName(schema: Node): String = {
       val parent = schemasById.get(schema.scopeId.get).get
-      val nodeNameOpt = parent.nestedNodes.getOrElse(Nil).find(_.id == schema.id).map(_.name.get)
+      val nodeNameOpt = parent.nestedNodes.find(_.id == schema.id).map(_.name.get)
       nodeNameOpt.orElse({
-        parent.__struct.flatMap(_.__fields.get.find(_.group.exists(_.typeId == schema.id))).map(f => scalaCaseName(f.name.get))
+        parent.__struct.__fields.find(_.group.typeId == schema.id).map(f => scalaCaseName(f.name.get))
       }).map(scalaEscapeName(_)).getOrElse("?")
     }
 
     def getScalaPackageName(file: Node): String = {
-      file.annotations.getOrElse(Nil).find(_.id.get == -2365685817485540979L).map(_.value.get.text.get).getOrElse("")
+      file.annotations.find(_.id.get == -2365685817485540979L).map(_.value.get.text.get).getOrElse("")
     }
 
     def nodeName(target: Node): StringTree = {
@@ -168,9 +168,9 @@ object CapnpScala {
 
     def fieldScalaType(field: Field, scope: Node): StringTree = {
       field.switch match {
-        case Field.Union.slot(slot) => genType(slot.get.__type.get, scope)
+        case Field.Union.slot(slot) => genType(slot.__type.get, scope)
         case Field.Union.group(group) => {
-          var parent = schemasById.get(getDependency(scope, group.get.typeId.get).scopeId.get).get
+          var parent = schemasById.get(getDependency(scope, group.typeId.get).scopeId.get).get
           var path = nodeName(parent)
           StringTree(path, ".", scalaEscapeName(scalaCaseName(field.name.get)))
         }
@@ -197,9 +197,8 @@ object CapnpScala {
     def genDecl(schema: Node, nameRaw: String, scopeId: Long, indent: StringTreeIndent): StringTree = {
       val name = scalaEscapeName(nameRaw)
       schema.switch match {
-        case Node.Union.__struct(s) => {
-          val struct = s.get
-          val fields = struct.__fields.get.sortBy(_.codeOrder)
+        case Node.Union.__struct(struct) => {
+          val fields = struct.__fields.sortBy(_.codeOrder)
           val unionFields = fields.filter(_.discriminantValue.isDefined)
           val groupFields = fields.filter(_.switch match { case Field.Union.group(_) => true; case _ => false})
           StringTree(
@@ -227,17 +226,17 @@ object CapnpScala {
               field.switch match {
                 case Field.Union.slot(slot) => StringTree(
                   indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(value: ", fieldScalaType(field, schema), "): Builder = { ",
-                  "struct.", genSetter(slot.get.__type.get, schema, slot.get.offset.map(_.toInt).getOrElse(0)), "; ",
+                  "struct.", genSetter(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0)), "; ",
                   field.discriminantValue.map(d => StringTree(
                     "struct.setShort(", struct.discriminantOffset.getOrElse(0), ", ", d, "); "
                   )),
                   "this }\n",
-                  slot.get.__type.get.switch match {
-                    case __Type.Union.list(list) => list.get.elementType.get.switch match {
+                  slot.__type.get.switch match {
+                    case __Type.Union.list(list) => list.elementType.get.switch match {
                       case __Type.Union.__struct(_) => StringTree(
-                        indent.next.next, "def init", scalaCaseName(scalaEscapeName(field.name.get)), "(count: Int): Seq[", genType(list.get.elementType.get, schema), ".Builder] = {\n",
-                        indent.next.next.next, "val list = struct.initPointerList(", slot.get.offset.getOrElse(0), ", count, ", genType(list.get.elementType.get, schema), ".Builder)\n",
-                        indent.next.next.next, "Range(0, count).map(i => new ", genType(list.get.elementType.get, schema), ".Builder(list.initStruct(i, ", genType(list.get.elementType.get, schema), ".Builder)))\n",
+                        indent.next.next, "def init", scalaCaseName(scalaEscapeName(field.name.get)), "(count: Int): Seq[", genType(list.elementType.get, schema), ".Builder] = {\n",
+                        indent.next.next.next, "val list = struct.initPointerList(", slot.offset.getOrElse(0), ", count, ", genType(list.elementType.get, schema), ".Builder)\n",
+                        indent.next.next.next, "Range(0, count).map(i => new ", genType(list.elementType.get, schema), ".Builder(list.initStruct(i, ", genType(list.elementType.get, schema), ".Builder)))\n",
                         indent.next.next, "}\n"
                       )
                       case _ => StringTree()
@@ -246,7 +245,7 @@ object CapnpScala {
                   }
                 )
                 case Field.Union.group(group) => StringTree(
-                  indent.next.next, "override def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), ".Builder] = Some(new ", fieldScalaType(field, schema), ".Builder(struct))\n"
+                  indent.next.next, "override def ", scalaEscapeName(field.name.get), ": ", fieldScalaType(field, schema), ".Builder = new ", fieldScalaType(field, schema), ".Builder(struct)\n"
                 )
                 case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
               }
@@ -258,12 +257,21 @@ object CapnpScala {
               indent.next, "object Union extends UnionMeta[", nodeName(schema), ".Union] {\n",
               indent.next.next, "case class Unknown(discriminant: Short) extends ", nodeName(schema), ".Union\n",
               unionFields.map(unionField => StringTree(
-                indent.next.next, "case class ", scalaEscapeName(unionField.name.get), "(value: Option[", fieldScalaType(unionField, schema), "]) extends ", nodeName(schema), ".Union\n"
+                indent.next.next, "case class ", scalaEscapeName(unionField.name.get), "(value: ",
+                unionField.switch match {
+                  case Field.Union.slot(slot) => slot.__type.get.switch match {
+                    case __Type.Union.list(_) => StringTree(fieldScalaType(unionField, schema))
+                    case _ => StringTree("Option[", fieldScalaType(unionField, schema), "]")
+                  }
+                  case Field.Union.group(group) => StringTree(fieldScalaType(unionField, schema))
+                  case _ => throw new IllegalArgumentException("Unknown: " + unionField.switch)
+                },
+                ") extends ", nodeName(schema), ".Union\n"
               )),
               indent.next, "}\n\n"
             ), "\n",
             groupFields.map(groupField => {
-              val groupNode = getDependency(schema, groupField.group.get.typeId.get)
+              val groupNode = getDependency(schema, groupField.group.typeId.get)
               genGroupDecl(groupNode, groupField.name.get, groupNode.scopeId.get, indent.next)
             }), "\n",
             StringTree.join("\n", fields.map(field => StringTree(
@@ -282,7 +290,15 @@ object CapnpScala {
             indent.next, "override def meta: ", name, ".type = ", name, "\n",
             indent.next, "def struct: CapnpStruct\n\n",
             fields.map(field => StringTree(
-              indent.next, "def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), "]\n"
+              indent.next, "def ", scalaEscapeName(field.name.get), ": ",
+              field.switch match {
+                case Field.Union.slot(slot) => slot.__type.get.switch match {
+                  case __Type.Union.list(_) => StringTree(fieldScalaType(field, schema), "\n")
+                  case _ => StringTree("Option[", fieldScalaType(field, schema), "]\n")
+                }
+                case Field.Union.group(group) => StringTree(fieldScalaType(field, schema), "\n")
+                case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
+              }
             )),
             // indent.next, "def copy(",
             // StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get), ": ", fieldScalaType(field, schema), " = this.", scalaEscapeName(field.name.get), ".getOrElse(null)")))
@@ -301,7 +317,15 @@ object CapnpScala {
               "\n"
             ),
             fields.map(field => StringTree(
-              indent.next, "override def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), "]\n"
+              indent.next, "override def ", scalaEscapeName(field.name.get), ": ",
+              field.switch match {
+                case Field.Union.slot(slot) => slot.__type.get.switch match {
+                  case __Type.Union.list(_) => StringTree(fieldScalaType(field, schema), "\n")
+                  case _ => StringTree("Option[", fieldScalaType(field, schema), "]\n")
+                }
+                case Field.Union.group(group) => StringTree(fieldScalaType(field, schema), "\n")
+                case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
+              }
             )),
             // indent.next, "override def copy(",
             // StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get), ": ", fieldScalaType(field, schema))))
@@ -325,12 +349,19 @@ object CapnpScala {
               "\n"
             ),
             StringTree.join("\n", fields.map(field => StringTree(
-              indent.next, "override def ", scalaEscapeName(field.name.get), ": Option[", fieldScalaType(field, schema), "] = ",
+              indent.next, "override def ", scalaEscapeName(field.name.get), ": ",
               field.switch match {
-                case Field.Union.slot(slot) => StringTree("struct.", genAccessor(slot.get.__type.get, schema, slot.get.offset.map(_.toInt).getOrElse(0)))
-                case Field.Union.group(group) => {
-                  StringTree("Some(new ", nodeName(schema), ".", scalaEscapeName(scalaCaseName(field.name.get)), "Mutable(struct))\n")
+                case Field.Union.slot(slot) => slot.__type.get.switch match {
+                  case __Type.Union.list(_) => StringTree(
+                    fieldScalaType(field, schema), " = struct.", genAccessor(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0))
+                  )
+                  case _ => StringTree(
+                    "Option[", fieldScalaType(field, schema), "] = struct.", genAccessor(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0))
+                  )
                 }
+                case Field.Union.group(group) => StringTree(
+                  fieldScalaType(field, schema), " = new ", nodeName(schema), ".", scalaEscapeName(scalaCaseName(field.name.get)), "Mutable(struct)\n"
+                )
                 case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
               }
             ))), "\n",
@@ -342,17 +373,16 @@ object CapnpScala {
             indent, "}\n"
           )
         }
-        case Node.Union.__enum(e) => {
-          val enum = e.get
+        case Node.Union.__enum(enum) => {
           StringTree(
             indent, "object ", name, " extends EnumMeta[", name, "] {\n",
             genNestedDecls(schema, indent.next),
             indent.next, "case class Unknown(override val id: Int) extends ", name, "(", name, ", id, null, null)\n\n",
-            StringTree.join("\n", enum.enumerants.get.sortBy(_.codeOrder).zipWithIndex.map({ case (e, i) => StringTree(
+            StringTree.join("\n", enum.enumerants.sortBy(_.codeOrder).zipWithIndex.map({ case (e, i) => StringTree(
               indent.next, "val ", e.name.get, " = new ", name, "(this, ", i.toString, ", \"", e.name.get, "\", \"", e.name.get, "\")"
             )})), "\n\n",
             indent.next, "override val values = Vector(\n",
-            StringTree.join(",\n", enum.enumerants.get.sortBy(_.codeOrder).map(e => StringTree(indent.next.next, e.name.get))), "\n",
+            StringTree.join(",\n", enum.enumerants.sortBy(_.codeOrder).map(e => StringTree(indent.next.next, e.name.get))), "\n",
             indent.next, ")\n\n",
             indent.next, "override def findByIdOrNull(id: Int): ", name, " = values.lift(id).getOrElse(null)\n",
             indent.next, "override def findByNameOrNull(name: String): ", name, " = null\n",
@@ -372,7 +402,7 @@ object CapnpScala {
 
     def genNestedDecls(schema: Node, indent: StringTreeIndent): StringTree = {
       val id = schema.id.get;
-      StringTree.join("\n", schema.nestedNodes.getOrElse(Nil).map(nested => {
+      StringTree.join("\n", schema.nestedNodes.map(nested => {
         genDecl(schemasById(nested.id.get), nested.name.get, id, indent)
       }).toSeq)
     }
@@ -390,7 +420,7 @@ object CapnpScala {
       )
     }
 
-    parsed.requestedFiles.get.map(requestedFile => {
+    parsed.requestedFiles.map(requestedFile => {
       val outputPath = requestedFile.filename.get + ".scala"
       val output = genFile(schemasById(requestedFile.id.get)).flatten
       val source = new FileWriter(outputPath)

@@ -253,14 +253,14 @@ class CapnpStruct(
     case s: CapnpStruct => Some(s)
     case _ => None
   })
-  def getStructList(offset: Int): Option[Seq[CapnpStruct]] = getPointer(offset).map(_ match {
-    case l: CapnpList => {
+  def getStructList(offset: Int): Seq[CapnpStruct] = getPointer(offset) match {
+    case Some(l: CapnpList) => {
       (0 to l.listElementCount-1).map(l.getComposite(_)).map(_ match {
         case s: CapnpStruct => s
       })
     }
     case _ => Nil
-  })
+  }
 
   def getNone[T](o: Int = 0): Option[T] = None
 }
