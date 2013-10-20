@@ -11,7 +11,6 @@ object Person extends MetaStruct[Person] {
   override type Self = Person.type
   override val recordName: String = "Person"
   override def create(struct: CapnpStruct): Person = new PersonMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Person, Person.type]] = Seq(id, name, email, phones, employment)
 
   object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person, com.capnproto.addressbook.Person.Builder] {
     override type Self = com.capnproto.addressbook.Person.Builder.type
@@ -41,7 +40,6 @@ object Person extends MetaStruct[Person] {
     override type Self = PhoneNumber.type
     override val recordName: String = "PhoneNumber"
     override def create(struct: CapnpStruct): PhoneNumber = new PhoneNumberMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, PhoneNumber, PhoneNumber.type]] = Seq(number, __type)
 
     object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person.PhoneNumber, com.capnproto.addressbook.Person.PhoneNumber.Builder] {
       override type Self = com.capnproto.addressbook.Person.PhoneNumber.Builder.type
@@ -88,13 +86,18 @@ object Person extends MetaStruct[Person] {
 
     val number = new FieldDescriptor[String, PhoneNumber, PhoneNumber.type](
       name = "number",
-      meta = PhoneNumber
+      meta = PhoneNumber,
+      getter = _.number,
+      manifest = manifest[String]
     )
 
     val __type = new FieldDescriptor[com.capnproto.addressbook.Person.PhoneNumber.__Type, PhoneNumber, PhoneNumber.type](
       name = "type",
-      meta = PhoneNumber
+      meta = PhoneNumber,
+      getter = _.__type,
+      manifest = manifest[com.capnproto.addressbook.Person.PhoneNumber.__Type]
     )
+    override val fields: Seq[FieldDescriptor[_, PhoneNumber, PhoneNumber.type]] = Seq(number, __type)
   }
 
   trait PhoneNumber extends Struct[PhoneNumber] {
@@ -126,7 +129,6 @@ object Person extends MetaStruct[Person] {
     override type Self = Employment.type
     override val recordName: String = "Employment"
     override def create(struct: CapnpStruct): Employment = new EmploymentMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Employment, Employment.type]] = Seq(unemployed, employer, school, selfEmployed)
 
     object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person.Employment, com.capnproto.addressbook.Person.Employment.Builder] {
       override type Self = com.capnproto.addressbook.Person.Employment.Builder.type
@@ -160,23 +162,32 @@ object Person extends MetaStruct[Person] {
 
     val unemployed = new FieldDescriptor[Unit, Employment, Employment.type](
       name = "unemployed",
-      meta = Employment
+      meta = Employment,
+      getter = _.unemployed,
+      manifest = manifest[Unit]
     )
 
     val employer = new FieldDescriptor[String, Employment, Employment.type](
       name = "employer",
-      meta = Employment
+      meta = Employment,
+      getter = _.employer,
+      manifest = manifest[String]
     )
 
     val school = new FieldDescriptor[String, Employment, Employment.type](
       name = "school",
-      meta = Employment
+      meta = Employment,
+      getter = _.school,
+      manifest = manifest[String]
     )
 
     val selfEmployed = new FieldDescriptor[Unit, Employment, Employment.type](
       name = "selfEmployed",
-      meta = Employment
+      meta = Employment,
+      getter = _.selfEmployed,
+      manifest = manifest[Unit]
     )
+    override val fields: Seq[FieldDescriptor[_, Employment, Employment.type]] = Seq(unemployed, employer, school, selfEmployed)
   }
 
   trait Employment extends Struct[Employment] with HasUnion[com.capnproto.addressbook.Person.Employment.Union] {
@@ -225,28 +236,39 @@ object Person extends MetaStruct[Person] {
 
   val id = new FieldDescriptor[java.lang.Integer, Person, Person.type](
     name = "id",
-    meta = Person
+    meta = Person,
+    getter = _.id,
+    manifest = manifest[java.lang.Integer]
   )
 
   val name = new FieldDescriptor[String, Person, Person.type](
     name = "name",
-    meta = Person
+    meta = Person,
+    getter = _.name,
+    manifest = manifest[String]
   )
 
   val email = new FieldDescriptor[String, Person, Person.type](
     name = "email",
-    meta = Person
+    meta = Person,
+    getter = _.email,
+    manifest = manifest[String]
   )
 
   val phones = new FieldDescriptor[Seq[com.capnproto.addressbook.Person.PhoneNumber], Person, Person.type](
     name = "phones",
-    meta = Person
+    meta = Person,
+    getter = x => Some(x.phones),
+    manifest = manifest[Seq[com.capnproto.addressbook.Person.PhoneNumber]]
   )
 
   val employment = new FieldDescriptor[com.capnproto.addressbook.Person.Employment, Person, Person.type](
     name = "employment",
-    meta = Person
+    meta = Person,
+    getter = x => Some(x.employment),
+    manifest = manifest[com.capnproto.addressbook.Person.Employment]
   )
+  override val fields: Seq[FieldDescriptor[_, Person, Person.type]] = Seq(id, name, email, phones, employment)
 }
 
 trait Person extends Struct[Person] {
@@ -288,7 +310,6 @@ object AddressBook extends MetaStruct[AddressBook] {
   override type Self = AddressBook.type
   override val recordName: String = "AddressBook"
   override def create(struct: CapnpStruct): AddressBook = new AddressBookMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, AddressBook, AddressBook.type]] = Seq(people)
 
   object Builder extends MetaStructBuilder[com.capnproto.addressbook.AddressBook, com.capnproto.addressbook.AddressBook.Builder] {
     override type Self = com.capnproto.addressbook.AddressBook.Builder.type
@@ -314,8 +335,11 @@ object AddressBook extends MetaStruct[AddressBook] {
 
   val people = new FieldDescriptor[Seq[com.capnproto.addressbook.Person], AddressBook, AddressBook.type](
     name = "people",
-    meta = AddressBook
+    meta = AddressBook,
+    getter = x => Some(x.people),
+    manifest = manifest[Seq[com.capnproto.addressbook.Person]]
   )
+  override val fields: Seq[FieldDescriptor[_, AddressBook, AddressBook.type]] = Seq(people)
 }
 
 trait AddressBook extends Struct[AddressBook] {

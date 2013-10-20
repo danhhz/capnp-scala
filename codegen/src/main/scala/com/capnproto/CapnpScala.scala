@@ -206,9 +206,6 @@ object CapnpScala {
             indent.next, "override type Self = ", name, ".type\n",
             indent.next, "override val recordName: String = \"", nameRaw, "\"\n",
             indent.next, "override def create(struct: CapnpStruct): ", name, " = new ", name, "Mutable(struct)\n",
-            indent.next, "override val fields: Seq[FieldDescriptor[_, ", name, ", ", name, ".type]] = Seq(",
-            StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get)))),
-            ")\n",
             "\n",
             indent.next, "object Builder extends MetaStructBuilder[", nodeName(schema), ", ", nodeName(schema), ".Builder] {\n",
             indent.next.next, "override type Self = ", nodeName(schema), ".Builder.type\n",
@@ -277,9 +274,23 @@ object CapnpScala {
             StringTree.join("\n", fields.map(field => StringTree(
               indent.next, "val ", scalaEscapeName(field.name.get), " = new FieldDescriptor[", fieldScalaType(field, schema), ", ", name, ", ", name, ".type](\n",
               indent.next.next, "name = \"", field.name.get, "\",\n",
-              indent.next.next, "meta = ", name, "\n",
+              indent.next.next, "meta = ", name, ",\n",
+              indent.next.next, "getter = ",
+              field.switch match {
+                case Field.Union.slot(slot) => slot.__type.get.switch match {
+                  case __Type.Union.list(_) => StringTree("x => Some(x.", scalaEscapeName(field.name.get), ")")
+                  case _ => StringTree("_.", scalaEscapeName(field.name.get))
+                }
+                case Field.Union.group(group) => StringTree("x => Some(x.", scalaEscapeName(field.name.get), ")")
+                case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
+              },
+              ",\n",
+              indent.next.next, "manifest = manifest[", fieldScalaType(field, schema), "]\n",
               indent.next, ")\n"
             ))),
+            indent.next, "override val fields: Seq[FieldDescriptor[_, ", name, ", ", name, ".type]] = Seq(",
+            StringTree.join(", ", fields.map(field => StringTree(scalaEscapeName(field.name.get)))),
+            ")\n",
             indent, "}\n\n",
 
 

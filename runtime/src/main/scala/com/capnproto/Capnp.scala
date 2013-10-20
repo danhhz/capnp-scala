@@ -12,14 +12,18 @@ import scala.io.Source
 
 trait UntypedFieldDescriptor {
   def name: String
-  // def unsafeGetter: Function1[Any, Option[Any]]
-  // def unsafeManifest: Manifest[_]
+  def unsafeGetter: Function1[Any, Option[Any]]
+  def unsafeManifest: Manifest[_]
 }
 case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
   override val name: String,
-  meta: M
+  meta: M,
+  getter: S => Option[F],
+  manifest: Manifest[F]
 ) extends RField[F, M] with UntypedFieldDescriptor {
   override final def owner: M = meta
+  override def unsafeGetter: Function1[Any, Option[Any]] = getter.asInstanceOf[Function1[Any, Option[Any]]]
+  override def unsafeManifest: Manifest[_] = manifest
 }
 
 trait UntypedStruct {
@@ -28,6 +32,14 @@ trait UntypedStruct {
 trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
   type MetaT <: MetaStruct[S]
   def meta: MetaT
+
+  override def toString: String = {
+    "(" +
+    meta.fields.flatMap(field => {
+      field.unsafeGetter(this).map(v => field.name + ": " + v)
+    }).mkString(", ") +
+    ")"
+  }
 }
 
 trait UntypedMetaStruct {

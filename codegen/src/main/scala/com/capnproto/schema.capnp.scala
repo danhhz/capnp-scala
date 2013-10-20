@@ -11,7 +11,6 @@ object Node extends MetaStruct[Node] {
   override type Self = Node.type
   override val recordName: String = "Node"
   override def create(struct: CapnpStruct): Node = new NodeMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Node, Node.type]] = Seq(id, displayName, displayNamePrefixLength, scopeId, nestedNodes, annotations, file, __struct, __enum, interface, const, annotation)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Node, com.capnproto.schema.Node.Builder] {
     override type Self = com.capnproto.schema.Node.Builder.type
@@ -52,7 +51,6 @@ object Node extends MetaStruct[Node] {
     override type Self = NestedNode.type
     override val recordName: String = "NestedNode"
     override def create(struct: CapnpStruct): NestedNode = new NestedNodeMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, NestedNode, NestedNode.type]] = Seq(name, id)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.NestedNode, com.capnproto.schema.Node.NestedNode.Builder] {
       override type Self = com.capnproto.schema.Node.NestedNode.Builder.type
@@ -75,13 +73,18 @@ object Node extends MetaStruct[Node] {
 
     val name = new FieldDescriptor[String, NestedNode, NestedNode.type](
       name = "name",
-      meta = NestedNode
+      meta = NestedNode,
+      getter = _.name,
+      manifest = manifest[String]
     )
 
     val id = new FieldDescriptor[java.lang.Long, NestedNode, NestedNode.type](
       name = "id",
-      meta = NestedNode
+      meta = NestedNode,
+      getter = _.id,
+      manifest = manifest[java.lang.Long]
     )
+    override val fields: Seq[FieldDescriptor[_, NestedNode, NestedNode.type]] = Seq(name, id)
   }
 
   trait NestedNode extends Struct[NestedNode] {
@@ -124,7 +127,6 @@ object Node extends MetaStruct[Node] {
     override type Self = __Struct.type
     override val recordName: String = "__Struct"
     override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(dataWordCount, pointerCount, preferredListEncoding, isGroup, discriminantCount, discriminantOffset, __fields)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.__Struct, com.capnproto.schema.Node.__Struct.Builder] {
       override type Self = com.capnproto.schema.Node.__Struct.Builder.type
@@ -156,38 +158,53 @@ object Node extends MetaStruct[Node] {
 
     val dataWordCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
       name = "dataWordCount",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.dataWordCount,
+      manifest = manifest[java.lang.Short]
     )
 
     val pointerCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
       name = "pointerCount",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.pointerCount,
+      manifest = manifest[java.lang.Short]
     )
 
     val preferredListEncoding = new FieldDescriptor[com.capnproto.schema.ElementSize, __Struct, __Struct.type](
       name = "preferredListEncoding",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.preferredListEncoding,
+      manifest = manifest[com.capnproto.schema.ElementSize]
     )
 
     val isGroup = new FieldDescriptor[java.lang.Boolean, __Struct, __Struct.type](
       name = "isGroup",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.isGroup,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val discriminantCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
       name = "discriminantCount",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.discriminantCount,
+      manifest = manifest[java.lang.Short]
     )
 
     val discriminantOffset = new FieldDescriptor[java.lang.Integer, __Struct, __Struct.type](
       name = "discriminantOffset",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.discriminantOffset,
+      manifest = manifest[java.lang.Integer]
     )
 
     val __fields = new FieldDescriptor[Seq[com.capnproto.schema.Field], __Struct, __Struct.type](
       name = "fields",
-      meta = __Struct
+      meta = __Struct,
+      getter = x => Some(x.__fields),
+      manifest = manifest[Seq[com.capnproto.schema.Field]]
     )
+    override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(dataWordCount, pointerCount, preferredListEncoding, isGroup, discriminantCount, discriminantOffset, __fields)
   }
 
   trait __Struct extends Struct[__Struct] {
@@ -233,7 +250,6 @@ object Node extends MetaStruct[Node] {
     override type Self = __Enum.type
     override val recordName: String = "__Enum"
     override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(enumerants)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.__Enum, com.capnproto.schema.Node.__Enum.Builder] {
       override type Self = com.capnproto.schema.Node.__Enum.Builder.type
@@ -259,8 +275,11 @@ object Node extends MetaStruct[Node] {
 
     val enumerants = new FieldDescriptor[Seq[com.capnproto.schema.Enumerant], __Enum, __Enum.type](
       name = "enumerants",
-      meta = __Enum
+      meta = __Enum,
+      getter = x => Some(x.enumerants),
+      manifest = manifest[Seq[com.capnproto.schema.Enumerant]]
     )
+    override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(enumerants)
   }
 
   trait __Enum extends Struct[__Enum] {
@@ -288,7 +307,6 @@ object Node extends MetaStruct[Node] {
     override type Self = Interface.type
     override val recordName: String = "Interface"
     override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(methods)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Interface, com.capnproto.schema.Node.Interface.Builder] {
       override type Self = com.capnproto.schema.Node.Interface.Builder.type
@@ -314,8 +332,11 @@ object Node extends MetaStruct[Node] {
 
     val methods = new FieldDescriptor[Seq[com.capnproto.schema.Method], Interface, Interface.type](
       name = "methods",
-      meta = Interface
+      meta = Interface,
+      getter = x => Some(x.methods),
+      manifest = manifest[Seq[com.capnproto.schema.Method]]
     )
+    override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(methods)
   }
 
   trait Interface extends Struct[Interface] {
@@ -343,7 +364,6 @@ object Node extends MetaStruct[Node] {
     override type Self = Const.type
     override val recordName: String = "Const"
     override def create(struct: CapnpStruct): Const = new ConstMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Const, Const.type]] = Seq(__type, value)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Const, com.capnproto.schema.Node.Const.Builder] {
       override type Self = com.capnproto.schema.Node.Const.Builder.type
@@ -366,13 +386,18 @@ object Node extends MetaStruct[Node] {
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Const, Const.type](
       name = "type",
-      meta = Const
+      meta = Const,
+      getter = _.__type,
+      manifest = manifest[com.capnproto.schema.__Type]
     )
 
     val value = new FieldDescriptor[com.capnproto.schema.Value, Const, Const.type](
       name = "value",
-      meta = Const
+      meta = Const,
+      getter = _.value,
+      manifest = manifest[com.capnproto.schema.Value]
     )
+    override val fields: Seq[FieldDescriptor[_, Const, Const.type]] = Seq(__type, value)
   }
 
   trait Const extends Struct[Const] {
@@ -403,7 +428,6 @@ object Node extends MetaStruct[Node] {
     override type Self = Annotation.type
     override val recordName: String = "Annotation"
     override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(__type, targetsFile, targetsConst, targetsEnum, targetsEnumerant, targetsStruct, targetsField, targetsUnion, targetsGroup, targetsInterface, targetsMethod, targetsParam, targetsAnnotation)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Annotation, com.capnproto.schema.Node.Annotation.Builder] {
       override type Self = com.capnproto.schema.Node.Annotation.Builder.type
@@ -437,68 +461,95 @@ object Node extends MetaStruct[Node] {
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Annotation, Annotation.type](
       name = "type",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.__type,
+      manifest = manifest[com.capnproto.schema.__Type]
     )
 
     val targetsFile = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsFile",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsFile,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsConst = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsConst",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsConst,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsEnum = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsEnum",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsEnum,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsEnumerant = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsEnumerant",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsEnumerant,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsStruct = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsStruct",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsStruct,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsField = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsField",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsField,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsUnion = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsUnion",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsUnion,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsGroup = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsGroup",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsGroup,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsInterface = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsInterface",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsInterface,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsMethod = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsMethod",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsMethod,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsParam = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsParam",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsParam,
+      manifest = manifest[java.lang.Boolean]
     )
 
     val targetsAnnotation = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
       name = "targetsAnnotation",
-      meta = Annotation
+      meta = Annotation,
+      getter = _.targetsAnnotation,
+      manifest = manifest[java.lang.Boolean]
     )
+    override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(__type, targetsFile, targetsConst, targetsEnum, targetsEnumerant, targetsStruct, targetsField, targetsUnion, targetsGroup, targetsInterface, targetsMethod, targetsParam, targetsAnnotation)
   }
 
   trait Annotation extends Struct[Annotation] {
@@ -561,63 +612,88 @@ object Node extends MetaStruct[Node] {
 
   val id = new FieldDescriptor[java.lang.Long, Node, Node.type](
     name = "id",
-    meta = Node
+    meta = Node,
+    getter = _.id,
+    manifest = manifest[java.lang.Long]
   )
 
   val displayName = new FieldDescriptor[String, Node, Node.type](
     name = "displayName",
-    meta = Node
+    meta = Node,
+    getter = _.displayName,
+    manifest = manifest[String]
   )
 
   val displayNamePrefixLength = new FieldDescriptor[java.lang.Integer, Node, Node.type](
     name = "displayNamePrefixLength",
-    meta = Node
+    meta = Node,
+    getter = _.displayNamePrefixLength,
+    manifest = manifest[java.lang.Integer]
   )
 
   val scopeId = new FieldDescriptor[java.lang.Long, Node, Node.type](
     name = "scopeId",
-    meta = Node
+    meta = Node,
+    getter = _.scopeId,
+    manifest = manifest[java.lang.Long]
   )
 
   val nestedNodes = new FieldDescriptor[Seq[com.capnproto.schema.Node.NestedNode], Node, Node.type](
     name = "nestedNodes",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.nestedNodes),
+    manifest = manifest[Seq[com.capnproto.schema.Node.NestedNode]]
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Node, Node.type](
     name = "annotations",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.annotations),
+    manifest = manifest[Seq[com.capnproto.schema.Annotation]]
   )
 
   val file = new FieldDescriptor[Unit, Node, Node.type](
     name = "file",
-    meta = Node
+    meta = Node,
+    getter = _.file,
+    manifest = manifest[Unit]
   )
 
   val __struct = new FieldDescriptor[com.capnproto.schema.Node.__Struct, Node, Node.type](
     name = "struct",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.__struct),
+    manifest = manifest[com.capnproto.schema.Node.__Struct]
   )
 
   val __enum = new FieldDescriptor[com.capnproto.schema.Node.__Enum, Node, Node.type](
     name = "enum",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.__enum),
+    manifest = manifest[com.capnproto.schema.Node.__Enum]
   )
 
   val interface = new FieldDescriptor[com.capnproto.schema.Node.Interface, Node, Node.type](
     name = "interface",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.interface),
+    manifest = manifest[com.capnproto.schema.Node.Interface]
   )
 
   val const = new FieldDescriptor[com.capnproto.schema.Node.Const, Node, Node.type](
     name = "const",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.const),
+    manifest = manifest[com.capnproto.schema.Node.Const]
   )
 
   val annotation = new FieldDescriptor[com.capnproto.schema.Node.Annotation, Node, Node.type](
     name = "annotation",
-    meta = Node
+    meta = Node,
+    getter = x => Some(x.annotation),
+    manifest = manifest[com.capnproto.schema.Node.Annotation]
   )
+  override val fields: Seq[FieldDescriptor[_, Node, Node.type]] = Seq(id, displayName, displayNamePrefixLength, scopeId, nestedNodes, annotations, file, __struct, __enum, interface, const, annotation)
 }
 
 trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
@@ -699,7 +775,6 @@ object Field extends MetaStruct[Field] {
   override type Self = Field.type
   override val recordName: String = "Field"
   override def create(struct: CapnpStruct): Field = new FieldMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Field, Field.type]] = Seq(name, codeOrder, annotations, discriminantValue, slot, group, ordinal)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Field, com.capnproto.schema.Field.Builder] {
     override type Self = com.capnproto.schema.Field.Builder.type
@@ -739,7 +814,6 @@ object Field extends MetaStruct[Field] {
     override type Self = Slot.type
     override val recordName: String = "Slot"
     override def create(struct: CapnpStruct): Slot = new SlotMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Slot, com.capnproto.schema.Field.Slot.Builder] {
       override type Self = com.capnproto.schema.Field.Slot.Builder.type
@@ -763,18 +837,25 @@ object Field extends MetaStruct[Field] {
 
     val offset = new FieldDescriptor[java.lang.Integer, Slot, Slot.type](
       name = "offset",
-      meta = Slot
+      meta = Slot,
+      getter = _.offset,
+      manifest = manifest[java.lang.Integer]
     )
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Slot, Slot.type](
       name = "type",
-      meta = Slot
+      meta = Slot,
+      getter = _.__type,
+      manifest = manifest[com.capnproto.schema.__Type]
     )
 
     val defaultValue = new FieldDescriptor[com.capnproto.schema.Value, Slot, Slot.type](
       name = "defaultValue",
-      meta = Slot
+      meta = Slot,
+      getter = _.defaultValue,
+      manifest = manifest[com.capnproto.schema.Value]
     )
+    override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue)
   }
 
   trait Slot extends Struct[Slot] {
@@ -808,7 +889,6 @@ object Field extends MetaStruct[Field] {
     override type Self = Group.type
     override val recordName: String = "Group"
     override def create(struct: CapnpStruct): Group = new GroupMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Group, Group.type]] = Seq(typeId)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Group, com.capnproto.schema.Field.Group.Builder] {
       override type Self = com.capnproto.schema.Field.Group.Builder.type
@@ -830,8 +910,11 @@ object Field extends MetaStruct[Field] {
 
     val typeId = new FieldDescriptor[java.lang.Long, Group, Group.type](
       name = "typeId",
-      meta = Group
+      meta = Group,
+      getter = _.typeId,
+      manifest = manifest[java.lang.Long]
     )
+    override val fields: Seq[FieldDescriptor[_, Group, Group.type]] = Seq(typeId)
   }
 
   trait Group extends Struct[Group] {
@@ -859,7 +942,6 @@ object Field extends MetaStruct[Field] {
     override type Self = Ordinal.type
     override val recordName: String = "Ordinal"
     override def create(struct: CapnpStruct): Ordinal = new OrdinalMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Ordinal, com.capnproto.schema.Field.Ordinal.Builder] {
       override type Self = com.capnproto.schema.Field.Ordinal.Builder.type
@@ -889,13 +971,18 @@ object Field extends MetaStruct[Field] {
 
     val __implicit = new FieldDescriptor[Unit, Ordinal, Ordinal.type](
       name = "implicit",
-      meta = Ordinal
+      meta = Ordinal,
+      getter = _.__implicit,
+      manifest = manifest[Unit]
     )
 
     val explicit = new FieldDescriptor[java.lang.Short, Ordinal, Ordinal.type](
       name = "explicit",
-      meta = Ordinal
+      meta = Ordinal,
+      getter = _.explicit,
+      manifest = manifest[java.lang.Short]
     )
+    override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
   }
 
   trait Ordinal extends Struct[Ordinal] with HasUnion[com.capnproto.schema.Field.Ordinal.Union] {
@@ -936,38 +1023,53 @@ object Field extends MetaStruct[Field] {
 
   val name = new FieldDescriptor[String, Field, Field.type](
     name = "name",
-    meta = Field
+    meta = Field,
+    getter = _.name,
+    manifest = manifest[String]
   )
 
   val codeOrder = new FieldDescriptor[java.lang.Short, Field, Field.type](
     name = "codeOrder",
-    meta = Field
+    meta = Field,
+    getter = _.codeOrder,
+    manifest = manifest[java.lang.Short]
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Field, Field.type](
     name = "annotations",
-    meta = Field
+    meta = Field,
+    getter = x => Some(x.annotations),
+    manifest = manifest[Seq[com.capnproto.schema.Annotation]]
   )
 
   val discriminantValue = new FieldDescriptor[java.lang.Short, Field, Field.type](
     name = "discriminantValue",
-    meta = Field
+    meta = Field,
+    getter = _.discriminantValue,
+    manifest = manifest[java.lang.Short]
   )
 
   val slot = new FieldDescriptor[com.capnproto.schema.Field.Slot, Field, Field.type](
     name = "slot",
-    meta = Field
+    meta = Field,
+    getter = x => Some(x.slot),
+    manifest = manifest[com.capnproto.schema.Field.Slot]
   )
 
   val group = new FieldDescriptor[com.capnproto.schema.Field.Group, Field, Field.type](
     name = "group",
-    meta = Field
+    meta = Field,
+    getter = x => Some(x.group),
+    manifest = manifest[com.capnproto.schema.Field.Group]
   )
 
   val ordinal = new FieldDescriptor[com.capnproto.schema.Field.Ordinal, Field, Field.type](
     name = "ordinal",
-    meta = Field
+    meta = Field,
+    getter = x => Some(x.ordinal),
+    manifest = manifest[com.capnproto.schema.Field.Ordinal]
   )
+  override val fields: Seq[FieldDescriptor[_, Field, Field.type]] = Seq(name, codeOrder, annotations, discriminantValue, slot, group, ordinal)
 }
 
 trait Field extends Struct[Field] with HasUnion[com.capnproto.schema.Field.Union] {
@@ -1028,7 +1130,6 @@ object Enumerant extends MetaStruct[Enumerant] {
   override type Self = Enumerant.type
   override val recordName: String = "Enumerant"
   override def create(struct: CapnpStruct): Enumerant = new EnumerantMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Enumerant, Enumerant.type]] = Seq(name, codeOrder, annotations)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Enumerant, com.capnproto.schema.Enumerant.Builder] {
     override type Self = com.capnproto.schema.Enumerant.Builder.type
@@ -1056,18 +1157,25 @@ object Enumerant extends MetaStruct[Enumerant] {
 
   val name = new FieldDescriptor[String, Enumerant, Enumerant.type](
     name = "name",
-    meta = Enumerant
+    meta = Enumerant,
+    getter = _.name,
+    manifest = manifest[String]
   )
 
   val codeOrder = new FieldDescriptor[java.lang.Short, Enumerant, Enumerant.type](
     name = "codeOrder",
-    meta = Enumerant
+    meta = Enumerant,
+    getter = _.codeOrder,
+    manifest = manifest[java.lang.Short]
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Enumerant, Enumerant.type](
     name = "annotations",
-    meta = Enumerant
+    meta = Enumerant,
+    getter = x => Some(x.annotations),
+    manifest = manifest[Seq[com.capnproto.schema.Annotation]]
   )
+  override val fields: Seq[FieldDescriptor[_, Enumerant, Enumerant.type]] = Seq(name, codeOrder, annotations)
 }
 
 trait Enumerant extends Struct[Enumerant] {
@@ -1102,7 +1210,6 @@ object Method extends MetaStruct[Method] {
   override type Self = Method.type
   override val recordName: String = "Method"
   override def create(struct: CapnpStruct): Method = new MethodMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, params, requiredParamCount, returnType, annotations)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Method, com.capnproto.schema.Method.Builder] {
     override type Self = com.capnproto.schema.Method.Builder.type
@@ -1137,7 +1244,6 @@ object Method extends MetaStruct[Method] {
     override type Self = Param.type
     override val recordName: String = "Param"
     override def create(struct: CapnpStruct): Param = new ParamMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Param, Param.type]] = Seq(name, __type, defaultValue, annotations)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Method.Param, com.capnproto.schema.Method.Param.Builder] {
       override type Self = com.capnproto.schema.Method.Param.Builder.type
@@ -1166,23 +1272,32 @@ object Method extends MetaStruct[Method] {
 
     val name = new FieldDescriptor[String, Param, Param.type](
       name = "name",
-      meta = Param
+      meta = Param,
+      getter = _.name,
+      manifest = manifest[String]
     )
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Param, Param.type](
       name = "type",
-      meta = Param
+      meta = Param,
+      getter = _.__type,
+      manifest = manifest[com.capnproto.schema.__Type]
     )
 
     val defaultValue = new FieldDescriptor[com.capnproto.schema.Value, Param, Param.type](
       name = "defaultValue",
-      meta = Param
+      meta = Param,
+      getter = _.defaultValue,
+      manifest = manifest[com.capnproto.schema.Value]
     )
 
     val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Param, Param.type](
       name = "annotations",
-      meta = Param
+      meta = Param,
+      getter = x => Some(x.annotations),
+      manifest = manifest[Seq[com.capnproto.schema.Annotation]]
     )
+    override val fields: Seq[FieldDescriptor[_, Param, Param.type]] = Seq(name, __type, defaultValue, annotations)
   }
 
   trait Param extends Struct[Param] {
@@ -1219,33 +1334,46 @@ object Method extends MetaStruct[Method] {
 
   val name = new FieldDescriptor[String, Method, Method.type](
     name = "name",
-    meta = Method
+    meta = Method,
+    getter = _.name,
+    manifest = manifest[String]
   )
 
   val codeOrder = new FieldDescriptor[java.lang.Short, Method, Method.type](
     name = "codeOrder",
-    meta = Method
+    meta = Method,
+    getter = _.codeOrder,
+    manifest = manifest[java.lang.Short]
   )
 
   val params = new FieldDescriptor[Seq[com.capnproto.schema.Method.Param], Method, Method.type](
     name = "params",
-    meta = Method
+    meta = Method,
+    getter = x => Some(x.params),
+    manifest = manifest[Seq[com.capnproto.schema.Method.Param]]
   )
 
   val requiredParamCount = new FieldDescriptor[java.lang.Short, Method, Method.type](
     name = "requiredParamCount",
-    meta = Method
+    meta = Method,
+    getter = _.requiredParamCount,
+    manifest = manifest[java.lang.Short]
   )
 
   val returnType = new FieldDescriptor[com.capnproto.schema.__Type, Method, Method.type](
     name = "returnType",
-    meta = Method
+    meta = Method,
+    getter = _.returnType,
+    manifest = manifest[com.capnproto.schema.__Type]
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Method, Method.type](
     name = "annotations",
-    meta = Method
+    meta = Method,
+    getter = x => Some(x.annotations),
+    manifest = manifest[Seq[com.capnproto.schema.Annotation]]
   )
+  override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, params, requiredParamCount, returnType, annotations)
 }
 
 trait Method extends Struct[Method] {
@@ -1289,7 +1417,6 @@ object __Type extends MetaStruct[__Type] {
   override type Self = __Type.type
   override val recordName: String = "Type"
   override def create(struct: CapnpStruct): __Type = new __TypeMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, __Type, __Type.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.__Type, com.capnproto.schema.__Type.Builder] {
     override type Self = com.capnproto.schema.__Type.Builder.type
@@ -1354,7 +1481,6 @@ object __Type extends MetaStruct[__Type] {
     override type Self = List.type
     override val recordName: String = "List"
     override def create(struct: CapnpStruct): List = new ListMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, List, List.type]] = Seq(elementType)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.List, com.capnproto.schema.__Type.List.Builder] {
       override type Self = com.capnproto.schema.__Type.List.Builder.type
@@ -1376,8 +1502,11 @@ object __Type extends MetaStruct[__Type] {
 
     val elementType = new FieldDescriptor[com.capnproto.schema.__Type, List, List.type](
       name = "elementType",
-      meta = List
+      meta = List,
+      getter = _.elementType,
+      manifest = manifest[com.capnproto.schema.__Type]
     )
+    override val fields: Seq[FieldDescriptor[_, List, List.type]] = Seq(elementType)
   }
 
   trait List extends Struct[List] {
@@ -1405,7 +1534,6 @@ object __Type extends MetaStruct[__Type] {
     override type Self = __Enum.type
     override val recordName: String = "__Enum"
     override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(typeId)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.__Enum, com.capnproto.schema.__Type.__Enum.Builder] {
       override type Self = com.capnproto.schema.__Type.__Enum.Builder.type
@@ -1427,8 +1555,11 @@ object __Type extends MetaStruct[__Type] {
 
     val typeId = new FieldDescriptor[java.lang.Long, __Enum, __Enum.type](
       name = "typeId",
-      meta = __Enum
+      meta = __Enum,
+      getter = _.typeId,
+      manifest = manifest[java.lang.Long]
     )
+    override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(typeId)
   }
 
   trait __Enum extends Struct[__Enum] {
@@ -1456,7 +1587,6 @@ object __Type extends MetaStruct[__Type] {
     override type Self = __Struct.type
     override val recordName: String = "__Struct"
     override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(typeId)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.__Struct, com.capnproto.schema.__Type.__Struct.Builder] {
       override type Self = com.capnproto.schema.__Type.__Struct.Builder.type
@@ -1478,8 +1608,11 @@ object __Type extends MetaStruct[__Type] {
 
     val typeId = new FieldDescriptor[java.lang.Long, __Struct, __Struct.type](
       name = "typeId",
-      meta = __Struct
+      meta = __Struct,
+      getter = _.typeId,
+      manifest = manifest[java.lang.Long]
     )
+    override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(typeId)
   }
 
   trait __Struct extends Struct[__Struct] {
@@ -1507,7 +1640,6 @@ object __Type extends MetaStruct[__Type] {
     override type Self = Interface.type
     override val recordName: String = "Interface"
     override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(typeId)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.Interface, com.capnproto.schema.__Type.Interface.Builder] {
       override type Self = com.capnproto.schema.__Type.Interface.Builder.type
@@ -1529,8 +1661,11 @@ object __Type extends MetaStruct[__Type] {
 
     val typeId = new FieldDescriptor[java.lang.Long, Interface, Interface.type](
       name = "typeId",
-      meta = Interface
+      meta = Interface,
+      getter = _.typeId,
+      manifest = manifest[java.lang.Long]
     )
+    override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(typeId)
   }
 
   trait Interface extends Struct[Interface] {
@@ -1557,98 +1692,137 @@ object __Type extends MetaStruct[__Type] {
 
   val void = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "void",
-    meta = __Type
+    meta = __Type,
+    getter = _.void,
+    manifest = manifest[Unit]
   )
 
   val bool = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "bool",
-    meta = __Type
+    meta = __Type,
+    getter = _.bool,
+    manifest = manifest[Unit]
   )
 
   val int8 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "int8",
-    meta = __Type
+    meta = __Type,
+    getter = _.int8,
+    manifest = manifest[Unit]
   )
 
   val int16 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "int16",
-    meta = __Type
+    meta = __Type,
+    getter = _.int16,
+    manifest = manifest[Unit]
   )
 
   val int32 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "int32",
-    meta = __Type
+    meta = __Type,
+    getter = _.int32,
+    manifest = manifest[Unit]
   )
 
   val int64 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "int64",
-    meta = __Type
+    meta = __Type,
+    getter = _.int64,
+    manifest = manifest[Unit]
   )
 
   val uint8 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "uint8",
-    meta = __Type
+    meta = __Type,
+    getter = _.uint8,
+    manifest = manifest[Unit]
   )
 
   val uint16 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "uint16",
-    meta = __Type
+    meta = __Type,
+    getter = _.uint16,
+    manifest = manifest[Unit]
   )
 
   val uint32 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "uint32",
-    meta = __Type
+    meta = __Type,
+    getter = _.uint32,
+    manifest = manifest[Unit]
   )
 
   val uint64 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "uint64",
-    meta = __Type
+    meta = __Type,
+    getter = _.uint64,
+    manifest = manifest[Unit]
   )
 
   val float32 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "float32",
-    meta = __Type
+    meta = __Type,
+    getter = _.float32,
+    manifest = manifest[Unit]
   )
 
   val float64 = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "float64",
-    meta = __Type
+    meta = __Type,
+    getter = _.float64,
+    manifest = manifest[Unit]
   )
 
   val text = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "text",
-    meta = __Type
+    meta = __Type,
+    getter = _.text,
+    manifest = manifest[Unit]
   )
 
   val data = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "data",
-    meta = __Type
+    meta = __Type,
+    getter = _.data,
+    manifest = manifest[Unit]
   )
 
   val list = new FieldDescriptor[com.capnproto.schema.__Type.List, __Type, __Type.type](
     name = "list",
-    meta = __Type
+    meta = __Type,
+    getter = x => Some(x.list),
+    manifest = manifest[com.capnproto.schema.__Type.List]
   )
 
   val __enum = new FieldDescriptor[com.capnproto.schema.__Type.__Enum, __Type, __Type.type](
     name = "enum",
-    meta = __Type
+    meta = __Type,
+    getter = x => Some(x.__enum),
+    manifest = manifest[com.capnproto.schema.__Type.__Enum]
   )
 
   val __struct = new FieldDescriptor[com.capnproto.schema.__Type.__Struct, __Type, __Type.type](
     name = "struct",
-    meta = __Type
+    meta = __Type,
+    getter = x => Some(x.__struct),
+    manifest = manifest[com.capnproto.schema.__Type.__Struct]
   )
 
   val interface = new FieldDescriptor[com.capnproto.schema.__Type.Interface, __Type, __Type.type](
     name = "interface",
-    meta = __Type
+    meta = __Type,
+    getter = x => Some(x.interface),
+    manifest = manifest[com.capnproto.schema.__Type.Interface]
   )
 
   val __object = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "object",
-    meta = __Type
+    meta = __Type,
+    getter = _.__object,
+    manifest = manifest[Unit]
   )
+  override val fields: Seq[FieldDescriptor[_, __Type, __Type.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 }
 
 trait __Type extends Struct[__Type] with HasUnion[com.capnproto.schema.__Type.Union] {
@@ -1763,7 +1937,6 @@ object Value extends MetaStruct[Value] {
   override type Self = Value.type
   override val recordName: String = "Value"
   override def create(struct: CapnpStruct): Value = new ValueMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Value, com.capnproto.schema.Value.Builder] {
     override type Self = com.capnproto.schema.Value.Builder.type
@@ -1827,98 +2000,137 @@ object Value extends MetaStruct[Value] {
 
   val void = new FieldDescriptor[Unit, Value, Value.type](
     name = "void",
-    meta = Value
+    meta = Value,
+    getter = _.void,
+    manifest = manifest[Unit]
   )
 
   val bool = new FieldDescriptor[java.lang.Boolean, Value, Value.type](
     name = "bool",
-    meta = Value
+    meta = Value,
+    getter = _.bool,
+    manifest = manifest[java.lang.Boolean]
   )
 
   val int8 = new FieldDescriptor[java.lang.Byte, Value, Value.type](
     name = "int8",
-    meta = Value
+    meta = Value,
+    getter = _.int8,
+    manifest = manifest[java.lang.Byte]
   )
 
   val int16 = new FieldDescriptor[java.lang.Short, Value, Value.type](
     name = "int16",
-    meta = Value
+    meta = Value,
+    getter = _.int16,
+    manifest = manifest[java.lang.Short]
   )
 
   val int32 = new FieldDescriptor[java.lang.Integer, Value, Value.type](
     name = "int32",
-    meta = Value
+    meta = Value,
+    getter = _.int32,
+    manifest = manifest[java.lang.Integer]
   )
 
   val int64 = new FieldDescriptor[java.lang.Long, Value, Value.type](
     name = "int64",
-    meta = Value
+    meta = Value,
+    getter = _.int64,
+    manifest = manifest[java.lang.Long]
   )
 
   val uint8 = new FieldDescriptor[java.lang.Byte, Value, Value.type](
     name = "uint8",
-    meta = Value
+    meta = Value,
+    getter = _.uint8,
+    manifest = manifest[java.lang.Byte]
   )
 
   val uint16 = new FieldDescriptor[java.lang.Short, Value, Value.type](
     name = "uint16",
-    meta = Value
+    meta = Value,
+    getter = _.uint16,
+    manifest = manifest[java.lang.Short]
   )
 
   val uint32 = new FieldDescriptor[java.lang.Integer, Value, Value.type](
     name = "uint32",
-    meta = Value
+    meta = Value,
+    getter = _.uint32,
+    manifest = manifest[java.lang.Integer]
   )
 
   val uint64 = new FieldDescriptor[java.lang.Long, Value, Value.type](
     name = "uint64",
-    meta = Value
+    meta = Value,
+    getter = _.uint64,
+    manifest = manifest[java.lang.Long]
   )
 
   val float32 = new FieldDescriptor[java.lang.Double, Value, Value.type](
     name = "float32",
-    meta = Value
+    meta = Value,
+    getter = _.float32,
+    manifest = manifest[java.lang.Double]
   )
 
   val float64 = new FieldDescriptor[java.lang.Double, Value, Value.type](
     name = "float64",
-    meta = Value
+    meta = Value,
+    getter = _.float64,
+    manifest = manifest[java.lang.Double]
   )
 
   val text = new FieldDescriptor[String, Value, Value.type](
     name = "text",
-    meta = Value
+    meta = Value,
+    getter = _.text,
+    manifest = manifest[String]
   )
 
   val data = new FieldDescriptor[Array[Byte], Value, Value.type](
     name = "data",
-    meta = Value
+    meta = Value,
+    getter = _.data,
+    manifest = manifest[Array[Byte]]
   )
 
   val list = new FieldDescriptor[AnyRef, Value, Value.type](
     name = "list",
-    meta = Value
+    meta = Value,
+    getter = _.list,
+    manifest = manifest[AnyRef]
   )
 
   val __enum = new FieldDescriptor[java.lang.Short, Value, Value.type](
     name = "enum",
-    meta = Value
+    meta = Value,
+    getter = _.__enum,
+    manifest = manifest[java.lang.Short]
   )
 
   val __struct = new FieldDescriptor[AnyRef, Value, Value.type](
     name = "struct",
-    meta = Value
+    meta = Value,
+    getter = _.__struct,
+    manifest = manifest[AnyRef]
   )
 
   val interface = new FieldDescriptor[Unit, Value, Value.type](
     name = "interface",
-    meta = Value
+    meta = Value,
+    getter = _.interface,
+    manifest = manifest[Unit]
   )
 
   val __object = new FieldDescriptor[AnyRef, Value, Value.type](
     name = "object",
-    meta = Value
+    meta = Value,
+    getter = _.__object,
+    manifest = manifest[AnyRef]
   )
+  override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 }
 
 trait Value extends Struct[Value] with HasUnion[com.capnproto.schema.Value.Union] {
@@ -2029,7 +2241,6 @@ object Annotation extends MetaStruct[Annotation] {
   override type Self = Annotation.type
   override val recordName: String = "Annotation"
   override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(id, value)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Annotation, com.capnproto.schema.Annotation.Builder] {
     override type Self = com.capnproto.schema.Annotation.Builder.type
@@ -2052,13 +2263,18 @@ object Annotation extends MetaStruct[Annotation] {
 
   val id = new FieldDescriptor[java.lang.Long, Annotation, Annotation.type](
     name = "id",
-    meta = Annotation
+    meta = Annotation,
+    getter = _.id,
+    manifest = manifest[java.lang.Long]
   )
 
   val value = new FieldDescriptor[com.capnproto.schema.Value, Annotation, Annotation.type](
     name = "value",
-    meta = Annotation
+    meta = Annotation,
+    getter = _.value,
+    manifest = manifest[com.capnproto.schema.Value]
   )
+  override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(id, value)
 }
 
 trait Annotation extends Struct[Annotation] {
@@ -2125,7 +2341,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
   override type Self = CodeGeneratorRequest.type
   override val recordName: String = "CodeGeneratorRequest"
   override def create(struct: CapnpStruct): CodeGeneratorRequest = new CodeGeneratorRequestMutable(struct)
-  override val fields: Seq[FieldDescriptor[_, CodeGeneratorRequest, CodeGeneratorRequest.type]] = Seq(nodes, requestedFiles)
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest, com.capnproto.schema.CodeGeneratorRequest.Builder] {
     override type Self = com.capnproto.schema.CodeGeneratorRequest.Builder.type
@@ -2156,7 +2371,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     override type Self = RequestedFile.type
     override val recordName: String = "RequestedFile"
     override def create(struct: CapnpStruct): RequestedFile = new RequestedFileMutable(struct)
-    override val fields: Seq[FieldDescriptor[_, RequestedFile, RequestedFile.type]] = Seq(id, filename, imports)
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest.RequestedFile, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder] {
       override type Self = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder.type
@@ -2184,7 +2398,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
       override type Self = __Import.type
       override val recordName: String = "Import"
       override def create(struct: CapnpStruct): __Import = new __ImportMutable(struct)
-      override val fields: Seq[FieldDescriptor[_, __Import, __Import.type]] = Seq(id, name)
 
       object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder] {
         override type Self = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder.type
@@ -2207,13 +2420,18 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
       val id = new FieldDescriptor[java.lang.Long, __Import, __Import.type](
         name = "id",
-        meta = __Import
+        meta = __Import,
+        getter = _.id,
+        manifest = manifest[java.lang.Long]
       )
 
       val name = new FieldDescriptor[String, __Import, __Import.type](
         name = "name",
-        meta = __Import
+        meta = __Import,
+        getter = _.name,
+        manifest = manifest[String]
       )
+      override val fields: Seq[FieldDescriptor[_, __Import, __Import.type]] = Seq(id, name)
     }
 
     trait __Import extends Struct[__Import] {
@@ -2244,18 +2462,25 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     val id = new FieldDescriptor[java.lang.Long, RequestedFile, RequestedFile.type](
       name = "id",
-      meta = RequestedFile
+      meta = RequestedFile,
+      getter = _.id,
+      manifest = manifest[java.lang.Long]
     )
 
     val filename = new FieldDescriptor[String, RequestedFile, RequestedFile.type](
       name = "filename",
-      meta = RequestedFile
+      meta = RequestedFile,
+      getter = _.filename,
+      manifest = manifest[String]
     )
 
     val imports = new FieldDescriptor[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import], RequestedFile, RequestedFile.type](
       name = "imports",
-      meta = RequestedFile
+      meta = RequestedFile,
+      getter = x => Some(x.imports),
+      manifest = manifest[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]]
     )
+    override val fields: Seq[FieldDescriptor[_, RequestedFile, RequestedFile.type]] = Seq(id, filename, imports)
   }
 
   trait RequestedFile extends Struct[RequestedFile] {
@@ -2289,13 +2514,18 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
   val nodes = new FieldDescriptor[Seq[com.capnproto.schema.Node], CodeGeneratorRequest, CodeGeneratorRequest.type](
     name = "nodes",
-    meta = CodeGeneratorRequest
+    meta = CodeGeneratorRequest,
+    getter = x => Some(x.nodes),
+    manifest = manifest[Seq[com.capnproto.schema.Node]]
   )
 
   val requestedFiles = new FieldDescriptor[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile], CodeGeneratorRequest, CodeGeneratorRequest.type](
     name = "requestedFiles",
-    meta = CodeGeneratorRequest
+    meta = CodeGeneratorRequest,
+    getter = x => Some(x.requestedFiles),
+    manifest = manifest[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]]
   )
+  override val fields: Seq[FieldDescriptor[_, CodeGeneratorRequest, CodeGeneratorRequest.type]] = Seq(nodes, requestedFiles)
 }
 
 trait CodeGeneratorRequest extends Struct[CodeGeneratorRequest] {
