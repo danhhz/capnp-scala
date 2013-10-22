@@ -9,29 +9,31 @@ object AddressBookExample {
   def writeAddressBook: Unit = {
     val arena = new CapnpArenaBuilder()
     val addressbook = arena.getRootBuilder(AddressBook.Builder)
-    val peopleBuilders = addressbook.initPeople(2)
-
-    val alice = peopleBuilders(0)
-      .setId(123)
-      .setName("Alice")
-      .setEmail("alice@example.com")
-    alice.initPhones(1)(0)
-      .setNumber("555-1212")
-      .set__Type(Person.PhoneNumber.__Type.mobile)
-    alice.employment.setSchool("MIT")
-
-    val bob = peopleBuilders(1)
-      .setId(456)
-     .setName("Bob")
-      .setEmail("bob@example.com")
-    val bobPhones = bob.initPhones(2)
-    bobPhones(0)
-      .setNumber("555-4567")
-      .set__Type(Person.PhoneNumber.__Type.home)
-    bobPhones(1)
-      .setNumber("555-7654")
-      .set__Type(Person.PhoneNumber.__Type.work)
-    bob.employment.setUnemployed()
+      .setPeople(x => Seq(
+        Person.newBuilder(x)
+          .setId(123)
+          .setName("Alice")
+          .setEmail("alice@example.com")
+          .setPhones(x => Seq(
+            Person.PhoneNumber.newBuilder(x)
+              .setNumber("555-1212")
+              .set__Type(Person.PhoneNumber.__Type.mobile)
+          )),
+          // .employment.setSchool("MIT"),
+        Person.newBuilder(x)
+          .setId(7)
+          .setName("Bob")
+          .setEmail("bob@example.com")
+          .setPhones(x => Seq(
+            Person.PhoneNumber.newBuilder(x)
+              .setNumber("555-4567")
+              .set__Type(Person.PhoneNumber.__Type.home),
+            Person.PhoneNumber.newBuilder(x)
+              .setNumber("555-7654")
+              .set__Type(Person.PhoneNumber.__Type.work)
+          ))
+          // .employment.setUnemployed()
+      ))
 
     arena.writeToOutputStream(new java.io.FileOutputStream("/tmp/addressbook.bin"))
   }
@@ -39,6 +41,7 @@ object AddressBookExample {
   def readAddressBook: Unit = {
     val addressbook = CapnpArena.fromInputStream(System.in).getRoot(AddressBook)
       .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
+    println(addressbook)
     addressbook.people.foreach(person => {
       println(person.name.getOrElse("") + ": " + person.email.getOrElse(""))
       person.phones.foreach(phone => {

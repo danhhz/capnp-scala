@@ -14,12 +14,14 @@ trait UntypedFieldDescriptor {
   def name: String
   def unsafeGetter: Function1[Any, Option[Any]]
   def unsafeManifest: Manifest[_]
+  def isUnion: Boolean
 }
 case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
   override val name: String,
   meta: M,
   getter: S => Option[F],
-  manifest: Manifest[F]
+  manifest: Manifest[F],
+  override val isUnion: Boolean
 ) extends RField[F, M] with UntypedFieldDescriptor {
   override final def owner: M = meta
   override def unsafeGetter: Function1[Any, Option[Any]] = getter.asInstanceOf[Function1[Any, Option[Any]]]
@@ -34,10 +36,15 @@ trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
   def meta: MetaT
 
   override def toString: String = {
+    val union = this match {
+      case u: HasUnion[_] => " [" + u.switch.toString + "]"
+      case _ => ""
+    }
     "(" +
-    meta.fields.flatMap(field => {
+    meta.fields.filterNot(_.isUnion).flatMap(field => {
       field.unsafeGetter(this).map(v => field.name + ": " + v)
     }).mkString(", ") +
+    union +
     ")"
   }
 }
@@ -89,6 +96,10 @@ object CapnpArena {
     CapnpArena.fromByteBuffer(buf)
   }
 
+  def fromBytes(bytes: Array[Byte], offsetWords: Int = 0): CapnpArena = {
+    fromByteBuffer(ByteBuffer.wrap(bytes), offsetWords)
+  }
+
   def fromByteBuffer(buf: ByteBuffer, offsetWords: Int = 0): CapnpArena = {
     val segmentCount: Int = buf.getInt(offsetWords * 8) + 1
     val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
@@ -110,6 +121,7 @@ trait Pointer {
   def arena: CapnpArena
   def buf: ByteBuffer
   def pointerOffsetWords: Int
+  def copyTo(offsetWords: Int): Unit
 }
 object Pointer {
   val PointerTypeMask: Byte = 3
@@ -141,26 +153,29 @@ object Pointer {
 
   def apply(arena: CapnpArena, buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer] = {
     val pointerOffsetBytes = pointerOffsetWords * 8
-    // println("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ")) 
-    if (buf.getLong(pointerOffsetBytes) == 0) None else {
+    // print("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ") + " ") 
+    if (buf.getLong(pointerOffsetBytes) == 0) {
+      // println("[null]")
+      None
+    } else {
       val pointerType: Int = buf.get(pointerOffsetBytes) & PointerTypeMask
-      val dataOffsetWords: Int = buf.getInt(pointerOffsetBytes) >>> DataOffsetShift
+      val dataOffsetWords: Int = buf.getInt(pointerOffsetBytes) >> DataOffsetShift
       pointerType match {
         case 0 => Some({
           val dataSectionSizeWords: Short = buf.getShort(pointerOffsetBytes + 4)
           val pointerSectionSizeWords: Short = buf.getShort(pointerOffsetBytes + 6)
+          // println(pointerType, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
           new CapnpStruct(arena, buf, pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
         })
         case 1 => Some({
           val pointerSize: Int = buf.get(pointerOffsetBytes + 4) & PointerSizeMask
-          val listElementCount: Int = {
-            if (pointerSize == 7) {
-              val tag = new CapnpTag(arena, buf, pointerOffsetWords + 1 + dataOffsetWords)
-              tag.elementCountWords
-            } else {
-              buf.getInt(pointerOffsetWords * 8 + 4) >>> ListElementCountShift
-            }
+          val listElementCount: Int = if (pointerSize == 7) {
+            val tag = new CapnpTag(arena, buf, pointerOffsetWords + 1 + dataOffsetWords)
+            tag.elementCountWords
+          } else {
+            buf.getInt(pointerOffsetWords * 8 + 4) >>> ListElementCountShift
           }
+          // println(pointerType, dataOffsetWords, pointerSize, listElementCount)
           new CapnpList(arena, buf, pointerOffsetWords, dataOffsetWords, pointerSize, listElementCount)
         })
         case 2 => {
@@ -190,6 +205,8 @@ class CapnpFarSegmentPointer(
       throw new IllegalArgumentException("Double far pointers are not yet supported")
     }
   }
+
+  def copyTo(offsetWords: Int): Unit = ???
 }
 
 class CapnpList(
@@ -201,9 +218,47 @@ class CapnpList(
   val listElementCount: Int
 ) extends Pointer {
 
+  def getBoolean(offset: Int): Boolean = {
+    if (pointerSize != 2) throw new IllegalArgumentException("This list is not Booleans.")
+    val byte = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + (offset / 8))
+    val mask = 1 << (offset % 8)
+    if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE
+  }
+
   def getByte(offset: Int): Byte = {
     if (pointerSize != 2) throw new IllegalArgumentException("This list is not Bytes.")
     buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
+  }
+
+  def getShort(offset: Int): Short = {
+    if (pointerSize != 3) throw new IllegalArgumentException("This list is not Shorts.")
+    buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
+  }
+
+  def getInt(offset: Int): Int = {
+    if (pointerSize != 4) throw new IllegalArgumentException("This list is not Ints.")
+    buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+  }
+
+  def getLong(offset: Int): Long = {
+    if (pointerSize != 5) throw new IllegalArgumentException("This list is not Longs.")
+    buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+  }
+
+  def getFloat(offset: Int): Float = {
+    if (pointerSize != 4) throw new IllegalArgumentException("This list is not Floats.")
+    buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+  }
+
+  def getDouble(offset: Int): Double = {
+    if (pointerSize != 5) throw new IllegalArgumentException("This list is not Doubles.")
+    buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+  }
+
+  def getPointer(offset: Int): Pointer = {
+    if (pointerSize != 6) throw new IllegalArgumentException("This list is not Pointers.")
+    Pointer(arena, buf, pointerOffsetWords + 1 + dataOffsetWords + offset)
+      .getOrElse(throw new IllegalArgumentException("This list is not Pointers."))
   }
 
   def getComposite(offset: Int): Pointer = {
@@ -211,6 +266,25 @@ class CapnpList(
     val tag = new CapnpTag(arena, buf, pointerOffsetWords + 1 + dataOffsetWords)
     val offsetWords = offset * (tag.dataSectionSizeWords + tag.pointerSectionSizeWords)
     new CapnpStruct(arena, buf, pointerOffsetWords + 1 + dataOffsetWords, offsetWords, tag.dataSectionSizeWords, tag.pointerSectionSizeWords)
+  }
+
+  def toSeq[A](f: Int => A): Seq[A] = {
+    Range(0, listElementCount).map(f)
+  }
+
+  def copyTo(newPointerOffsetWords: Int): Unit = {
+    val newDataOffsetWords = (pointerOffsetWords + 1 + dataOffsetWords) - (newPointerOffsetWords + 1)
+    val pointerIntOne = (newDataOffsetWords << 2) + 1
+    buf.putInt((newPointerOffsetWords) * 8, pointerIntOne)
+    val pointerIntTwo = if (pointerSize == 7) {
+      val tag = new CapnpTag(arena, buf, pointerOffsetWords + 1 + dataOffsetWords)
+      (((tag.dataSectionSizeWords + tag.pointerSectionSizeWords) * listElementCount) << 3) + pointerSize
+    } else {
+      (listElementCount << 3) + pointerSize
+    }
+    buf.putInt((newPointerOffsetWords) * 8 + 4, pointerIntTwo)
+
+    buf.putLong(pointerOffsetWords * 8, 0)
   }
 }
 
@@ -223,7 +297,11 @@ class CapnpStruct(
   val pointerSectionSizeWords: Short
 ) extends Pointer {
 
-  def getBoolean(offset: Int): Option[java.lang.Boolean] = None
+  def getBoolean(offset: Int): Option[java.lang.Boolean] = {
+    val byte = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + (offset / 8))
+    val mask = 1 << (offset % 8)
+    Some(if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE)
+  }
   def getByte(offset: Int): Option[java.lang.Byte] = {
     val ret = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
     val default: java.lang.Byte = 0.toByte
@@ -243,6 +321,11 @@ class CapnpStruct(
     val ret = buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
     val default: java.lang.Long = 0
     if (ret != default) Some(ret) else None    
+  }
+  def getFloat(offset: Int): Option[java.lang.Float] = {
+    val ret = buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+    val default: java.lang.Double = 0
+    if (ret != default) Some(ret) else None
   }
   def getDouble(offset: Int): Option[java.lang.Double] = {
     val ret = buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
@@ -275,6 +358,16 @@ class CapnpStruct(
   }
 
   def getNone[T](o: Int = 0): Option[T] = None
+
+  def copyTo(newPointerOffsetWords: Int): Unit = {
+    val newDataOffsetWords = (pointerOffsetWords + 1 + dataOffsetWords) - (newPointerOffsetWords + 1)
+    val structIntOne: Int = (newDataOffsetWords << 2) + 0
+    buf.putInt((newPointerOffsetWords) * 8, structIntOne)
+    buf.putShort((newPointerOffsetWords) * 8 + 4, dataSectionSizeWords)
+    buf.putShort((newPointerOffsetWords) * 8 + 6, pointerSectionSizeWords)
+
+    buf.putLong(pointerOffsetWords * 8, 0)
+  }
 }
 
 class CapnpTag(
@@ -286,6 +379,8 @@ class CapnpTag(
   val elementCountWords: Int = buf.getInt(pointerOffsetWords * 8) >>> Pointer.DataOffsetShift
   val dataSectionSizeWords: Short = buf.getShort(pointerOffsetWords * 8 + 4)
   val pointerSectionSizeWords: Short = buf.getShort(pointerOffsetWords * 8 + 6)
+
+  def copyTo(offsetWords: Int): Unit = ???
 }
 
 object CapnpArenaBuilder {
@@ -297,9 +392,9 @@ class CapnpArenaBuilder(
 
   def rootSegment: CapnpSegmentBuilder = segments.headOption.getOrElse(allocate(0)._1)
 
+  val getRoot: (CapnpSegmentBuilder, Int) = allocate(1)
   def getRootBuilder[S <: Struct[S], B <: StructBuilder[S, B]](meta: MetaStructBuilder[S, B]): B = {
-    val (segment, pointerOffset) = allocate(1)
-    if (pointerOffset != 0) throw new IllegalArgumentException("Arena.getRootBuilder may only be called once")
+    val (segment, pointerOffset) = getRoot
     val struct = CapnpStructBuilder(this, segment, pointerOffset, meta.dataSectionSizeWords, meta.pointerSectionSizeWords)
     meta.create(struct)
   }
@@ -415,6 +510,23 @@ class CapnpListBuilder(
     val structDataOffsetWords = dataOffsetWords + elementSizeWords * index
     new CapnpStructBuilder(arena, segment, pointerOffsetWords, structDataOffsetWords, meta.dataSectionSizeWords, meta.pointerSectionSizeWords)
   }
+  def copyFrom(index: Int, meta: MetaStructBuilder[_, _], value: CapnpStructBuilder): Unit = {
+    val elementSizeWords = meta.dataSectionSizeWords + meta.pointerSectionSizeWords
+
+    val valueDataOffsetWords = value.segment.offsetWords + value.pointerOffsetWords + 1 + value.dataOffsetWords
+    val indexDataOffsetWords = segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords + elementSizeWords * index
+    Range(0, meta.dataSectionSizeWords * 8).foreach(copyOffset => {
+      val byte = value.segment.buf.get(valueDataOffsetWords * 8 + copyOffset)
+      segment.buf.put(indexDataOffsetWords * 8 + copyOffset, byte)
+    })
+
+    Range(0, meta.pointerSectionSizeWords).foreach(pointerIndex => {
+      val indexPointerOffsetWords = indexDataOffsetWords + meta.dataSectionSizeWords + pointerIndex
+      value.getPointer(pointerIndex).foreach(pointer => {
+        pointer.copyTo(indexPointerOffsetWords)
+      })
+    })
+  }
 }
 
 object CapnpStructBuilder {
@@ -459,13 +571,16 @@ class CapnpStructBuilder(
   def setLong(offset: Int, value: Long): Unit = {
     segment.buf.putLong((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, value)
   }
+  def setFloat(offset: Int, value: Float): Unit = {
+    segment.buf.putFloat((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, value)
+  }
   def setDouble(offset: Int, value: Double): Unit = {
     segment.buf.putDouble((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, value)
   }
 
-  def setData(offset: Int, bytes: Array[Byte]): Unit = {
-    CapnpListBuilder.simpleList(arena, segment, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset, 2, bytes.size)
-      .putBytes(bytes)
+  def setData(offset: Int, value: Array[Byte]): Unit = {
+    CapnpListBuilder.simpleList(arena, segment, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset, 2, value.size)
+      .putBytes(value)
   }
   def setString(offset: Int, value: String): Unit = {
     val bytes = value.getBytes("UTF-8") :+ 0.toByte
@@ -476,5 +591,22 @@ class CapnpStructBuilder(
     CapnpListBuilder.taggedList(arena, segment, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset, listElementCount, meta.dataSectionSizeWords, meta.pointerSectionSizeWords)
   }
 
+  def setStructList(offset: Int, meta: MetaStructBuilder[_, _], values: Seq[CapnpStructBuilder]): Unit = {
+    // TODO(dan): Check that values are allocated in the same arena.
+    val list = initPointerList(offset, values.size, meta)
+    values.zipWithIndex.foreach({ case (value, index) => list.copyFrom(index, meta, value) })
+  }
+
   def setNone(): Unit = {}
+
+
+  def moveTo(newPointerOffsetWords: Int): CapnpStructBuilder = {
+    val newDataOffsetWords = (pointerOffsetWords + 1 + dataOffsetWords) - (newPointerOffsetWords + 1)
+    val structIntOne: Int = (newDataOffsetWords << 2) + 0
+    segment.buf.putInt((segment.offsetWords + newPointerOffsetWords) * 8, structIntOne)
+    segment.buf.putShort((segment.offsetWords + newPointerOffsetWords) * 8 + 4, dataSectionSizeWords)
+    segment.buf.putShort((segment.offsetWords + newPointerOffsetWords) * 8 + 6, pointerSectionSizeWords)
+
+    new CapnpStructBuilder(arena, segment, newPointerOffsetWords, newDataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords)
+  }
 }

@@ -2,7 +2,7 @@
 
 package com.capnproto.codegen
 
-import com.capnproto.{Pointer, CapnpArena}
+import com.capnproto.{Pointer, CapnpArena, CapnpList}
 import com.capnproto.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
 
 import java.io.FileWriter
@@ -35,7 +35,7 @@ object CapnpScala {
         case __Type.Union.uint16(_) => "java.lang.Short"
         case __Type.Union.uint32(_) => "java.lang.Integer"
         case __Type.Union.uint64(_) => "java.lang.Long"
-        case __Type.Union.float32(_) => "java.lang.Double"
+        case __Type.Union.float32(_) => "java.lang.Float"
         case __Type.Union.float64(_) => "java.lang.Double"
         case __Type.Union.text(_) => "String"
         case __Type.Union.data(_) => "Array[Byte]"
@@ -43,7 +43,7 @@ object CapnpScala {
         case __Type.Union.__enum(_) => nodeName(getDependency(scope, ctype.__enum.typeId.get))
         case __Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.typeId.get))
         case __Type.Union.interface(_) => nodeName(getDependency(scope, ctype.interface.typeId.get))
-        case __Type.Union.__object(_) => "AnyRef"
+        case __Type.Union.__object(_) => "CapnpPointer"
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       })
     }
@@ -60,7 +60,7 @@ object CapnpScala {
         case __Type.Union.uint16(_) => StringTree("getShort(", offset, ")")
         case __Type.Union.uint32(_) => StringTree("getInt(", offset, ")")
         case __Type.Union.uint64(_) => StringTree("getLong(", offset, ")")
-        case __Type.Union.float32(_) => StringTree("getDouble(", offset, ")")
+        case __Type.Union.float32(_) => StringTree("getFloat(", offset, ")")
         case __Type.Union.float64(_) => StringTree("getDouble(", offset, ")")
         case __Type.Union.text(_) => StringTree("getString(", offset, ")")
         case __Type.Union.data(_) => StringTree("getData(", offset, ")")
@@ -74,7 +74,7 @@ object CapnpScala {
           "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.typeId.get)), "Mutable(_))"
         )
         case __Type.Union.interface(_) => StringTree("getNone(", offset, ")")
-        case __Type.Union.__object(_) => StringTree("getNone(", offset, ")")
+        case __Type.Union.__object(_) => StringTree("getPointer(", offset, ")")
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
@@ -91,7 +91,7 @@ object CapnpScala {
         case __Type.Union.uint16(_) => StringTree("setShort(", offset, ", value)")
         case __Type.Union.uint32(_) => StringTree("setInt(", offset, ", value)")
         case __Type.Union.uint64(_) => StringTree("setLong(", offset, ", value)")
-        case __Type.Union.float32(_) => StringTree("setDouble(", offset, ", value)")
+        case __Type.Union.float32(_) => StringTree("setFloat(", offset, ", value)")
         case __Type.Union.float64(_) => StringTree("setDouble(", offset, ", value)")
         case __Type.Union.text(_) => StringTree("setString(", offset, ", value)")
         case __Type.Union.data(_) => StringTree("setData(", offset, ", value)")
@@ -104,9 +104,24 @@ object CapnpScala {
       }
     }
 
+    def genListValue(listType: __Type.List, list: CapnpList, scope: Node): StringTree = {
+      StringTree(
+        "Seq(",
+        listType.elementType.get.switch match {
+          case __Type.Union.int8(_) => list.toSeq(list.getByte).map(_ + ".toByte").mkString(", ")
+          case __Type.Union.list(sublistType) => list.toSeq(list.getPointer).map(_ match {
+            case sublist: CapnpList => genListValue(sublistType, sublist, scope)
+            case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
+          }).mkString(", ")
+          case _ => throw new IllegalArgumentException("")
+        },
+        ")"
+      )
+    }
+
     def genValue(ctype: __Type, value: Value, scope: Node): StringTree = {
       ctype.switch match {
-        case __Type.Union.void(_) => StringTree("void")
+        case __Type.Union.void(_) => StringTree("Unit")
         case __Type.Union.bool(_) => StringTree(value.bool.get)
         case __Type.Union.int8(_) => StringTree(value.int8.get)
         case __Type.Union.int16(_) => StringTree(value.int16.get)
@@ -120,8 +135,11 @@ object CapnpScala {
         case __Type.Union.float64(_) => StringTree(value.float64.get)
         case __Type.Union.text(_) => StringTree("\"", value.text.get, "\"")
         case __Type.Union.data(_) => StringTree("Array(", value.data.get.mkString(", "), ")")
-        case __Type.Union.list(_) => StringTree("TODO(ctype.list(_))")
-        case __Type.Union.__enum(_) => StringTree(ctype.__enum)
+        case __Type.Union.list(listType) => value.__object.get match {
+          case list: CapnpList => genListValue(listType, list, scope)
+          case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
+        }
+        case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.get, ")")
         case __Type.Union.__struct(_) => StringTree("TODO(ctype.__struct(_))")
         case __Type.Union.interface(_) => StringTree("")
         case __Type.Union.__object(_) => StringTree("")
@@ -138,7 +156,7 @@ object CapnpScala {
     }
 
     def getScalaPackageName(file: Node): String = {
-      file.annotations.find(_.id.get == -2365685817485540979L).map(_.value.get.text.get).getOrElse("")
+      file.annotations.find(_.id.get == -2365685817485540979L).map(_.value.get.text.get + ".").getOrElse("")
     }
 
     def nodeName(target: Node): StringTree = {
@@ -163,7 +181,7 @@ object CapnpScala {
         targetParents = targetParents.dropRight(1)
       }
 
-      StringTree(getScalaPackageName(fileNode), ".", path, getUnqualifiedName(target))
+      StringTree(getScalaPackageName(fileNode), path, getUnqualifiedName(target))
     }
 
     def fieldScalaType(field: Field, scope: Node): StringTree = {
@@ -206,6 +224,11 @@ object CapnpScala {
             indent.next, "override type Self = ", name, ".type\n",
             indent.next, "override val recordName: String = \"", nameRaw, "\"\n",
             indent.next, "override def create(struct: CapnpStruct): ", name, " = new ", name, "Mutable(struct)\n",
+            indent.next, "def newBuilder(arena: CapnpArenaBuilder): ", nodeName(schema), ".Builder = {\n",
+            indent.next.next, "val (segment, pointerOffset) = arena.allocate(1)\n",
+            indent.next.next, "val struct = CapnpStructBuilder(arena, segment, pointerOffset, ", nodeName(schema), ".Builder.dataSectionSizeWords, ", nodeName(schema), ".Builder.pointerSectionSizeWords)\n",
+            indent.next.next, "new ", nodeName(schema), ".Builder(struct)\n",
+            indent.next, "}\n",
             "\n",
             indent.next, "object Builder extends MetaStructBuilder[", nodeName(schema), ", ", nodeName(schema), ".Builder] {\n",
             indent.next.next, "override type Self = ", nodeName(schema), ".Builder.type\n",
@@ -221,26 +244,28 @@ object CapnpScala {
             indent.next.next, "override def metaBuilder: MetaBuilderT = ", nodeName(schema), ".Builder\n",
             fields.map(field => StringTree(
               field.switch match {
-                case Field.Union.slot(slot) => StringTree(
-                  indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(value: ", fieldScalaType(field, schema), "): Builder = { ",
-                  "struct.", genSetter(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0)), "; ",
-                  field.discriminantValue.map(d => StringTree(
-                    "struct.setShort(", struct.discriminantOffset.getOrElse(0), ", ", d, "); "
-                  )),
-                  "this }\n",
-                  slot.__type.get.switch match {
-                    case __Type.Union.list(list) => list.elementType.get.switch match {
-                      case __Type.Union.__struct(_) => StringTree(
-                        indent.next.next, "def init", scalaCaseName(scalaEscapeName(field.name.get)), "(count: Int): Seq[", genType(list.elementType.get, schema), ".Builder] = {\n",
-                        indent.next.next.next, "val list = struct.initPointerList(", slot.offset.getOrElse(0), ", count, ", genType(list.elementType.get, schema), ".Builder)\n",
-                        indent.next.next.next, "Range(0, count).map(i => new ", genType(list.elementType.get, schema), ".Builder(list.initStruct(i, ", genType(list.elementType.get, schema), ".Builder)))\n",
-                        indent.next.next, "}\n"
-                      )
-                      case _ => StringTree()
-                    }
+                case Field.Union.slot(slot) => slot.__type.get.switch match {
+                  case __Type.Union.list(list) => list.elementType.get.switch match {
+                    case __Type.Union.__struct(_) => StringTree(
+                      indent.next.next, "def init", scalaCaseName(scalaEscapeName(field.name.get)), "(count: Int): Seq[", genType(list.elementType.get, schema), ".Builder] = {\n",
+                      indent.next.next.next, "val list = struct.initPointerList(", slot.offset.getOrElse(0), ", count, ", genType(list.elementType.get, schema), ".Builder)\n",
+                      indent.next.next.next, "Range(0, count).map(i => new ", genType(list.elementType.get, schema), ".Builder(list.initStruct(i, ", genType(list.elementType.get, schema), ".Builder)))\n",
+                      indent.next.next, "}\n",
+                      indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(buildFn: CapnpArenaBuilder => Seq[", genType(list.elementType.get, schema), ".Builder]): Builder = { ",
+                      "struct.setStructList(", slot.offset.getOrElse(0), ", ", genType(list.elementType.get, schema), ".Builder, buildFn(struct.arena).map(_.struct)); ",
+                      "this }\n"
+                    )
                     case _ => StringTree()
                   }
-                )
+                  case _ => StringTree(
+                    indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(value: ", fieldScalaType(field, schema), "): Builder = { ",
+                    "struct.", genSetter(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0)), "; ",
+                    field.discriminantValue.map(d => StringTree(
+                      "struct.setShort(", struct.discriminantOffset.getOrElse(0), ", ", d, "); "
+                    )),
+                    "this }\n"
+                  )
+                }
                 case Field.Union.group(group) => StringTree(
                   indent.next.next, "override def ", scalaEscapeName(field.name.get), ": ", fieldScalaType(field, schema), ".Builder = new ", fieldScalaType(field, schema), ".Builder(struct)\n"
                 )
@@ -285,7 +310,8 @@ object CapnpScala {
                 case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
               },
               ",\n",
-              indent.next.next, "manifest = manifest[", fieldScalaType(field, schema), "]\n",
+              indent.next.next, "manifest = manifest[", fieldScalaType(field, schema), "],\n",
+              indent.next.next, "isUnion = ", if (field.discriminantValue.isDefined) "true" else "false", "\n",
               indent.next, ")\n"
             ))),
             indent.next, "override val fields: Seq[FieldDescriptor[_, ", name, ", ", name, ".type]] = Seq(",
@@ -410,6 +436,9 @@ object CapnpScala {
             indent, ") extends Enum[", name, "]\n"
           )
         }
+        case Node.Union.const(const) => StringTree(
+          indent, "val ", scalaCaseName(name), ": ", genType(const.__type.get, schema), " = ", genValue(const.__type.get, const.value.get, schema), "\n"
+        )
         case _ => throw new IllegalArgumentException("Unknown schema: " + schema)
       }
     }
@@ -422,12 +451,13 @@ object CapnpScala {
     }
 
     def genFile(file: Node): StringTree = {
+      val filePackage = getScalaPackageName(file).dropRight(1)
       StringTree(
         "// ", file.displayName, "\n\n",
-        "package ", getScalaPackageName(file), "\n\n",
+        if (filePackage.isEmpty) StringTree() else StringTree("package ", filePackage, "\n\n"),
         "import com.foursquare.spindle.{Enum, EnumMeta}\n",
         "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct, StructBuilder, MetaStructBuilder}\n",
-        "import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag}\n",
+        "import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag, CapnpArenaBuilder}\n",
         "import java.nio.ByteBuffer\n",
         "\n",
         genNestedDecls(file, new StringTreeIndent(0, "  "))
