@@ -12,7 +12,7 @@ object CodegenUtil {
   )
 
   val RecordReservedWords = Set(
-    "enum", "copy", "meta", "union", "switch", "struct", "fields", "recordname"
+    "enum", "copy", "meta", "union", "switch", "struct", "fields", "structname"
   )
 
   val ReservedWords = ScalaReservedWords ++ RecordReservedWords

@@ -1,7 +1,8 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto
+package com.capnproto.examples.addressbook
 
+import com.capnproto.{CapnpArena, CapnpArenaBuilder}
 import com.capnproto.addressbook.{AddressBook, Person}
 
 object AddressBookExample {
@@ -39,9 +40,12 @@ object AddressBookExample {
   }
 
   def readAddressBook: Unit = {
-    val addressbook = CapnpArena.fromInputStream(System.in).getRoot(AddressBook)
-      .getOrElse(throw new IllegalArgumentException("Couldn't parse stdin as CodeGeneratorRequest"))
-    println(addressbook)
+    val addressbook = (for {
+      arena <- CapnpArena.fromInputStream(System.in)
+      message <- arena.getRoot(AddressBook)
+    } yield message).getOrElse(
+      throw new IllegalArgumentException("Couldn't parse stdin as AddressBook")
+    )
     addressbook.people.foreach(person => {
       println(person.name.getOrElse("") + ": " + person.email.getOrElse(""))
       person.phones.foreach(phone => {

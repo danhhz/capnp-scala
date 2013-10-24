@@ -3,13 +3,17 @@
 package com.capnproto.schema
 
 import com.foursquare.spindle.{Enum, EnumMeta}
-import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct, StructBuilder, MetaStructBuilder}
-import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
+  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
+  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
+  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+import com.twitter.util.Future
 import java.nio.ByteBuffer
 
 object Node extends MetaStruct[Node] {
   override type Self = Node.type
-  override val recordName: String = "Node"
+  override val structName: String = "Node"
   override def create(struct: CapnpStruct): Node = new NodeMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -19,7 +23,7 @@ object Node extends MetaStruct[Node] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Node, com.capnproto.schema.Node.Builder] {
     override type Self = com.capnproto.schema.Node.Builder.type
-    override val recordName: String = "Node"
+    override val structName: String = "Node"
     override val dataSectionSizeWords: Short = 5
     override val pointerSectionSizeWords: Short = 5
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.Builder = new com.capnproto.schema.Node.Builder(struct)
@@ -54,7 +58,7 @@ object Node extends MetaStruct[Node] {
 
   object NestedNode extends MetaStruct[NestedNode] {
     override type Self = NestedNode.type
-    override val recordName: String = "NestedNode"
+    override val structName: String = "NestedNode"
     override def create(struct: CapnpStruct): NestedNode = new NestedNodeMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.NestedNode.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -64,7 +68,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.NestedNode, com.capnproto.schema.Node.NestedNode.Builder] {
       override type Self = com.capnproto.schema.Node.NestedNode.Builder.type
-      override val recordName: String = "NestedNode"
+      override val structName: String = "NestedNode"
       override val dataSectionSizeWords: Short = 1
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.NestedNode.Builder = new com.capnproto.schema.Node.NestedNode.Builder(struct)
@@ -78,8 +82,6 @@ object Node extends MetaStruct[Node] {
       def setName(value: String): Builder = { struct.setString(0, value); this }
       def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
     }
-
-
 
     val name = new FieldDescriptor[String, NestedNode, NestedNode.type](
       name = "name",
@@ -101,25 +103,18 @@ object Node extends MetaStruct[Node] {
 
   trait NestedNode extends Struct[NestedNode] {
     override type MetaT = NestedNode.type
+    override type MetaBuilderT = com.capnproto.schema.Node.NestedNode.Builder.type
 
     override def meta: NestedNode.type = NestedNode
+    override def metaBuilder: com.capnproto.schema.Node.NestedNode.Builder.type = com.capnproto.schema.Node.NestedNode.Builder
+
     def struct: CapnpStruct
 
     def name: Option[String]
     def id: Option[java.lang.Long]
   }
 
-  trait NestedNodeProxy extends NestedNode {
-    def underlying: NestedNode
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def name: Option[String]
-    override def id: Option[java.lang.Long]
-  }
-
   class NestedNodeMutable(override val struct: CapnpStruct) extends NestedNode {
-
     override def name: Option[String] = struct.getString(0)
     override def id: Option[java.lang.Long] = struct.getLong(0)
   }
@@ -134,10 +129,9 @@ object Node extends MetaStruct[Node] {
     case class annotation(value: com.capnproto.schema.Node.Annotation) extends com.capnproto.schema.Node.Union
   }
 
-
   object __Struct extends MetaStruct[__Struct] {
     override type Self = __Struct.type
-    override val recordName: String = "__Struct"
+    override val structName: String = "Struct"
     override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.__Struct.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -147,7 +141,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.__Struct, com.capnproto.schema.Node.__Struct.Builder] {
       override type Self = com.capnproto.schema.Node.__Struct.Builder.type
-      override val recordName: String = "__Struct"
+      override val structName: String = "Struct"
       override val dataSectionSizeWords: Short = 5
       override val pointerSectionSizeWords: Short = 5
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.__Struct.Builder = new com.capnproto.schema.Node.__Struct.Builder(struct)
@@ -170,8 +164,6 @@ object Node extends MetaStruct[Node] {
       }
       def set__Fields(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Field.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Field.Builder, buildFn(struct.arena).map(_.struct)); this }
     }
-
-
 
     val dataWordCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
       name = "dataWordCount",
@@ -233,8 +225,11 @@ object Node extends MetaStruct[Node] {
 
   trait __Struct extends Struct[__Struct] {
     override type MetaT = __Struct.type
+    override type MetaBuilderT = com.capnproto.schema.Node.__Struct.Builder.type
 
     override def meta: __Struct.type = __Struct
+    override def metaBuilder: com.capnproto.schema.Node.__Struct.Builder.type = com.capnproto.schema.Node.__Struct.Builder
+
     def struct: CapnpStruct
 
     def dataWordCount: Option[java.lang.Short]
@@ -246,22 +241,7 @@ object Node extends MetaStruct[Node] {
     def __fields: Seq[com.capnproto.schema.Field]
   }
 
-  trait __StructProxy extends __Struct {
-    def underlying: __Struct
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def dataWordCount: Option[java.lang.Short]
-    override def pointerCount: Option[java.lang.Short]
-    override def preferredListEncoding: Option[com.capnproto.schema.ElementSize]
-    override def isGroup: Option[java.lang.Boolean]
-    override def discriminantCount: Option[java.lang.Short]
-    override def discriminantOffset: Option[java.lang.Integer]
-    override def __fields: Seq[com.capnproto.schema.Field]
-  }
-
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-
     override def dataWordCount: Option[java.lang.Short] = struct.getShort(7)
     override def pointerCount: Option[java.lang.Short] = struct.getShort(12)
     override def preferredListEncoding: Option[com.capnproto.schema.ElementSize] = struct.getShort(13).map(id => com.capnproto.schema.ElementSize.findById(id.toInt).getOrElse(com.capnproto.schema.ElementSize.Unknown(id.toShort)))
@@ -272,7 +252,7 @@ object Node extends MetaStruct[Node] {
   }
   object __Enum extends MetaStruct[__Enum] {
     override type Self = __Enum.type
-    override val recordName: String = "__Enum"
+    override val structName: String = "Enum"
     override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.__Enum.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -282,7 +262,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.__Enum, com.capnproto.schema.Node.__Enum.Builder] {
       override type Self = com.capnproto.schema.Node.__Enum.Builder.type
-      override val recordName: String = "__Enum"
+      override val structName: String = "Enum"
       override val dataSectionSizeWords: Short = 5
       override val pointerSectionSizeWords: Short = 5
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.__Enum.Builder = new com.capnproto.schema.Node.__Enum.Builder(struct)
@@ -300,8 +280,6 @@ object Node extends MetaStruct[Node] {
       def setEnumerants(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Enumerant.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Enumerant.Builder, buildFn(struct.arena).map(_.struct)); this }
     }
 
-
-
     val enumerants = new FieldDescriptor[Seq[com.capnproto.schema.Enumerant], __Enum, __Enum.type](
       name = "enumerants",
       meta = __Enum,
@@ -314,28 +292,22 @@ object Node extends MetaStruct[Node] {
 
   trait __Enum extends Struct[__Enum] {
     override type MetaT = __Enum.type
+    override type MetaBuilderT = com.capnproto.schema.Node.__Enum.Builder.type
 
     override def meta: __Enum.type = __Enum
+    override def metaBuilder: com.capnproto.schema.Node.__Enum.Builder.type = com.capnproto.schema.Node.__Enum.Builder
+
     def struct: CapnpStruct
 
     def enumerants: Seq[com.capnproto.schema.Enumerant]
   }
 
-  trait __EnumProxy extends __Enum {
-    def underlying: __Enum
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def enumerants: Seq[com.capnproto.schema.Enumerant]
-  }
-
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
-
     override def enumerants: Seq[com.capnproto.schema.Enumerant] = struct.getStructList(3).map(new com.capnproto.schema.EnumerantMutable(_))
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
-    override val recordName: String = "Interface"
+    override val structName: String = "Interface"
     override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.Interface.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -345,7 +317,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Interface, com.capnproto.schema.Node.Interface.Builder] {
       override type Self = com.capnproto.schema.Node.Interface.Builder.type
-      override val recordName: String = "Interface"
+      override val structName: String = "Interface"
       override val dataSectionSizeWords: Short = 5
       override val pointerSectionSizeWords: Short = 5
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.Interface.Builder = new com.capnproto.schema.Node.Interface.Builder(struct)
@@ -363,8 +335,6 @@ object Node extends MetaStruct[Node] {
       def setMethods(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Method.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Method.Builder, buildFn(struct.arena).map(_.struct)); this }
     }
 
-
-
     val methods = new FieldDescriptor[Seq[com.capnproto.schema.Method], Interface, Interface.type](
       name = "methods",
       meta = Interface,
@@ -377,28 +347,22 @@ object Node extends MetaStruct[Node] {
 
   trait Interface extends Struct[Interface] {
     override type MetaT = Interface.type
+    override type MetaBuilderT = com.capnproto.schema.Node.Interface.Builder.type
 
     override def meta: Interface.type = Interface
+    override def metaBuilder: com.capnproto.schema.Node.Interface.Builder.type = com.capnproto.schema.Node.Interface.Builder
+
     def struct: CapnpStruct
 
     def methods: Seq[com.capnproto.schema.Method]
   }
 
-  trait InterfaceProxy extends Interface {
-    def underlying: Interface
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def methods: Seq[com.capnproto.schema.Method]
-  }
-
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
-
     override def methods: Seq[com.capnproto.schema.Method] = struct.getStructList(3).map(new com.capnproto.schema.MethodMutable(_))
   }
   object Const extends MetaStruct[Const] {
     override type Self = Const.type
-    override val recordName: String = "Const"
+    override val structName: String = "Const"
     override def create(struct: CapnpStruct): Const = new ConstMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.Const.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -408,7 +372,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Const, com.capnproto.schema.Node.Const.Builder] {
       override type Self = com.capnproto.schema.Node.Const.Builder.type
-      override val recordName: String = "Const"
+      override val structName: String = "Const"
       override val dataSectionSizeWords: Short = 5
       override val pointerSectionSizeWords: Short = 5
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.Const.Builder = new com.capnproto.schema.Node.Const.Builder(struct)
@@ -422,8 +386,6 @@ object Node extends MetaStruct[Node] {
       def set__Type(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
       def setValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
     }
-
-
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Const, Const.type](
       name = "type",
@@ -445,31 +407,24 @@ object Node extends MetaStruct[Node] {
 
   trait Const extends Struct[Const] {
     override type MetaT = Const.type
+    override type MetaBuilderT = com.capnproto.schema.Node.Const.Builder.type
 
     override def meta: Const.type = Const
+    override def metaBuilder: com.capnproto.schema.Node.Const.Builder.type = com.capnproto.schema.Node.Const.Builder
+
     def struct: CapnpStruct
 
     def __type: Option[com.capnproto.schema.__Type]
     def value: Option[com.capnproto.schema.Value]
   }
 
-  trait ConstProxy extends Const {
-    def underlying: Const
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def __type: Option[com.capnproto.schema.__Type]
-    override def value: Option[com.capnproto.schema.Value]
-  }
-
   class ConstMutable(override val struct: CapnpStruct) extends Const {
-
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(3).map(new com.capnproto.schema.__TypeMutable(_))
     override def value: Option[com.capnproto.schema.Value] = struct.getStruct(4).map(new com.capnproto.schema.ValueMutable(_))
   }
   object Annotation extends MetaStruct[Annotation] {
     override type Self = Annotation.type
-    override val recordName: String = "Annotation"
+    override val structName: String = "Annotation"
     override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Node.Annotation.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -479,7 +434,7 @@ object Node extends MetaStruct[Node] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Node.Annotation, com.capnproto.schema.Node.Annotation.Builder] {
       override type Self = com.capnproto.schema.Node.Annotation.Builder.type
-      override val recordName: String = "Annotation"
+      override val structName: String = "Annotation"
       override val dataSectionSizeWords: Short = 5
       override val pointerSectionSizeWords: Short = 5
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Node.Annotation.Builder = new com.capnproto.schema.Node.Annotation.Builder(struct)
@@ -504,8 +459,6 @@ object Node extends MetaStruct[Node] {
       def setTargetsParam(value: java.lang.Boolean): Builder = { struct.setBoolean(122, value); this }
       def setTargetsAnnotation(value: java.lang.Boolean): Builder = { struct.setBoolean(123, value); this }
     }
-
-
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Annotation, Annotation.type](
       name = "type",
@@ -615,8 +568,11 @@ object Node extends MetaStruct[Node] {
 
   trait Annotation extends Struct[Annotation] {
     override type MetaT = Annotation.type
+    override type MetaBuilderT = com.capnproto.schema.Node.Annotation.Builder.type
 
     override def meta: Annotation.type = Annotation
+    override def metaBuilder: com.capnproto.schema.Node.Annotation.Builder.type = com.capnproto.schema.Node.Annotation.Builder
+
     def struct: CapnpStruct
 
     def __type: Option[com.capnproto.schema.__Type]
@@ -634,28 +590,7 @@ object Node extends MetaStruct[Node] {
     def targetsAnnotation: Option[java.lang.Boolean]
   }
 
-  trait AnnotationProxy extends Annotation {
-    def underlying: Annotation
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def __type: Option[com.capnproto.schema.__Type]
-    override def targetsFile: Option[java.lang.Boolean]
-    override def targetsConst: Option[java.lang.Boolean]
-    override def targetsEnum: Option[java.lang.Boolean]
-    override def targetsEnumerant: Option[java.lang.Boolean]
-    override def targetsStruct: Option[java.lang.Boolean]
-    override def targetsField: Option[java.lang.Boolean]
-    override def targetsUnion: Option[java.lang.Boolean]
-    override def targetsGroup: Option[java.lang.Boolean]
-    override def targetsInterface: Option[java.lang.Boolean]
-    override def targetsMethod: Option[java.lang.Boolean]
-    override def targetsParam: Option[java.lang.Boolean]
-    override def targetsAnnotation: Option[java.lang.Boolean]
-  }
-
   class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
-
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(3).map(new com.capnproto.schema.__TypeMutable(_))
     override def targetsFile: Option[java.lang.Boolean] = struct.getBoolean(112)
     override def targetsConst: Option[java.lang.Boolean] = struct.getBoolean(113)
@@ -670,7 +605,6 @@ object Node extends MetaStruct[Node] {
     override def targetsParam: Option[java.lang.Boolean] = struct.getBoolean(122)
     override def targetsAnnotation: Option[java.lang.Boolean] = struct.getBoolean(123)
   }
-
   val id = new FieldDescriptor[java.lang.Long, Node, Node.type](
     name = "id",
     meta = Node,
@@ -771,8 +705,11 @@ object Node extends MetaStruct[Node] {
 
 trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
   override type MetaT = Node.type
+  override type MetaBuilderT = com.capnproto.schema.Node.Builder.type
 
   override def meta: Node.type = Node
+  override def metaBuilder: com.capnproto.schema.Node.Builder.type = com.capnproto.schema.Node.Builder
+
   def struct: CapnpStruct
 
   def id: Option[java.lang.Long]
@@ -789,30 +726,7 @@ trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
   def annotation: com.capnproto.schema.Node.Annotation
 }
 
-trait NodeProxy extends Node with HasUnion[com.capnproto.schema.Node.Union] {
-  def underlying: Node
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def switch: com.capnproto.schema.Node.Union = underlying.switch
-  override def union: UnionMeta[com.capnproto.schema.Node.Union] = underlying.union
-
-  override def id: Option[java.lang.Long]
-  override def displayName: Option[String]
-  override def displayNamePrefixLength: Option[java.lang.Integer]
-  override def scopeId: Option[java.lang.Long]
-  override def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode]
-  override def annotations: Seq[com.capnproto.schema.Annotation]
-  override def file: Option[Unit]
-  override def __struct: com.capnproto.schema.Node.__Struct
-  override def __enum: com.capnproto.schema.Node.__Enum
-  override def interface: com.capnproto.schema.Node.Interface
-  override def const: com.capnproto.schema.Node.Const
-  override def annotation: com.capnproto.schema.Node.Annotation
-}
-
 class NodeMutable(override val struct: CapnpStruct) extends Node {
-
   override def discriminant: Short = (struct.getShort(6).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: com.capnproto.schema.Node.Union = discriminant match {
     case 0 => com.capnproto.schema.Node.Union.file(file)
@@ -846,7 +760,7 @@ class NodeMutable(override val struct: CapnpStruct) extends Node {
 
 object Field extends MetaStruct[Field] {
   override type Self = Field.type
-  override val recordName: String = "Field"
+  override val structName: String = "Field"
   override def create(struct: CapnpStruct): Field = new FieldMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Field.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -856,7 +770,7 @@ object Field extends MetaStruct[Field] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Field, com.capnproto.schema.Field.Builder] {
     override type Self = com.capnproto.schema.Field.Builder.type
-    override val recordName: String = "Field"
+    override val structName: String = "Field"
     override val dataSectionSizeWords: Short = 3
     override val pointerSectionSizeWords: Short = 4
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Field.Builder = new com.capnproto.schema.Field.Builder(struct)
@@ -887,10 +801,9 @@ object Field extends MetaStruct[Field] {
     case class group(value: com.capnproto.schema.Field.Group) extends com.capnproto.schema.Field.Union
   }
 
-
   object Slot extends MetaStruct[Slot] {
     override type Self = Slot.type
-    override val recordName: String = "Slot"
+    override val structName: String = "Slot"
     override def create(struct: CapnpStruct): Slot = new SlotMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Field.Slot.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -900,7 +813,7 @@ object Field extends MetaStruct[Field] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Slot, com.capnproto.schema.Field.Slot.Builder] {
       override type Self = com.capnproto.schema.Field.Slot.Builder.type
-      override val recordName: String = "Slot"
+      override val structName: String = "Slot"
       override val dataSectionSizeWords: Short = 3
       override val pointerSectionSizeWords: Short = 4
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Field.Slot.Builder = new com.capnproto.schema.Field.Slot.Builder(struct)
@@ -914,9 +827,8 @@ object Field extends MetaStruct[Field] {
       def setOffset(value: java.lang.Integer): Builder = { struct.setInt(1, value); this }
       def set__Type(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
       def setDefaultValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
+      def setHadExplicitDefault(value: java.lang.Boolean): Builder = { struct.setBoolean(128, value); this }
     }
-
-
 
     val offset = new FieldDescriptor[java.lang.Integer, Slot, Slot.type](
       name = "offset",
@@ -941,39 +853,41 @@ object Field extends MetaStruct[Field] {
       manifest = manifest[com.capnproto.schema.Value],
       isUnion = false
     )
-    override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue)
+
+    val hadExplicitDefault = new FieldDescriptor[java.lang.Boolean, Slot, Slot.type](
+      name = "hadExplicitDefault",
+      meta = Slot,
+      getter = _.hadExplicitDefault,
+      manifest = manifest[java.lang.Boolean],
+      isUnion = false
+    )
+    override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue, hadExplicitDefault)
   }
 
   trait Slot extends Struct[Slot] {
     override type MetaT = Slot.type
+    override type MetaBuilderT = com.capnproto.schema.Field.Slot.Builder.type
 
     override def meta: Slot.type = Slot
+    override def metaBuilder: com.capnproto.schema.Field.Slot.Builder.type = com.capnproto.schema.Field.Slot.Builder
+
     def struct: CapnpStruct
 
     def offset: Option[java.lang.Integer]
     def __type: Option[com.capnproto.schema.__Type]
     def defaultValue: Option[com.capnproto.schema.Value]
-  }
-
-  trait SlotProxy extends Slot {
-    def underlying: Slot
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def offset: Option[java.lang.Integer]
-    override def __type: Option[com.capnproto.schema.__Type]
-    override def defaultValue: Option[com.capnproto.schema.Value]
+    def hadExplicitDefault: Option[java.lang.Boolean]
   }
 
   class SlotMutable(override val struct: CapnpStruct) extends Slot {
-
     override def offset: Option[java.lang.Integer] = struct.getInt(1)
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(2).map(new com.capnproto.schema.__TypeMutable(_))
     override def defaultValue: Option[com.capnproto.schema.Value] = struct.getStruct(3).map(new com.capnproto.schema.ValueMutable(_))
+    override def hadExplicitDefault: Option[java.lang.Boolean] = struct.getBoolean(128)
   }
   object Group extends MetaStruct[Group] {
     override type Self = Group.type
-    override val recordName: String = "Group"
+    override val structName: String = "Group"
     override def create(struct: CapnpStruct): Group = new GroupMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Field.Group.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -983,7 +897,7 @@ object Field extends MetaStruct[Field] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Group, com.capnproto.schema.Field.Group.Builder] {
       override type Self = com.capnproto.schema.Field.Group.Builder.type
-      override val recordName: String = "Group"
+      override val structName: String = "Group"
       override val dataSectionSizeWords: Short = 3
       override val pointerSectionSizeWords: Short = 4
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Field.Group.Builder = new com.capnproto.schema.Field.Group.Builder(struct)
@@ -997,8 +911,6 @@ object Field extends MetaStruct[Field] {
       def setTypeId(value: java.lang.Long): Builder = { struct.setLong(2, value); this }
     }
 
-
-
     val typeId = new FieldDescriptor[java.lang.Long, Group, Group.type](
       name = "typeId",
       meta = Group,
@@ -1011,28 +923,22 @@ object Field extends MetaStruct[Field] {
 
   trait Group extends Struct[Group] {
     override type MetaT = Group.type
+    override type MetaBuilderT = com.capnproto.schema.Field.Group.Builder.type
 
     override def meta: Group.type = Group
+    override def metaBuilder: com.capnproto.schema.Field.Group.Builder.type = com.capnproto.schema.Field.Group.Builder
+
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
   }
 
-  trait GroupProxy extends Group {
-    def underlying: Group
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def typeId: Option[java.lang.Long]
-  }
-
   class GroupMutable(override val struct: CapnpStruct) extends Group {
-
     override def typeId: Option[java.lang.Long] = struct.getLong(2)
   }
   object Ordinal extends MetaStruct[Ordinal] {
     override type Self = Ordinal.type
-    override val recordName: String = "Ordinal"
+    override val structName: String = "Ordinal"
     override def create(struct: CapnpStruct): Ordinal = new OrdinalMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Field.Ordinal.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -1042,7 +948,7 @@ object Field extends MetaStruct[Field] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.Field.Ordinal, com.capnproto.schema.Field.Ordinal.Builder] {
       override type Self = com.capnproto.schema.Field.Ordinal.Builder.type
-      override val recordName: String = "Ordinal"
+      override val structName: String = "Ordinal"
       override val dataSectionSizeWords: Short = 3
       override val pointerSectionSizeWords: Short = 4
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.Field.Ordinal.Builder = new com.capnproto.schema.Field.Ordinal.Builder(struct)
@@ -1064,8 +970,6 @@ object Field extends MetaStruct[Field] {
       case class explicit(value: Option[java.lang.Short]) extends com.capnproto.schema.Field.Ordinal.Union
     }
 
-
-
     val __implicit = new FieldDescriptor[Unit, Ordinal, Ordinal.type](
       name = "implicit",
       meta = Ordinal,
@@ -1086,28 +990,18 @@ object Field extends MetaStruct[Field] {
 
   trait Ordinal extends Struct[Ordinal] with HasUnion[com.capnproto.schema.Field.Ordinal.Union] {
     override type MetaT = Ordinal.type
+    override type MetaBuilderT = com.capnproto.schema.Field.Ordinal.Builder.type
 
     override def meta: Ordinal.type = Ordinal
+    override def metaBuilder: com.capnproto.schema.Field.Ordinal.Builder.type = com.capnproto.schema.Field.Ordinal.Builder
+
     def struct: CapnpStruct
 
     def __implicit: Option[Unit]
     def explicit: Option[java.lang.Short]
   }
 
-  trait OrdinalProxy extends Ordinal with HasUnion[com.capnproto.schema.Field.Ordinal.Union] {
-    def underlying: Ordinal
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def switch: com.capnproto.schema.Field.Ordinal.Union = underlying.switch
-    override def union: UnionMeta[com.capnproto.schema.Field.Ordinal.Union] = underlying.union
-
-    override def __implicit: Option[Unit]
-    override def explicit: Option[java.lang.Short]
-  }
-
   class OrdinalMutable(override val struct: CapnpStruct) extends Ordinal {
-
     override def discriminant: Short = (struct.getShort(5).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
     override def switch: com.capnproto.schema.Field.Ordinal.Union = discriminant match {
       case 0 => com.capnproto.schema.Field.Ordinal.Union.__implicit(__implicit)
@@ -1119,7 +1013,6 @@ object Field extends MetaStruct[Field] {
     override def __implicit: Option[Unit] = struct.getNone()
     override def explicit: Option[java.lang.Short] = struct.getShort(6)
   }
-
   val name = new FieldDescriptor[String, Field, Field.type](
     name = "name",
     meta = Field,
@@ -1180,8 +1073,11 @@ object Field extends MetaStruct[Field] {
 
 trait Field extends Struct[Field] with HasUnion[com.capnproto.schema.Field.Union] {
   override type MetaT = Field.type
+  override type MetaBuilderT = com.capnproto.schema.Field.Builder.type
 
   override def meta: Field.type = Field
+  override def metaBuilder: com.capnproto.schema.Field.Builder.type = com.capnproto.schema.Field.Builder
+
   def struct: CapnpStruct
 
   def name: Option[String]
@@ -1193,25 +1089,7 @@ trait Field extends Struct[Field] with HasUnion[com.capnproto.schema.Field.Union
   def ordinal: com.capnproto.schema.Field.Ordinal
 }
 
-trait FieldProxy extends Field with HasUnion[com.capnproto.schema.Field.Union] {
-  def underlying: Field
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def switch: com.capnproto.schema.Field.Union = underlying.switch
-  override def union: UnionMeta[com.capnproto.schema.Field.Union] = underlying.union
-
-  override def name: Option[String]
-  override def codeOrder: Option[java.lang.Short]
-  override def annotations: Seq[com.capnproto.schema.Annotation]
-  override def discriminantValue: Option[java.lang.Short]
-  override def slot: com.capnproto.schema.Field.Slot
-  override def group: com.capnproto.schema.Field.Group
-  override def ordinal: com.capnproto.schema.Field.Ordinal
-}
-
 class FieldMutable(override val struct: CapnpStruct) extends Field {
-
   override def discriminant: Short = (struct.getShort(4).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: com.capnproto.schema.Field.Union = discriminant match {
     case 0 => com.capnproto.schema.Field.Union.slot(slot)
@@ -1234,7 +1112,7 @@ class FieldMutable(override val struct: CapnpStruct) extends Field {
 
 object Enumerant extends MetaStruct[Enumerant] {
   override type Self = Enumerant.type
-  override val recordName: String = "Enumerant"
+  override val structName: String = "Enumerant"
   override def create(struct: CapnpStruct): Enumerant = new EnumerantMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Enumerant.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -1244,7 +1122,7 @@ object Enumerant extends MetaStruct[Enumerant] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Enumerant, com.capnproto.schema.Enumerant.Builder] {
     override type Self = com.capnproto.schema.Enumerant.Builder.type
-    override val recordName: String = "Enumerant"
+    override val structName: String = "Enumerant"
     override val dataSectionSizeWords: Short = 1
     override val pointerSectionSizeWords: Short = 2
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Enumerant.Builder = new com.capnproto.schema.Enumerant.Builder(struct)
@@ -1263,8 +1141,6 @@ object Enumerant extends MetaStruct[Enumerant] {
     }
     def setAnnotations(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Annotation.Builder]): Builder = { struct.setStructList(1, com.capnproto.schema.Annotation.Builder, buildFn(struct.arena).map(_.struct)); this }
   }
-
-
 
   val name = new FieldDescriptor[String, Enumerant, Enumerant.type](
     name = "name",
@@ -1294,8 +1170,11 @@ object Enumerant extends MetaStruct[Enumerant] {
 
 trait Enumerant extends Struct[Enumerant] {
   override type MetaT = Enumerant.type
+  override type MetaBuilderT = com.capnproto.schema.Enumerant.Builder.type
 
   override def meta: Enumerant.type = Enumerant
+  override def metaBuilder: com.capnproto.schema.Enumerant.Builder.type = com.capnproto.schema.Enumerant.Builder
+
   def struct: CapnpStruct
 
   def name: Option[String]
@@ -1303,18 +1182,7 @@ trait Enumerant extends Struct[Enumerant] {
   def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
-trait EnumerantProxy extends Enumerant {
-  def underlying: Enumerant
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def name: Option[String]
-  override def codeOrder: Option[java.lang.Short]
-  override def annotations: Seq[com.capnproto.schema.Annotation]
-}
-
 class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
-
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
   override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(1).map(new com.capnproto.schema.AnnotationMutable(_))
@@ -1322,7 +1190,7 @@ class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
 
 object Method extends MetaStruct[Method] {
   override type Self = Method.type
-  override val recordName: String = "Method"
+  override val structName: String = "Method"
   override def create(struct: CapnpStruct): Method = new MethodMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Method.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -1332,9 +1200,9 @@ object Method extends MetaStruct[Method] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Method, com.capnproto.schema.Method.Builder] {
     override type Self = com.capnproto.schema.Method.Builder.type
-    override val recordName: String = "Method"
-    override val dataSectionSizeWords: Short = 1
-    override val pointerSectionSizeWords: Short = 4
+    override val structName: String = "Method"
+    override val dataSectionSizeWords: Short = 3
+    override val pointerSectionSizeWords: Short = 2
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Method.Builder = new com.capnproto.schema.Method.Builder(struct)
     override def fields: Seq[UntypedFieldDescriptor] = com.capnproto.schema.Method.fields
   }
@@ -1345,120 +1213,14 @@ object Method extends MetaStruct[Method] {
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Method.Builder
     def setName(value: String): Builder = { struct.setString(0, value); this }
     def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value); this }
-    def initParams(count: Int): Seq[com.capnproto.schema.Method.Param.Builder] = {
-      val list = struct.initPointerList(1, count, com.capnproto.schema.Method.Param.Builder)
-      Range(0, count).map(i => new com.capnproto.schema.Method.Param.Builder(list.initStruct(i, com.capnproto.schema.Method.Param.Builder)))
-    }
-    def setParams(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Method.Param.Builder]): Builder = { struct.setStructList(1, com.capnproto.schema.Method.Param.Builder, buildFn(struct.arena).map(_.struct)); this }
-    def setRequiredParamCount(value: java.lang.Short): Builder = { struct.setShort(1, value); this }
-    def setReturnType(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
+    def setParamStructType(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
+    def setResultStructType(value: java.lang.Long): Builder = { struct.setLong(2, value); this }
     def initAnnotations(count: Int): Seq[com.capnproto.schema.Annotation.Builder] = {
-      val list = struct.initPointerList(3, count, com.capnproto.schema.Annotation.Builder)
+      val list = struct.initPointerList(1, count, com.capnproto.schema.Annotation.Builder)
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
     }
-    def setAnnotations(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Annotation.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Annotation.Builder, buildFn(struct.arena).map(_.struct)); this }
+    def setAnnotations(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Annotation.Builder]): Builder = { struct.setStructList(1, com.capnproto.schema.Annotation.Builder, buildFn(struct.arena).map(_.struct)); this }
   }
-
-  object Param extends MetaStruct[Param] {
-    override type Self = Param.type
-    override val recordName: String = "Param"
-    override def create(struct: CapnpStruct): Param = new ParamMutable(struct)
-    def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Method.Param.Builder = {
-      val (segment, pointerOffset) = arena.allocate(1)
-      val struct = CapnpStructBuilder(arena, segment, pointerOffset, com.capnproto.schema.Method.Param.Builder.dataSectionSizeWords, com.capnproto.schema.Method.Param.Builder.pointerSectionSizeWords)
-      new com.capnproto.schema.Method.Param.Builder(struct)
-    }
-
-    object Builder extends MetaStructBuilder[com.capnproto.schema.Method.Param, com.capnproto.schema.Method.Param.Builder] {
-      override type Self = com.capnproto.schema.Method.Param.Builder.type
-      override val recordName: String = "Param"
-      override val dataSectionSizeWords: Short = 0
-      override val pointerSectionSizeWords: Short = 4
-      override def create(struct: CapnpStructBuilder): com.capnproto.schema.Method.Param.Builder = new com.capnproto.schema.Method.Param.Builder(struct)
-      override def fields: Seq[UntypedFieldDescriptor] = com.capnproto.schema.Method.Param.fields
-    }
-    class Builder(override val struct: CapnpStructBuilder) extends com.capnproto.schema.Method.ParamMutable(struct) with StructBuilder[com.capnproto.schema.Method.Param, com.capnproto.schema.Method.Param.Builder] {
-      override type MetaBuilderT = com.capnproto.schema.Method.Param.Builder.type
-
-      override def meta: Param.type = Param
-      override def metaBuilder: MetaBuilderT = com.capnproto.schema.Method.Param.Builder
-      def setName(value: String): Builder = { struct.setString(0, value); this }
-      def set__Type(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
-      def setDefaultValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
-      def initAnnotations(count: Int): Seq[com.capnproto.schema.Annotation.Builder] = {
-        val list = struct.initPointerList(3, count, com.capnproto.schema.Annotation.Builder)
-        Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
-      }
-      def setAnnotations(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Annotation.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Annotation.Builder, buildFn(struct.arena).map(_.struct)); this }
-    }
-
-
-
-    val name = new FieldDescriptor[String, Param, Param.type](
-      name = "name",
-      meta = Param,
-      getter = _.name,
-      manifest = manifest[String],
-      isUnion = false
-    )
-
-    val __type = new FieldDescriptor[com.capnproto.schema.__Type, Param, Param.type](
-      name = "type",
-      meta = Param,
-      getter = _.__type,
-      manifest = manifest[com.capnproto.schema.__Type],
-      isUnion = false
-    )
-
-    val defaultValue = new FieldDescriptor[com.capnproto.schema.Value, Param, Param.type](
-      name = "defaultValue",
-      meta = Param,
-      getter = _.defaultValue,
-      manifest = manifest[com.capnproto.schema.Value],
-      isUnion = false
-    )
-
-    val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Param, Param.type](
-      name = "annotations",
-      meta = Param,
-      getter = x => Some(x.annotations),
-      manifest = manifest[Seq[com.capnproto.schema.Annotation]],
-      isUnion = false
-    )
-    override val fields: Seq[FieldDescriptor[_, Param, Param.type]] = Seq(name, __type, defaultValue, annotations)
-  }
-
-  trait Param extends Struct[Param] {
-    override type MetaT = Param.type
-
-    override def meta: Param.type = Param
-    def struct: CapnpStruct
-
-    def name: Option[String]
-    def __type: Option[com.capnproto.schema.__Type]
-    def defaultValue: Option[com.capnproto.schema.Value]
-    def annotations: Seq[com.capnproto.schema.Annotation]
-  }
-
-  trait ParamProxy extends Param {
-    def underlying: Param
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def name: Option[String]
-    override def __type: Option[com.capnproto.schema.__Type]
-    override def defaultValue: Option[com.capnproto.schema.Value]
-    override def annotations: Seq[com.capnproto.schema.Annotation]
-  }
-
-  class ParamMutable(override val struct: CapnpStruct) extends Param {
-
-    override def name: Option[String] = struct.getString(0)
-    override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(1).map(new com.capnproto.schema.__TypeMutable(_))
-    override def defaultValue: Option[com.capnproto.schema.Value] = struct.getStruct(2).map(new com.capnproto.schema.ValueMutable(_))
-    override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(3).map(new com.capnproto.schema.AnnotationMutable(_))
-  }
-
 
   val name = new FieldDescriptor[String, Method, Method.type](
     name = "name",
@@ -1476,27 +1238,19 @@ object Method extends MetaStruct[Method] {
     isUnion = false
   )
 
-  val params = new FieldDescriptor[Seq[com.capnproto.schema.Method.Param], Method, Method.type](
-    name = "params",
+  val paramStructType = new FieldDescriptor[java.lang.Long, Method, Method.type](
+    name = "paramStructType",
     meta = Method,
-    getter = x => Some(x.params),
-    manifest = manifest[Seq[com.capnproto.schema.Method.Param]],
+    getter = _.paramStructType,
+    manifest = manifest[java.lang.Long],
     isUnion = false
   )
 
-  val requiredParamCount = new FieldDescriptor[java.lang.Short, Method, Method.type](
-    name = "requiredParamCount",
+  val resultStructType = new FieldDescriptor[java.lang.Long, Method, Method.type](
+    name = "resultStructType",
     meta = Method,
-    getter = _.requiredParamCount,
-    manifest = manifest[java.lang.Short],
-    isUnion = false
-  )
-
-  val returnType = new FieldDescriptor[com.capnproto.schema.__Type, Method, Method.type](
-    name = "returnType",
-    meta = Method,
-    getter = _.returnType,
-    manifest = manifest[com.capnproto.schema.__Type],
+    getter = _.resultStructType,
+    manifest = manifest[java.lang.Long],
     isUnion = false
   )
 
@@ -1507,49 +1261,36 @@ object Method extends MetaStruct[Method] {
     manifest = manifest[Seq[com.capnproto.schema.Annotation]],
     isUnion = false
   )
-  override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, params, requiredParamCount, returnType, annotations)
+  override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, paramStructType, resultStructType, annotations)
 }
 
 trait Method extends Struct[Method] {
   override type MetaT = Method.type
+  override type MetaBuilderT = com.capnproto.schema.Method.Builder.type
 
   override def meta: Method.type = Method
+  override def metaBuilder: com.capnproto.schema.Method.Builder.type = com.capnproto.schema.Method.Builder
+
   def struct: CapnpStruct
 
   def name: Option[String]
   def codeOrder: Option[java.lang.Short]
-  def params: Seq[com.capnproto.schema.Method.Param]
-  def requiredParamCount: Option[java.lang.Short]
-  def returnType: Option[com.capnproto.schema.__Type]
+  def paramStructType: Option[java.lang.Long]
+  def resultStructType: Option[java.lang.Long]
   def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
-trait MethodProxy extends Method {
-  def underlying: Method
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def name: Option[String]
-  override def codeOrder: Option[java.lang.Short]
-  override def params: Seq[com.capnproto.schema.Method.Param]
-  override def requiredParamCount: Option[java.lang.Short]
-  override def returnType: Option[com.capnproto.schema.__Type]
-  override def annotations: Seq[com.capnproto.schema.Annotation]
-}
-
 class MethodMutable(override val struct: CapnpStruct) extends Method {
-
   override def name: Option[String] = struct.getString(0)
   override def codeOrder: Option[java.lang.Short] = struct.getShort(0)
-  override def params: Seq[com.capnproto.schema.Method.Param] = struct.getStructList(1).map(new com.capnproto.schema.Method.ParamMutable(_))
-  override def requiredParamCount: Option[java.lang.Short] = struct.getShort(1)
-  override def returnType: Option[com.capnproto.schema.__Type] = struct.getStruct(2).map(new com.capnproto.schema.__TypeMutable(_))
-  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(3).map(new com.capnproto.schema.AnnotationMutable(_))
+  override def paramStructType: Option[java.lang.Long] = struct.getLong(1)
+  override def resultStructType: Option[java.lang.Long] = struct.getLong(2)
+  override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getStructList(1).map(new com.capnproto.schema.AnnotationMutable(_))
 }
 
 object __Type extends MetaStruct[__Type] {
   override type Self = __Type.type
-  override val recordName: String = "Type"
+  override val structName: String = "Type"
   override def create(struct: CapnpStruct): __Type = new __TypeMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.__Type.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -1559,7 +1300,7 @@ object __Type extends MetaStruct[__Type] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.__Type, com.capnproto.schema.__Type.Builder] {
     override type Self = com.capnproto.schema.__Type.Builder.type
-    override val recordName: String = "Type"
+    override val structName: String = "Type"
     override val dataSectionSizeWords: Short = 2
     override val pointerSectionSizeWords: Short = 1
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.__Type.Builder = new com.capnproto.schema.__Type.Builder(struct)
@@ -1615,10 +1356,9 @@ object __Type extends MetaStruct[__Type] {
     case class __object(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
   }
 
-
   object List extends MetaStruct[List] {
     override type Self = List.type
-    override val recordName: String = "List"
+    override val structName: String = "List"
     override def create(struct: CapnpStruct): List = new ListMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.__Type.List.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -1628,7 +1368,7 @@ object __Type extends MetaStruct[__Type] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.List, com.capnproto.schema.__Type.List.Builder] {
       override type Self = com.capnproto.schema.__Type.List.Builder.type
-      override val recordName: String = "List"
+      override val structName: String = "List"
       override val dataSectionSizeWords: Short = 2
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.__Type.List.Builder = new com.capnproto.schema.__Type.List.Builder(struct)
@@ -1642,8 +1382,6 @@ object __Type extends MetaStruct[__Type] {
       def setElementType(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
     }
 
-
-
     val elementType = new FieldDescriptor[com.capnproto.schema.__Type, List, List.type](
       name = "elementType",
       meta = List,
@@ -1656,28 +1394,22 @@ object __Type extends MetaStruct[__Type] {
 
   trait List extends Struct[List] {
     override type MetaT = List.type
+    override type MetaBuilderT = com.capnproto.schema.__Type.List.Builder.type
 
     override def meta: List.type = List
+    override def metaBuilder: com.capnproto.schema.__Type.List.Builder.type = com.capnproto.schema.__Type.List.Builder
+
     def struct: CapnpStruct
 
     def elementType: Option[com.capnproto.schema.__Type]
   }
 
-  trait ListProxy extends List {
-    def underlying: List
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def elementType: Option[com.capnproto.schema.__Type]
-  }
-
   class ListMutable(override val struct: CapnpStruct) extends List {
-
     override def elementType: Option[com.capnproto.schema.__Type] = struct.getStruct(0).map(new com.capnproto.schema.__TypeMutable(_))
   }
   object __Enum extends MetaStruct[__Enum] {
     override type Self = __Enum.type
-    override val recordName: String = "__Enum"
+    override val structName: String = "Enum"
     override def create(struct: CapnpStruct): __Enum = new __EnumMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.__Type.__Enum.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -1687,7 +1419,7 @@ object __Type extends MetaStruct[__Type] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.__Enum, com.capnproto.schema.__Type.__Enum.Builder] {
       override type Self = com.capnproto.schema.__Type.__Enum.Builder.type
-      override val recordName: String = "__Enum"
+      override val structName: String = "Enum"
       override val dataSectionSizeWords: Short = 2
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.__Type.__Enum.Builder = new com.capnproto.schema.__Type.__Enum.Builder(struct)
@@ -1701,8 +1433,6 @@ object __Type extends MetaStruct[__Type] {
       def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
     }
 
-
-
     val typeId = new FieldDescriptor[java.lang.Long, __Enum, __Enum.type](
       name = "typeId",
       meta = __Enum,
@@ -1715,28 +1445,22 @@ object __Type extends MetaStruct[__Type] {
 
   trait __Enum extends Struct[__Enum] {
     override type MetaT = __Enum.type
+    override type MetaBuilderT = com.capnproto.schema.__Type.__Enum.Builder.type
 
     override def meta: __Enum.type = __Enum
+    override def metaBuilder: com.capnproto.schema.__Type.__Enum.Builder.type = com.capnproto.schema.__Type.__Enum.Builder
+
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
   }
 
-  trait __EnumProxy extends __Enum {
-    def underlying: __Enum
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def typeId: Option[java.lang.Long]
-  }
-
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
-
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
   object __Struct extends MetaStruct[__Struct] {
     override type Self = __Struct.type
-    override val recordName: String = "__Struct"
+    override val structName: String = "Struct"
     override def create(struct: CapnpStruct): __Struct = new __StructMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.__Type.__Struct.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -1746,7 +1470,7 @@ object __Type extends MetaStruct[__Type] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.__Struct, com.capnproto.schema.__Type.__Struct.Builder] {
       override type Self = com.capnproto.schema.__Type.__Struct.Builder.type
-      override val recordName: String = "__Struct"
+      override val structName: String = "Struct"
       override val dataSectionSizeWords: Short = 2
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.__Type.__Struct.Builder = new com.capnproto.schema.__Type.__Struct.Builder(struct)
@@ -1760,8 +1484,6 @@ object __Type extends MetaStruct[__Type] {
       def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
     }
 
-
-
     val typeId = new FieldDescriptor[java.lang.Long, __Struct, __Struct.type](
       name = "typeId",
       meta = __Struct,
@@ -1774,28 +1496,22 @@ object __Type extends MetaStruct[__Type] {
 
   trait __Struct extends Struct[__Struct] {
     override type MetaT = __Struct.type
+    override type MetaBuilderT = com.capnproto.schema.__Type.__Struct.Builder.type
 
     override def meta: __Struct.type = __Struct
+    override def metaBuilder: com.capnproto.schema.__Type.__Struct.Builder.type = com.capnproto.schema.__Type.__Struct.Builder
+
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
   }
 
-  trait __StructProxy extends __Struct {
-    def underlying: __Struct
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def typeId: Option[java.lang.Long]
-  }
-
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
-    override val recordName: String = "Interface"
+    override val structName: String = "Interface"
     override def create(struct: CapnpStruct): Interface = new InterfaceMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.__Type.Interface.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -1805,7 +1521,7 @@ object __Type extends MetaStruct[__Type] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.__Type.Interface, com.capnproto.schema.__Type.Interface.Builder] {
       override type Self = com.capnproto.schema.__Type.Interface.Builder.type
-      override val recordName: String = "Interface"
+      override val structName: String = "Interface"
       override val dataSectionSizeWords: Short = 2
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.__Type.Interface.Builder = new com.capnproto.schema.__Type.Interface.Builder(struct)
@@ -1819,8 +1535,6 @@ object __Type extends MetaStruct[__Type] {
       def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value); this }
     }
 
-
-
     val typeId = new FieldDescriptor[java.lang.Long, Interface, Interface.type](
       name = "typeId",
       meta = Interface,
@@ -1833,26 +1547,19 @@ object __Type extends MetaStruct[__Type] {
 
   trait Interface extends Struct[Interface] {
     override type MetaT = Interface.type
+    override type MetaBuilderT = com.capnproto.schema.__Type.Interface.Builder.type
 
     override def meta: Interface.type = Interface
+    override def metaBuilder: com.capnproto.schema.__Type.Interface.Builder.type = com.capnproto.schema.__Type.Interface.Builder
+
     def struct: CapnpStruct
 
     def typeId: Option[java.lang.Long]
   }
 
-  trait InterfaceProxy extends Interface {
-    def underlying: Interface
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def typeId: Option[java.lang.Long]
-  }
-
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
-
     override def typeId: Option[java.lang.Long] = struct.getLong(1)
   }
-
   val void = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "void",
     meta = __Type,
@@ -2009,8 +1716,11 @@ object __Type extends MetaStruct[__Type] {
 
 trait __Type extends Struct[__Type] with HasUnion[com.capnproto.schema.__Type.Union] {
   override type MetaT = __Type.type
+  override type MetaBuilderT = com.capnproto.schema.__Type.Builder.type
 
   override def meta: __Type.type = __Type
+  override def metaBuilder: com.capnproto.schema.__Type.Builder.type = com.capnproto.schema.__Type.Builder
+
   def struct: CapnpStruct
 
   def void: Option[Unit]
@@ -2034,37 +1744,7 @@ trait __Type extends Struct[__Type] with HasUnion[com.capnproto.schema.__Type.Un
   def __object: Option[Unit]
 }
 
-trait __TypeProxy extends __Type with HasUnion[com.capnproto.schema.__Type.Union] {
-  def underlying: __Type
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def switch: com.capnproto.schema.__Type.Union = underlying.switch
-  override def union: UnionMeta[com.capnproto.schema.__Type.Union] = underlying.union
-
-  override def void: Option[Unit]
-  override def bool: Option[Unit]
-  override def int8: Option[Unit]
-  override def int16: Option[Unit]
-  override def int32: Option[Unit]
-  override def int64: Option[Unit]
-  override def uint8: Option[Unit]
-  override def uint16: Option[Unit]
-  override def uint32: Option[Unit]
-  override def uint64: Option[Unit]
-  override def float32: Option[Unit]
-  override def float64: Option[Unit]
-  override def text: Option[Unit]
-  override def data: Option[Unit]
-  override def list: com.capnproto.schema.__Type.List
-  override def __enum: com.capnproto.schema.__Type.__Enum
-  override def __struct: com.capnproto.schema.__Type.__Struct
-  override def interface: com.capnproto.schema.__Type.Interface
-  override def __object: Option[Unit]
-}
-
 class __TypeMutable(override val struct: CapnpStruct) extends __Type {
-
   override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: com.capnproto.schema.__Type.Union = discriminant match {
     case 0 => com.capnproto.schema.__Type.Union.void(void)
@@ -2117,7 +1797,7 @@ class __TypeMutable(override val struct: CapnpStruct) extends __Type {
 
 object Value extends MetaStruct[Value] {
   override type Self = Value.type
-  override val recordName: String = "Value"
+  override val structName: String = "Value"
   override def create(struct: CapnpStruct): Value = new ValueMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Value.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -2127,7 +1807,7 @@ object Value extends MetaStruct[Value] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Value, com.capnproto.schema.Value.Builder] {
     override type Self = com.capnproto.schema.Value.Builder.type
-    override val recordName: String = "Value"
+    override val structName: String = "Value"
     override val dataSectionSizeWords: Short = 2
     override val pointerSectionSizeWords: Short = 1
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Value.Builder = new com.capnproto.schema.Value.Builder(struct)
@@ -2152,11 +1832,11 @@ object Value extends MetaStruct[Value] {
     def setFloat64(value: java.lang.Double): Builder = { struct.setDouble(1, value); struct.setShort(0, -12); this }
     def setText(value: String): Builder = { struct.setString(0, value); struct.setShort(0, -13); this }
     def setData(value: Array[Byte]): Builder = { struct.setData(0, value); struct.setShort(0, -14); this }
-    def setList(value: CapnpPointer): Builder = { struct.setNone(); struct.setShort(0, -15); this }
+    def setList(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -15); this }
     def set__Enum(value: java.lang.Short): Builder = { struct.setShort(1, value); struct.setShort(0, -16); this }
-    def set__Struct(value: CapnpPointer): Builder = { struct.setNone(); struct.setShort(0, -17); this }
+    def set__Struct(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -17); this }
     def setInterface(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -18); this }
-    def set__Object(value: CapnpPointer): Builder = { struct.setNone(); struct.setShort(0, -19); this }
+    def set__Object(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -19); this }
   }
 
   sealed trait Union extends UnionValue[com.capnproto.schema.Value.Union]
@@ -2176,14 +1856,12 @@ object Value extends MetaStruct[Value] {
     case class float64(value: Option[java.lang.Double]) extends com.capnproto.schema.Value.Union
     case class text(value: Option[String]) extends com.capnproto.schema.Value.Union
     case class data(value: Option[Array[Byte]]) extends com.capnproto.schema.Value.Union
-    case class list(value: Option[CapnpPointer]) extends com.capnproto.schema.Value.Union
+    case class list(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
     case class __enum(value: Option[java.lang.Short]) extends com.capnproto.schema.Value.Union
-    case class __struct(value: Option[CapnpPointer]) extends com.capnproto.schema.Value.Union
+    case class __struct(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
     case class interface(value: Option[Unit]) extends com.capnproto.schema.Value.Union
-    case class __object(value: Option[CapnpPointer]) extends com.capnproto.schema.Value.Union
+    case class __object(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
   }
-
-
 
   val void = new FieldDescriptor[Unit, Value, Value.type](
     name = "void",
@@ -2297,11 +1975,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val list = new FieldDescriptor[CapnpPointer, Value, Value.type](
+  val list = new FieldDescriptor[Pointer, Value, Value.type](
     name = "list",
     meta = Value,
     getter = _.list,
-    manifest = manifest[CapnpPointer],
+    manifest = manifest[Pointer],
     isUnion = true
   )
 
@@ -2313,11 +1991,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val __struct = new FieldDescriptor[CapnpPointer, Value, Value.type](
+  val __struct = new FieldDescriptor[Pointer, Value, Value.type](
     name = "struct",
     meta = Value,
     getter = _.__struct,
-    manifest = manifest[CapnpPointer],
+    manifest = manifest[Pointer],
     isUnion = true
   )
 
@@ -2329,11 +2007,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val __object = new FieldDescriptor[CapnpPointer, Value, Value.type](
+  val __object = new FieldDescriptor[Pointer, Value, Value.type](
     name = "object",
     meta = Value,
     getter = _.__object,
-    manifest = manifest[CapnpPointer],
+    manifest = manifest[Pointer],
     isUnion = true
   )
   override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
@@ -2341,8 +2019,11 @@ object Value extends MetaStruct[Value] {
 
 trait Value extends Struct[Value] with HasUnion[com.capnproto.schema.Value.Union] {
   override type MetaT = Value.type
+  override type MetaBuilderT = com.capnproto.schema.Value.Builder.type
 
   override def meta: Value.type = Value
+  override def metaBuilder: com.capnproto.schema.Value.Builder.type = com.capnproto.schema.Value.Builder
+
   def struct: CapnpStruct
 
   def void: Option[Unit]
@@ -2359,44 +2040,14 @@ trait Value extends Struct[Value] with HasUnion[com.capnproto.schema.Value.Union
   def float64: Option[java.lang.Double]
   def text: Option[String]
   def data: Option[Array[Byte]]
-  def list: Option[CapnpPointer]
+  def list: Option[Pointer]
   def __enum: Option[java.lang.Short]
-  def __struct: Option[CapnpPointer]
+  def __struct: Option[Pointer]
   def interface: Option[Unit]
-  def __object: Option[CapnpPointer]
-}
-
-trait ValueProxy extends Value with HasUnion[com.capnproto.schema.Value.Union] {
-  def underlying: Value
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def switch: com.capnproto.schema.Value.Union = underlying.switch
-  override def union: UnionMeta[com.capnproto.schema.Value.Union] = underlying.union
-
-  override def void: Option[Unit]
-  override def bool: Option[java.lang.Boolean]
-  override def int8: Option[java.lang.Byte]
-  override def int16: Option[java.lang.Short]
-  override def int32: Option[java.lang.Integer]
-  override def int64: Option[java.lang.Long]
-  override def uint8: Option[java.lang.Byte]
-  override def uint16: Option[java.lang.Short]
-  override def uint32: Option[java.lang.Integer]
-  override def uint64: Option[java.lang.Long]
-  override def float32: Option[java.lang.Float]
-  override def float64: Option[java.lang.Double]
-  override def text: Option[String]
-  override def data: Option[Array[Byte]]
-  override def list: Option[CapnpPointer]
-  override def __enum: Option[java.lang.Short]
-  override def __struct: Option[CapnpPointer]
-  override def interface: Option[Unit]
-  override def __object: Option[CapnpPointer]
+  def __object: Option[Pointer]
 }
 
 class ValueMutable(override val struct: CapnpStruct) extends Value {
-
   override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
   override def switch: com.capnproto.schema.Value.Union = discriminant match {
     case 0 => com.capnproto.schema.Value.Union.void(void)
@@ -2436,16 +2087,16 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
   override def float64: Option[java.lang.Double] = struct.getDouble(1)
   override def text: Option[String] = struct.getString(0)
   override def data: Option[Array[Byte]] = struct.getData(0)
-  override def list: Option[CapnpPointer] = struct.getPointer(0)
+  override def list: Option[Pointer] = struct.getPointer(0)
   override def __enum: Option[java.lang.Short] = struct.getShort(1)
-  override def __struct: Option[CapnpPointer] = struct.getPointer(0)
+  override def __struct: Option[Pointer] = struct.getPointer(0)
   override def interface: Option[Unit] = struct.getNone()
-  override def __object: Option[CapnpPointer] = struct.getPointer(0)
+  override def __object: Option[Pointer] = struct.getPointer(0)
 }
 
 object Annotation extends MetaStruct[Annotation] {
   override type Self = Annotation.type
-  override val recordName: String = "Annotation"
+  override val structName: String = "Annotation"
   override def create(struct: CapnpStruct): Annotation = new AnnotationMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.Annotation.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -2455,7 +2106,7 @@ object Annotation extends MetaStruct[Annotation] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.Annotation, com.capnproto.schema.Annotation.Builder] {
     override type Self = com.capnproto.schema.Annotation.Builder.type
-    override val recordName: String = "Annotation"
+    override val structName: String = "Annotation"
     override val dataSectionSizeWords: Short = 1
     override val pointerSectionSizeWords: Short = 1
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.Annotation.Builder = new com.capnproto.schema.Annotation.Builder(struct)
@@ -2469,8 +2120,6 @@ object Annotation extends MetaStruct[Annotation] {
     def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
     def setValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
   }
-
-
 
   val id = new FieldDescriptor[java.lang.Long, Annotation, Annotation.type](
     name = "id",
@@ -2492,25 +2141,18 @@ object Annotation extends MetaStruct[Annotation] {
 
 trait Annotation extends Struct[Annotation] {
   override type MetaT = Annotation.type
+  override type MetaBuilderT = com.capnproto.schema.Annotation.Builder.type
 
   override def meta: Annotation.type = Annotation
+  override def metaBuilder: com.capnproto.schema.Annotation.Builder.type = com.capnproto.schema.Annotation.Builder
+
   def struct: CapnpStruct
 
   def id: Option[java.lang.Long]
   def value: Option[com.capnproto.schema.Value]
 }
 
-trait AnnotationProxy extends Annotation {
-  def underlying: Annotation
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def id: Option[java.lang.Long]
-  override def value: Option[com.capnproto.schema.Value]
-}
-
 class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
-
   override def id: Option[java.lang.Long] = struct.getLong(0)
   override def value: Option[com.capnproto.schema.Value] = struct.getStruct(0).map(new com.capnproto.schema.ValueMutable(_))
 }
@@ -2552,7 +2194,7 @@ sealed class ElementSize(
 
 object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
   override type Self = CodeGeneratorRequest.type
-  override val recordName: String = "CodeGeneratorRequest"
+  override val structName: String = "CodeGeneratorRequest"
   override def create(struct: CapnpStruct): CodeGeneratorRequest = new CodeGeneratorRequestMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.CodeGeneratorRequest.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -2562,7 +2204,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
   object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest, com.capnproto.schema.CodeGeneratorRequest.Builder] {
     override type Self = com.capnproto.schema.CodeGeneratorRequest.Builder.type
-    override val recordName: String = "CodeGeneratorRequest"
+    override val structName: String = "CodeGeneratorRequest"
     override val dataSectionSizeWords: Short = 0
     override val pointerSectionSizeWords: Short = 2
     override def create(struct: CapnpStructBuilder): com.capnproto.schema.CodeGeneratorRequest.Builder = new com.capnproto.schema.CodeGeneratorRequest.Builder(struct)
@@ -2587,7 +2229,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
   object RequestedFile extends MetaStruct[RequestedFile] {
     override type Self = RequestedFile.type
-    override val recordName: String = "RequestedFile"
+    override val structName: String = "RequestedFile"
     override def create(struct: CapnpStruct): RequestedFile = new RequestedFileMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -2597,7 +2239,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest.RequestedFile, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder] {
       override type Self = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder.type
-      override val recordName: String = "RequestedFile"
+      override val structName: String = "RequestedFile"
       override val dataSectionSizeWords: Short = 1
       override val pointerSectionSizeWords: Short = 2
       override def create(struct: CapnpStructBuilder): com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder = new com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder(struct)
@@ -2619,7 +2261,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     object __Import extends MetaStruct[__Import] {
       override type Self = __Import.type
-      override val recordName: String = "Import"
+      override val structName: String = "Import"
       override def create(struct: CapnpStruct): __Import = new __ImportMutable(struct)
       def newBuilder(arena: CapnpArenaBuilder): com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder = {
         val (segment, pointerOffset) = arena.allocate(1)
@@ -2629,7 +2271,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
       object Builder extends MetaStructBuilder[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder] {
         override type Self = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder.type
-        override val recordName: String = "Import"
+        override val structName: String = "Import"
         override val dataSectionSizeWords: Short = 1
         override val pointerSectionSizeWords: Short = 1
         override def create(struct: CapnpStructBuilder): com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder = new com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder(struct)
@@ -2643,8 +2285,6 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
         def setId(value: java.lang.Long): Builder = { struct.setLong(0, value); this }
         def setName(value: String): Builder = { struct.setString(0, value); this }
       }
-
-
 
       val id = new FieldDescriptor[java.lang.Long, __Import, __Import.type](
         name = "id",
@@ -2666,30 +2306,21 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     trait __Import extends Struct[__Import] {
       override type MetaT = __Import.type
+      override type MetaBuilderT = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder.type
 
       override def meta: __Import.type = __Import
+      override def metaBuilder: com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder.type = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder
+
       def struct: CapnpStruct
 
       def id: Option[java.lang.Long]
       def name: Option[String]
     }
 
-    trait __ImportProxy extends __Import {
-      def underlying: __Import
-
-      override def struct: CapnpStruct = underlying.struct
-
-      override def id: Option[java.lang.Long]
-      override def name: Option[String]
-    }
-
     class __ImportMutable(override val struct: CapnpStruct) extends __Import {
-
       override def id: Option[java.lang.Long] = struct.getLong(0)
       override def name: Option[String] = struct.getString(0)
     }
-
-
     val id = new FieldDescriptor[java.lang.Long, RequestedFile, RequestedFile.type](
       name = "id",
       meta = RequestedFile,
@@ -2718,8 +2349,11 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
   trait RequestedFile extends Struct[RequestedFile] {
     override type MetaT = RequestedFile.type
+    override type MetaBuilderT = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder.type
 
     override def meta: RequestedFile.type = RequestedFile
+    override def metaBuilder: com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder.type = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder
+
     def struct: CapnpStruct
 
     def id: Option[java.lang.Long]
@@ -2727,24 +2361,11 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]
   }
 
-  trait RequestedFileProxy extends RequestedFile {
-    def underlying: RequestedFile
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def id: Option[java.lang.Long]
-    override def filename: Option[String]
-    override def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]
-  }
-
   class RequestedFileMutable(override val struct: CapnpStruct) extends RequestedFile {
-
     override def id: Option[java.lang.Long] = struct.getLong(0)
     override def filename: Option[String] = struct.getString(0)
     override def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import] = struct.getStructList(1).map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__ImportMutable(_))
   }
-
-
   val nodes = new FieldDescriptor[Seq[com.capnproto.schema.Node], CodeGeneratorRequest, CodeGeneratorRequest.type](
     name = "nodes",
     meta = CodeGeneratorRequest,
@@ -2765,25 +2386,18 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
 trait CodeGeneratorRequest extends Struct[CodeGeneratorRequest] {
   override type MetaT = CodeGeneratorRequest.type
+  override type MetaBuilderT = com.capnproto.schema.CodeGeneratorRequest.Builder.type
 
   override def meta: CodeGeneratorRequest.type = CodeGeneratorRequest
+  override def metaBuilder: com.capnproto.schema.CodeGeneratorRequest.Builder.type = com.capnproto.schema.CodeGeneratorRequest.Builder
+
   def struct: CapnpStruct
 
   def nodes: Seq[com.capnproto.schema.Node]
   def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]
 }
 
-trait CodeGeneratorRequestProxy extends CodeGeneratorRequest {
-  def underlying: CodeGeneratorRequest
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def nodes: Seq[com.capnproto.schema.Node]
-  override def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]
-}
-
 class CodeGeneratorRequestMutable(override val struct: CapnpStruct) extends CodeGeneratorRequest {
-
   override def nodes: Seq[com.capnproto.schema.Node] = struct.getStructList(0).map(new com.capnproto.schema.NodeMutable(_))
   override def requestedFiles: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile] = struct.getStructList(1).map(new com.capnproto.schema.CodeGeneratorRequest.RequestedFileMutable(_))
 }

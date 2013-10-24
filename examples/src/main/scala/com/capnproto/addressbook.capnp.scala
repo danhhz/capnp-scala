@@ -3,13 +3,17 @@
 package com.capnproto.addressbook
 
 import com.foursquare.spindle.{Enum, EnumMeta}
-import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor, FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct, StructBuilder, MetaStructBuilder}
-import com.capnproto.{CapnpStruct, CapnpStructBuilder, Pointer => CapnpPointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
+  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
+  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
+  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+import com.twitter.util.Future
 import java.nio.ByteBuffer
 
 object Person extends MetaStruct[Person] {
   override type Self = Person.type
-  override val recordName: String = "Person"
+  override val structName: String = "Person"
   override def create(struct: CapnpStruct): Person = new PersonMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.addressbook.Person.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -19,7 +23,7 @@ object Person extends MetaStruct[Person] {
 
   object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person, com.capnproto.addressbook.Person.Builder] {
     override type Self = com.capnproto.addressbook.Person.Builder.type
-    override val recordName: String = "Person"
+    override val structName: String = "Person"
     override val dataSectionSizeWords: Short = 1
     override val pointerSectionSizeWords: Short = 4
     override def create(struct: CapnpStructBuilder): com.capnproto.addressbook.Person.Builder = new com.capnproto.addressbook.Person.Builder(struct)
@@ -43,7 +47,7 @@ object Person extends MetaStruct[Person] {
 
   object PhoneNumber extends MetaStruct[PhoneNumber] {
     override type Self = PhoneNumber.type
-    override val recordName: String = "PhoneNumber"
+    override val structName: String = "PhoneNumber"
     override def create(struct: CapnpStruct): PhoneNumber = new PhoneNumberMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.addressbook.Person.PhoneNumber.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -53,7 +57,7 @@ object Person extends MetaStruct[Person] {
 
     object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person.PhoneNumber, com.capnproto.addressbook.Person.PhoneNumber.Builder] {
       override type Self = com.capnproto.addressbook.Person.PhoneNumber.Builder.type
-      override val recordName: String = "PhoneNumber"
+      override val structName: String = "PhoneNumber"
       override val dataSectionSizeWords: Short = 1
       override val pointerSectionSizeWords: Short = 1
       override def create(struct: CapnpStructBuilder): com.capnproto.addressbook.Person.PhoneNumber.Builder = new com.capnproto.addressbook.Person.PhoneNumber.Builder(struct)
@@ -92,8 +96,6 @@ object Person extends MetaStruct[Person] {
       override val name: String,
       override val stringValue: String
     ) extends Enum[__Type]
-
-
     val number = new FieldDescriptor[String, PhoneNumber, PhoneNumber.type](
       name = "number",
       meta = PhoneNumber,
@@ -114,32 +116,24 @@ object Person extends MetaStruct[Person] {
 
   trait PhoneNumber extends Struct[PhoneNumber] {
     override type MetaT = PhoneNumber.type
+    override type MetaBuilderT = com.capnproto.addressbook.Person.PhoneNumber.Builder.type
 
     override def meta: PhoneNumber.type = PhoneNumber
+    override def metaBuilder: com.capnproto.addressbook.Person.PhoneNumber.Builder.type = com.capnproto.addressbook.Person.PhoneNumber.Builder
+
     def struct: CapnpStruct
 
     def number: Option[String]
     def __type: Option[com.capnproto.addressbook.Person.PhoneNumber.__Type]
   }
 
-  trait PhoneNumberProxy extends PhoneNumber {
-    def underlying: PhoneNumber
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def number: Option[String]
-    override def __type: Option[com.capnproto.addressbook.Person.PhoneNumber.__Type]
-  }
-
   class PhoneNumberMutable(override val struct: CapnpStruct) extends PhoneNumber {
-
     override def number: Option[String] = struct.getString(0)
     override def __type: Option[com.capnproto.addressbook.Person.PhoneNumber.__Type] = struct.getShort(0).map(id => com.capnproto.addressbook.Person.PhoneNumber.__Type.findById(id.toInt).getOrElse(com.capnproto.addressbook.Person.PhoneNumber.__Type.Unknown(id.toShort)))
   }
-
   object Employment extends MetaStruct[Employment] {
     override type Self = Employment.type
-    override val recordName: String = "Employment"
+    override val structName: String = "Employment"
     override def create(struct: CapnpStruct): Employment = new EmploymentMutable(struct)
     def newBuilder(arena: CapnpArenaBuilder): com.capnproto.addressbook.Person.Employment.Builder = {
       val (segment, pointerOffset) = arena.allocate(1)
@@ -149,7 +143,7 @@ object Person extends MetaStruct[Person] {
 
     object Builder extends MetaStructBuilder[com.capnproto.addressbook.Person.Employment, com.capnproto.addressbook.Person.Employment.Builder] {
       override type Self = com.capnproto.addressbook.Person.Employment.Builder.type
-      override val recordName: String = "Employment"
+      override val structName: String = "Employment"
       override val dataSectionSizeWords: Short = 1
       override val pointerSectionSizeWords: Short = 4
       override def create(struct: CapnpStructBuilder): com.capnproto.addressbook.Person.Employment.Builder = new com.capnproto.addressbook.Person.Employment.Builder(struct)
@@ -174,8 +168,6 @@ object Person extends MetaStruct[Person] {
       case class school(value: Option[String]) extends com.capnproto.addressbook.Person.Employment.Union
       case class selfEmployed(value: Option[Unit]) extends com.capnproto.addressbook.Person.Employment.Union
     }
-
-
 
     val unemployed = new FieldDescriptor[Unit, Employment, Employment.type](
       name = "unemployed",
@@ -213,8 +205,11 @@ object Person extends MetaStruct[Person] {
 
   trait Employment extends Struct[Employment] with HasUnion[com.capnproto.addressbook.Person.Employment.Union] {
     override type MetaT = Employment.type
+    override type MetaBuilderT = com.capnproto.addressbook.Person.Employment.Builder.type
 
     override def meta: Employment.type = Employment
+    override def metaBuilder: com.capnproto.addressbook.Person.Employment.Builder.type = com.capnproto.addressbook.Person.Employment.Builder
+
     def struct: CapnpStruct
 
     def unemployed: Option[Unit]
@@ -223,22 +218,7 @@ object Person extends MetaStruct[Person] {
     def selfEmployed: Option[Unit]
   }
 
-  trait EmploymentProxy extends Employment with HasUnion[com.capnproto.addressbook.Person.Employment.Union] {
-    def underlying: Employment
-
-    override def struct: CapnpStruct = underlying.struct
-
-    override def switch: com.capnproto.addressbook.Person.Employment.Union = underlying.switch
-    override def union: UnionMeta[com.capnproto.addressbook.Person.Employment.Union] = underlying.union
-
-    override def unemployed: Option[Unit]
-    override def employer: Option[String]
-    override def school: Option[String]
-    override def selfEmployed: Option[Unit]
-  }
-
   class EmploymentMutable(override val struct: CapnpStruct) extends Employment {
-
     override def discriminant: Short = (struct.getShort(2).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
     override def switch: com.capnproto.addressbook.Person.Employment.Union = discriminant match {
       case 0 => com.capnproto.addressbook.Person.Employment.Union.unemployed(unemployed)
@@ -254,7 +234,6 @@ object Person extends MetaStruct[Person] {
     override def school: Option[String] = struct.getString(3)
     override def selfEmployed: Option[Unit] = struct.getNone()
   }
-
   val id = new FieldDescriptor[java.lang.Integer, Person, Person.type](
     name = "id",
     meta = Person,
@@ -299,8 +278,11 @@ object Person extends MetaStruct[Person] {
 
 trait Person extends Struct[Person] {
   override type MetaT = Person.type
+  override type MetaBuilderT = com.capnproto.addressbook.Person.Builder.type
 
   override def meta: Person.type = Person
+  override def metaBuilder: com.capnproto.addressbook.Person.Builder.type = com.capnproto.addressbook.Person.Builder
+
   def struct: CapnpStruct
 
   def id: Option[java.lang.Integer]
@@ -310,20 +292,7 @@ trait Person extends Struct[Person] {
   def employment: com.capnproto.addressbook.Person.Employment
 }
 
-trait PersonProxy extends Person {
-  def underlying: Person
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def id: Option[java.lang.Integer]
-  override def name: Option[String]
-  override def email: Option[String]
-  override def phones: Seq[com.capnproto.addressbook.Person.PhoneNumber]
-  override def employment: com.capnproto.addressbook.Person.Employment
-}
-
 class PersonMutable(override val struct: CapnpStruct) extends Person {
-
   override def id: Option[java.lang.Integer] = struct.getInt(0)
   override def name: Option[String] = struct.getString(0)
   override def email: Option[String] = struct.getString(1)
@@ -334,7 +303,7 @@ class PersonMutable(override val struct: CapnpStruct) extends Person {
 
 object AddressBook extends MetaStruct[AddressBook] {
   override type Self = AddressBook.type
-  override val recordName: String = "AddressBook"
+  override val structName: String = "AddressBook"
   override def create(struct: CapnpStruct): AddressBook = new AddressBookMutable(struct)
   def newBuilder(arena: CapnpArenaBuilder): com.capnproto.addressbook.AddressBook.Builder = {
     val (segment, pointerOffset) = arena.allocate(1)
@@ -344,7 +313,7 @@ object AddressBook extends MetaStruct[AddressBook] {
 
   object Builder extends MetaStructBuilder[com.capnproto.addressbook.AddressBook, com.capnproto.addressbook.AddressBook.Builder] {
     override type Self = com.capnproto.addressbook.AddressBook.Builder.type
-    override val recordName: String = "AddressBook"
+    override val structName: String = "AddressBook"
     override val dataSectionSizeWords: Short = 0
     override val pointerSectionSizeWords: Short = 1
     override def create(struct: CapnpStructBuilder): com.capnproto.addressbook.AddressBook.Builder = new com.capnproto.addressbook.AddressBook.Builder(struct)
@@ -362,8 +331,6 @@ object AddressBook extends MetaStruct[AddressBook] {
     def setPeople(buildFn: CapnpArenaBuilder => Seq[com.capnproto.addressbook.Person.Builder]): Builder = { struct.setStructList(0, com.capnproto.addressbook.Person.Builder, buildFn(struct.arena).map(_.struct)); this }
   }
 
-
-
   val people = new FieldDescriptor[Seq[com.capnproto.addressbook.Person], AddressBook, AddressBook.type](
     name = "people",
     meta = AddressBook,
@@ -376,22 +343,16 @@ object AddressBook extends MetaStruct[AddressBook] {
 
 trait AddressBook extends Struct[AddressBook] {
   override type MetaT = AddressBook.type
+  override type MetaBuilderT = com.capnproto.addressbook.AddressBook.Builder.type
 
   override def meta: AddressBook.type = AddressBook
+  override def metaBuilder: com.capnproto.addressbook.AddressBook.Builder.type = com.capnproto.addressbook.AddressBook.Builder
+
   def struct: CapnpStruct
 
   def people: Seq[com.capnproto.addressbook.Person]
 }
 
-trait AddressBookProxy extends AddressBook {
-  def underlying: AddressBook
-
-  override def struct: CapnpStruct = underlying.struct
-
-  override def people: Seq[com.capnproto.addressbook.Person]
-}
-
 class AddressBookMutable(override val struct: CapnpStruct) extends AddressBook {
-
   override def people: Seq[com.capnproto.addressbook.Person] = struct.getStructList(0).map(new com.capnproto.addressbook.PersonMutable(_))
 }

@@ -3,6 +3,7 @@
 package com.capnproto
 
 import com.foursquare.field.{OptionalField => RField}
+import com.twitter.util.Future
 
 import java.io.{ByteArrayOutputStream, InputStream, IOException, RandomAccessFile, OutputStream}
 import java.nio.{ByteBuffer, ByteOrder}
@@ -30,10 +31,6 @@ case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
 
 trait UntypedStruct {
   def meta: UntypedMetaStruct
-}
-trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
-  type MetaT <: MetaStruct[S]
-  def meta: MetaT
 
   override def toString: String = {
     val union = this match {
@@ -48,14 +45,21 @@ trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
     ")"
   }
 }
+trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
+  type MetaT <: MetaStruct[S]
+  type MetaBuilderT <: MetaStructBuilder[S, _]
+  def meta: MetaT
+  def metaBuilder: MetaBuilderT
+}
 
 trait UntypedMetaStruct {
-  def recordName: String
+  def structName: String
+  def create(struct: CapnpStruct): Struct[_]
   def fields: Seq[UntypedFieldDescriptor]
 }
 trait MetaStruct[S <: Struct[S]] extends UntypedMetaStruct {
   type Self = this.type
-  def create(struct: CapnpStruct): S
+  override def create(struct: CapnpStruct): S
   def fields: Seq[FieldDescriptor[_, S, Self]]
 }
 
@@ -64,11 +68,13 @@ trait StructBuilder[S <: Struct[S], B <: StructBuilder[S, B]] extends UntypedStr
   def metaBuilder: MetaBuilderT
 }
 
-trait MetaStructBuilder[S <: Struct[S], B <: StructBuilder[S, B]] extends UntypedMetaStruct {
+trait MetaStructBuilder[S <: Struct[S], B <: StructBuilder[S, B]] {
   type Self = this.type
+  def structName: String
   def dataSectionSizeWords: Short
   def pointerSectionSizeWords: Short
   def create(struct: CapnpStructBuilder): B
+  def fields: Seq[UntypedFieldDescriptor]
 }
 
 trait HasUnion[S <: UnionValue[S]] {
@@ -81,39 +87,75 @@ trait UnionValue[U <: UnionValue[U]]
 
 trait UnionMeta[U <: UnionValue[U]]
 
+trait UntypedMethodDescriptor {
+  def name: String
+  def request: UntypedMetaStruct
+  def response: UntypedMetaStruct
+  def unsafeGetter: Function1[UntypedInterface, Function2[Struct[_], CapnpArenaBuilder, Future[Struct[_]]]]
+}
+case class MethodDescriptor[Req <: Struct[Req], Res <: Struct[Res], I <: Interface[I], M <: MetaInterface[I]](
+  override val name: String,
+  meta: M,
+  override val request: MetaStruct[Req],
+  override val response: MetaStruct[Res],
+  getter: I => Function2[Req, CapnpArenaBuilder, Future[Res]]
+) extends UntypedMethodDescriptor {
+  // override def unsafeGetter: Function2[Struct[_], CapnpArenaBuilder, Future[Struct[_]]] = getter.asInstanceOf[Function2[Struct[_], CapnpArenaBuilder, Future[Struct[_]]]]
+  override def unsafeGetter: Function1[UntypedInterface, Function2[Struct[_], CapnpArenaBuilder, Future[Struct[_]]]] = getter.asInstanceOf[Function1[UntypedInterface, Function2[Struct[_], CapnpArenaBuilder, Future[Struct[_]]]]]
+}
+
+trait UntypedInterface {
+  def meta: UntypedMetaInterface
+}
+trait Interface[I <: Interface[I]] extends UntypedInterface { self: I =>
+  type MetaT <: MetaInterface[I]
+  def meta: MetaT
+}
+
+trait UntypedMetaInterface {
+  def interfaceName: String
+  def methods: Seq[UntypedMethodDescriptor]
+}
+trait MetaInterface[I <: Interface[I]] extends UntypedMetaInterface {
+  type Self = this.type
+  def methods: Seq[MethodDescriptor[_, _, I, Self]]
+}
+
 case class CapnpSegment(val id: Int, val buf: ByteBuffer, val offsetWords: Int)
 class CapnpArena(val segments: Seq[CapnpSegment]) {
   def getRoot[U <: Struct[U]](meta: MetaStruct[U]): Option[U] = Pointer.parseStruct(meta, this)
 }
 object CapnpArena {
-  def fromInputStream(is: InputStream): CapnpArena = {
-    val buf = {
-      val source = Source.fromInputStream(is)(scala.io.Codec.ISO8859)
-      val bytes = source.map(_.toByte).toArray
-      source.close
-      ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-    }
-    CapnpArena.fromByteBuffer(buf)
+  def fromInputStream(is: InputStream): Option[CapnpArena] = {
+    val source = Source.fromInputStream(is)(scala.io.Codec.ISO8859)
+    val bytes = source.map(_.toByte).toArray
+    source.close
+    fromBytes(bytes)
   }
 
-  def fromBytes(bytes: Array[Byte], offsetWords: Int = 0): CapnpArena = {
+  def fromBytes(bytes: Array[Byte], offsetWords: Int = 0): Option[CapnpArena] = {
     fromByteBuffer(ByteBuffer.wrap(bytes), offsetWords)
   }
 
-  def fromByteBuffer(buf: ByteBuffer, offsetWords: Int = 0): CapnpArena = {
-    val segmentCount: Int = buf.getInt(offsetWords * 8) + 1
-    val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
-    val segmentsOffsetWords = offsetWords + (segmentCount + 2) / 2
-    val offsets = segmentSizes.foldLeft(List[(Int,Int)]())({ case (os, s) => {
-      val acc = os.headOption.map(_._2).getOrElse(segmentsOffsetWords)
-      (acc, acc + s) :: os
-    }}).reverse
-    val segments = offsets.zipWithIndex.map({ case ((begin, end), id) => {
-      val ret = buf.duplicate
-      ret.order(ByteOrder.LITTLE_ENDIAN).position(begin * 8).limit(end * 8)
-      new CapnpSegment(id, ret, begin)
-    }})
-    new CapnpArena(segments)
+  def fromByteBuffer(buf: ByteBuffer, offsetWords: Int = 0): Option[CapnpArena] = {
+    try {
+      buf.order(ByteOrder.LITTLE_ENDIAN)
+      val segmentCount: Int = buf.getInt(offsetWords * 8) + 1
+      val segmentSizes = Range(0, segmentCount).map(r => buf.getInt(offsetWords * 8 + 4 + r * 4))
+      val segmentsOffsetWords = offsetWords + (segmentCount + 2) / 2
+      val offsets = segmentSizes.foldLeft(List[(Int,Int)]())({ case (os, s) => {
+        val acc = os.headOption.map(_._2).getOrElse(segmentsOffsetWords)
+        (acc, acc + s) :: os
+      }}).reverse
+      val segments = offsets.zipWithIndex.map({ case ((begin, end), id) => {
+        val ret = buf.duplicate
+        ret.order(ByteOrder.LITTLE_ENDIAN).position(begin * 8).limit(end * 8)
+        new CapnpSegment(id, ret, begin)
+      }})
+      Some(new CapnpArena(segments))
+    } catch {
+      case ioob: IndexOutOfBoundsException => None
+    }
   }
 }
 
@@ -137,10 +179,17 @@ object Pointer {
     val channel = file.getChannel
     val buf = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size).order(ByteOrder.LITTLE_ENDIAN)
     file.close
-    parseStruct(meta, CapnpArena.fromByteBuffer(buf))
+    CapnpArena.fromByteBuffer(buf).flatMap(arena => parseStruct(meta, arena))
   }
 
   def parseStruct[U <: Struct[U]](meta: MetaStruct[U], arena: CapnpArena): Option[U] = {
+    fromFirstSegment(arena).flatMap(_ match {
+      case s: CapnpStruct => Some(meta.create(s))
+      case _ => None
+    })
+  }
+
+  def parseStructRaw(meta: UntypedMetaStruct, arena: CapnpArena): Option[Struct[_]] = {
     fromFirstSegment(arena).flatMap(_ match {
       case s: CapnpStruct => Some(meta.create(s))
       case _ => None
@@ -418,6 +467,12 @@ class CapnpArenaBuilder(
     segments.zipWithIndex.foreach({ case (s, i) => buf.putInt(4 + 4 * i, s.positionWords) })
     os.write(buf.array, 0, bufSize + padding)
     segments.foreach(s => os.write(s.buf.array, s.offsetWords * 8, s.positionWords * 8))
+  }
+
+  def getBytes: Array[Byte] = {
+    val os = new ByteArrayOutputStream()
+    writeToOutputStream(os)
+    os.toByteArray
   }
 }
 
