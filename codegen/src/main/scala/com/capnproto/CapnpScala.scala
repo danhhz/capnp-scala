@@ -2,7 +2,7 @@
 
 package com.capnproto.codegen
 
-import com.capnproto.{Pointer, CapnpArena, CapnpList}
+import com.capnproto.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
 import com.capnproto.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
 
 import java.io.FileWriter
@@ -68,9 +68,37 @@ object CapnpScala {
         case __Type.Union.float64(_) => StringTree("getDouble(", offset, ")")
         case __Type.Union.text(_) => StringTree("getString(", offset, ")")
         case __Type.Union.data(_) => StringTree("getData(", offset, ")")
-        case __Type.Union.list(_) => StringTree(
-          "getStructList(", offset, ").map(new ", genType(ctype.list.elementType.get, scope), "Mutable(_))"
-        )
+        case __Type.Union.list(listType) => listType.elementType.get.switch match {
+          case __Type.Union.void(_) => StringTree("getPrimitiveList(", offset, ", _.getVoid _)")
+          case __Type.Union.bool(_) => StringTree("getPrimitiveList(", offset, ", _.getBoolean _)")
+          case __Type.Union.int8(_) => StringTree("getPrimitiveList(", offset, ", _.getByte _)")
+          case __Type.Union.int16(_) => StringTree("getPrimitiveList(", offset, ", _.getShort _)")
+          case __Type.Union.int32(_) => StringTree("getPrimitiveList(", offset, ", _.getInt _)")
+          case __Type.Union.int64(_) => StringTree("getPrimitiveList(", offset, ", _.getLong _)")
+          case __Type.Union.uint8(_) => StringTree("getPrimitiveList(", offset, ", _.getByte _)")
+          case __Type.Union.uint16(_) => StringTree("getPrimitiveList(", offset, ", _.getShort _)")
+          case __Type.Union.uint32(_) => StringTree("getPrimitiveList(", offset, ", _.getInt _)")
+          case __Type.Union.uint64(_) => StringTree("getPrimitiveList(", offset, ", _.getLong _)")
+          case __Type.Union.float32(_) => StringTree("getPrimitiveList(", offset, ", _.getFloat _)")
+          case __Type.Union.float64(_) => StringTree("getPrimitiveList(", offset, ", _.getDouble _)")
+          case __Type.Union.text(_) => StringTree("getPrimitiveList(", offset, ", _.getString _)")
+          case __Type.Union.data(_) => StringTree("getPrimitiveList(", offset, ", _.getData _)")
+          case __Type.Union.list(sublistType) => sublistType.elementType.get.switch match {
+            case __Type.Union.int32(_) => StringTree("getListList(", offset, ").map(list => list.toSeq(list.getInt))")
+            case __Type.Union.text(_) => StringTree("getListList(", offset, ").map(list => list.toSeq(list.getString))")
+            case __Type.Union.__struct(_) => StringTree("getListList(", offset, ").map(list => list.toStructSeq.map(new ", genType(sublistType.elementType.get, scope), "Mutable(_)))")
+            case _ => StringTree("getListList(", offset, ")")
+          }
+          case __Type.Union.__enum(_) => StringTree(
+            "getPrimitiveList(", offset, ", _.getShort _).map(id => ", genType(listType.elementType.get, scope), ".findByIdOrNull(id.toInt))"
+          )
+          case __Type.Union.__struct(_) => StringTree(
+            "getStructList(", offset, ").map(new ", genType(listType.elementType.get, scope), "Mutable(_))"
+          )
+          case __Type.Union.interface(_) => StringTree("getPrimitiveList(", offset, ", _.getVoid _)")
+          case __Type.Union.__object(_) => StringTree("getPointerList(", offset, ")")
+          case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
+        }
         case __Type.Union.__enum(_) => StringTree(
           "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
         )
@@ -108,15 +136,68 @@ object CapnpScala {
       }
     }
 
+    def printDouble(value: Double): String = {
+      value match {
+        case Double.PositiveInfinity => "Double.PositiveInfinity"
+        case Double.NegativeInfinity => "Double.NegativeInfinity"
+        case _ if value.isNaN => "Double.NaN"
+        case _ => value.toString
+      }
+    }
+
     def genListValue(listType: __Type.List, list: CapnpList, scope: Node): StringTree = {
       StringTree(
-        "Seq(",
+        "Seq[", genType(listType.elementType.get, scope), "](",
         listType.elementType.get.switch match {
-          case __Type.Union.int8(_) => list.toSeq(list.getByte).map(_ + ".toByte").mkString(", ")
-          case __Type.Union.list(sublistType) => list.toSeq(list.getPointer).map(_ match {
+          case __Type.Union.void(_) => StringTree("Unit")
+          case __Type.Union.bool(_) => list.toSeq(list.getBoolean).map(_.toString).mkString(", ")
+          case __Type.Union.int8(_) => list.toSeq(list.getByte).map(_.toString + ".toByte").mkString(", ")
+          case __Type.Union.int16(_) => list.toSeq(list.getShort).map(_.toString + ".toShort").mkString(", ")
+          case __Type.Union.int32(_) => list.toSeq(list.getInt).map(_.toString).mkString(", ")
+          case __Type.Union.int64(_) => list.toSeq(list.getLong).map(_.toString + "L").mkString(", ")
+          case __Type.Union.uint8(_) => list.toSeq(list.getByte).map(_.toString + ".toByte").mkString(", ")
+          case __Type.Union.uint16(_) => list.toSeq(list.getShort).map(_.toString + ".toShort").mkString(", ")
+          case __Type.Union.uint32(_) => list.toSeq(list.getInt).map(_.toString).mkString(", ")
+          case __Type.Union.uint64(_) => list.toSeq(list.getLong).map(_.toString + "L").mkString(", ")
+          case __Type.Union.float32(_) => list.toSeq(list.getFloat).map(f => printDouble(f.toDouble) + ".toFloat").mkString(", ")
+          case __Type.Union.float64(_) => list.toSeq(list.getDouble).map(printDouble(_)).mkString(", ")
+          case __Type.Union.text(_) => StringTree.join(", ", list.toSeq(list.getString).map(value => {
+            StringTree("\"", value, "\"")
+          }))
+          case __Type.Union.data(_) => StringTree.join(", ", list.toSeq(list.getData).map(value => {
+            StringTree("Array[Byte](", value.mkString(", "), ")")
+          }))
+          case __Type.Union.list(sublistType) => list.toPointerSeq.map(_ match {
             case sublist: CapnpList => genListValue(sublistType, sublist, scope)
             case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
           }).mkString(", ")
+          case __Type.Union.__enum(enumType) => {
+            val node = getDependency(scope, enumType.typeId.get)
+            node.switch match {
+              case Node.Union.__enum(enumDef) => StringTree.join(", ", list.toSeq(list.getShort).map(value => {
+                StringTree(nodeName(node), ".", enumDef.enumerants(value.toInt).name.get)
+              }))
+              case n => throw new IllegalArgumentException("Expected enum but got: " + n)
+            }
+          }
+          case __Type.Union.__struct(structType) => StringTree.join(", ", list.toPointerSeq.map(value => {
+            value match {
+              case struct: CapnpStruct => {
+                val arena = new CapnpArenaBuilder()
+                val (segment, offset) = arena.getRoot
+                struct.copyToSegment(segment, offset)
+                val bytes = arena.getBytes
+                StringTree(
+                  "CapnpArena.fromBytes(Array[Byte](",
+                    bytes.map(_.toString).mkString(", "),
+                  ")).get.getRoot(", nodeName(getDependency(scope, structType.typeId.get)), ").get"
+                )
+              }
+              case p => throw new IllegalArgumentException("Expected Pointer of type CapnpStruct but got: " + p)
+            }
+          }))
+          case __Type.Union.interface(_) => StringTree("TODO")
+          case __Type.Union.__object(_) => StringTree("TODO")
           case _ => throw new IllegalArgumentException("")
         },
         ")"
@@ -127,26 +208,39 @@ object CapnpScala {
       ctype.switch match {
         case __Type.Union.void(_) => StringTree("Unit")
         case __Type.Union.bool(_) => StringTree(value.bool.get)
-        case __Type.Union.int8(_) => StringTree(value.int8.get)
-        case __Type.Union.int16(_) => StringTree(value.int16.get)
+        case __Type.Union.int8(_) => StringTree(value.int8.get + ".toByte")
+        case __Type.Union.int16(_) => StringTree(value.int16.get + ".toShort")
         case __Type.Union.int32(_) => StringTree(value.int32.get)
-        case __Type.Union.int64(_) => StringTree(value.int64.get)
-        case __Type.Union.uint8(_) => StringTree(value.uint8.get)
-        case __Type.Union.uint16(_) => StringTree(value.uint16.get)
+        case __Type.Union.int64(_) => StringTree(value.int64.get + "L")
+        case __Type.Union.uint8(_) => StringTree(value.uint8.get + ".toByte")
+        case __Type.Union.uint16(_) => StringTree(value.uint16.get + ".toShort")
         case __Type.Union.uint32(_) => StringTree(value.uint32.get)
-        case __Type.Union.uint64(_) => StringTree(value.uint64.get)
-        case __Type.Union.float32(_) => StringTree(value.float32.get)
-        case __Type.Union.float64(_) => StringTree(value.float64.get)
+        case __Type.Union.uint64(_) => StringTree(value.uint64.get + "L")
+        case __Type.Union.float32(_) => StringTree(printDouble(value.float32.get.toDouble) + ".toFloat")
+        case __Type.Union.float64(_) => StringTree(printDouble(value.float64.get))
         case __Type.Union.text(_) => StringTree("\"", value.text.get, "\"")
-        case __Type.Union.data(_) => StringTree("Array(", value.data.get.mkString(", "), ")")
+        case __Type.Union.data(_) => StringTree("Array[Byte](", value.data.get.mkString(", "), ")")
         case __Type.Union.list(listType) => value.__object.get match {
           case list: CapnpList => genListValue(listType, list, scope)
           case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
         }
         case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.get, ")")
-        case __Type.Union.__struct(_) => StringTree("TODO(ctype.__struct(_))")
-        case __Type.Union.interface(_) => StringTree("")
-        case __Type.Union.__object(_) => StringTree("")
+        case __Type.Union.__struct(_) => value.__object.get match {
+          case struct: CapnpStruct => {
+            val arena = new CapnpArenaBuilder()
+            val (segment, offset) = arena.getRoot
+            struct.copyToSegment(segment, offset)
+            val bytes = arena.getBytes
+            StringTree(
+              "CapnpArena.fromBytes(Array[Byte](",
+                bytes.map(_.toString).mkString(", "),
+              ")).get.getRoot(", nodeName(getDependency(scope, ctype.__struct.typeId.get)), ").get"
+            )
+          }
+          case p => throw new IllegalArgumentException("Expected Pointer of type CapnpStruct but got: " + p)
+        }
+        case __Type.Union.interface(_) => StringTree("TODO")
+        case __Type.Union.__object(_) => StringTree("TODO")
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
@@ -481,7 +575,7 @@ object CapnpScala {
         "  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,\n",
         "  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,\n",
         "  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,\n",
-        "  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder}\n",
+        "  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}\n",
         "import com.twitter.util.Future\n",
         "import java.nio.ByteBuffer\n",
         "\n",
