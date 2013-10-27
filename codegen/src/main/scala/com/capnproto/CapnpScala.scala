@@ -47,7 +47,7 @@ object CapnpScala {
         case __Type.Union.__enum(_) => nodeName(getDependency(scope, ctype.__enum.typeId.get))
         case __Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.typeId.get))
         case __Type.Union.interface(_) => nodeName(getDependency(scope, ctype.interface.typeId.get))
-        case __Type.Union.__object(_) => "Pointer"
+        case __Type.Union.__object(_) => "Pointer[_]"
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       })
     }

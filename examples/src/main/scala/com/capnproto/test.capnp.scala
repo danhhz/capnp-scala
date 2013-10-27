@@ -875,14 +875,14 @@ object TestObject extends MetaStruct[TestObject] {
 
     override def meta: TestObject.type = TestObject
     override def metaBuilder: MetaBuilderT = com.capnproto.test.TestObject.Builder
-    def setObjectField(value: Pointer): Builder = { struct.setNone(); this }
+    def setObjectField(value: Pointer[_]): Builder = { struct.setNone(); this }
   }
 
-  val objectField = new FieldDescriptor[Pointer, TestObject, TestObject.type](
+  val objectField = new FieldDescriptor[Pointer[_], TestObject, TestObject.type](
     name = "objectField",
     meta = TestObject,
     getter = _.objectField,
-    manifest = manifest[Pointer],
+    manifest = manifest[Pointer[_]],
     isUnion = false
   )
   override val fields: Seq[FieldDescriptor[_, TestObject, TestObject.type]] = Seq(objectField)
@@ -897,11 +897,11 @@ trait TestObject extends Struct[TestObject] {
 
   def struct: CapnpStruct
 
-  def objectField: Option[Pointer]
+  def objectField: Option[Pointer[_]]
 }
 
 class TestObjectMutable(override val struct: CapnpStruct) extends TestObject {
-  override def objectField: Option[Pointer] = struct.getPointer(0)
+  override def objectField: Option[Pointer[_]] = struct.getPointer(0)
 }
 
 object TestOutOfOrder extends MetaStruct[TestOutOfOrder] {

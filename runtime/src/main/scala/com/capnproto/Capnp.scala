@@ -158,14 +158,13 @@ object CapnpArena {
   }
 }
 
-// TODO(dan): Change this to Pointer[P <: Pointer[P]] and return P from copyTo.
-trait Pointer {
+trait Pointer[P <: Pointer[P]] {
   def arena: CapnpArena
   def buf: ByteBuffer
   def pointerOffsetWords: Int
   def sizeWords: Int
-  def copyTo(offsetWords: Int): Pointer
-  def copyToSegment(segment: CapnpSegmentBuilder, offsetWords: Int): Pointer
+  def copyTo(offsetWords: Int): P
+  def copyToSegment(segment: CapnpSegmentBuilder, offsetWords: Int): P
   def copyDataToSegment(segment: CapnpSegmentBuilder, offsetWords: Int): Unit
 }
 object Pointer {
@@ -199,11 +198,11 @@ object Pointer {
     })
   }
 
-  def fromFirstSegment(arena: CapnpArena): Option[Pointer] = {
+  def fromFirstSegment(arena: CapnpArena): Option[Pointer[_]] = {
     apply(arena, arena.segments.head.buf, arena.segments.head.offsetWords)
   }
 
-  def apply(arena: CapnpArena, buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer] = {
+  def apply(arena: CapnpArena, buf: ByteBuffer, pointerOffsetWords: Int): Option[Pointer[_]] = {
     val pointerOffsetBytes = pointerOffsetWords * 8
     // print("@" + pointerOffsetBytes + " => " + Range(0, 8).map(o => buf.get(pointerOffsetBytes + o)).map("%02x".format(_)).mkString(" ") + " ")
     if (buf.getLong(pointerOffsetBytes) == 0) {
@@ -250,7 +249,7 @@ class CapnpFarSegmentPointer(
   val pointerOffsetWords: Int,
   val landingPadWords: Int
 ) {
-  def getPointer: Option[Pointer] = {
+  def getPointer: Option[Pointer[_]] = {
     if (landingPadWords == 1) {
       Pointer(arena, buf, pointerOffsetWords)
     } else {
@@ -266,7 +265,7 @@ class CapnpList(
   val dataOffsetWords: Int,
   val pointerSize: Int,
   val listElementCount: Int
-) extends Pointer {
+) extends Pointer[CapnpList] {
   lazy val tag = new CapnpTag(arena, buf, pointerOffsetWords + 1 + dataOffsetWords)
 
   private def divideRoundUp(a: Int, b: Int): Int = (a + b - 1) / b
@@ -336,7 +335,7 @@ class CapnpList(
     buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
   }
 
-  def getPointer(offset: Int): Pointer = {
+  def getPointer(offset: Int): Pointer[_] = {
     if (pointerSize != 6) throw new IllegalArgumentException("This list is not Pointers.")
     Pointer(arena, buf, pointerOffsetWords + 1 + dataOffsetWords + offset)
       .getOrElse(throw new IllegalArgumentException("This list is not Pointers."))
@@ -350,7 +349,7 @@ class CapnpList(
   }
   def getString(offset: Int): String = new String(getData(offset).dropRight(1))
 
-  def getComposite(offset: Int): Pointer = {
+  def getComposite(offset: Int): Pointer[_] = {
     if (pointerSize != 7) throw new IllegalArgumentException("This list is not Composites.")
     val offsetWords = offset * (tag.dataSectionSizeWords + tag.pointerSectionSizeWords)
     new CapnpStruct(arena, buf, pointerOffsetWords + 1 + dataOffsetWords, offsetWords, tag.dataSectionSizeWords, tag.pointerSectionSizeWords)
@@ -360,7 +359,7 @@ class CapnpList(
     Range(0, listElementCount).map(f)
   }
 
-  def toPointerSeq: Seq[Pointer] = {
+  def toPointerSeq: Seq[Pointer[_]] = {
     pointerSize match {
       case 6 => Range(0, listElementCount).map(getPointer)
       case 7 => Range(0, listElementCount).map(getComposite)
@@ -437,7 +436,7 @@ class CapnpStruct(
   val dataOffsetWords: Int,
   val dataSectionSizeWords: Short,
   val pointerSectionSizeWords: Short
-) extends Pointer {
+) extends Pointer[CapnpStruct] {
 
   override def sizeWords: Int = {
     val recursivePointerSectionSizeWords = Range(0, pointerSectionSizeWords).map(p => {
@@ -482,7 +481,7 @@ class CapnpStruct(
     if (ret != default) Some(ret) else None
   }
 
-  def getPointer(offset: Int): Option[Pointer] = {
+  def getPointer(offset: Int): Option[Pointer[_]] = {
     Pointer(arena, buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
   }
   def getData(offset: Int): Option[Array[Byte]] = getPointer(offset).flatMap(_ match {
@@ -498,7 +497,7 @@ class CapnpStruct(
     case _ => None
   })
 
-  def getPointerList(offset: Int): Seq[Pointer] = getPointer(offset) match {
+  def getPointerList(offset: Int): Seq[Pointer[_]] = getPointer(offset) match {
     case Some(l: CapnpList) => (0 to l.listElementCount-1).map(l.getPointer(_))
     case None => Nil
     case p => throw new IllegalArgumentException("This field is not a list: " + p)

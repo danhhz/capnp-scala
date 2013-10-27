@@ -7,7 +7,7 @@ import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 

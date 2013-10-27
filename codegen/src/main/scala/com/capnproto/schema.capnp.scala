@@ -7,7 +7,7 @@ import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 
@@ -1832,11 +1832,11 @@ object Value extends MetaStruct[Value] {
     def setFloat64(value: java.lang.Double): Builder = { struct.setDouble(1, value); struct.setShort(0, -12); this }
     def setText(value: String): Builder = { struct.setString(0, value); struct.setShort(0, -13); this }
     def setData(value: Array[Byte]): Builder = { struct.setData(0, value); struct.setShort(0, -14); this }
-    def setList(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -15); this }
+    def setList(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, -15); this }
     def set__Enum(value: java.lang.Short): Builder = { struct.setShort(1, value); struct.setShort(0, -16); this }
-    def set__Struct(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -17); this }
+    def set__Struct(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, -17); this }
     def setInterface(value: Unit): Builder = { struct.setNone(); struct.setShort(0, -18); this }
-    def set__Object(value: Pointer): Builder = { struct.setNone(); struct.setShort(0, -19); this }
+    def set__Object(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, -19); this }
   }
 
   sealed trait Union extends UnionValue[com.capnproto.schema.Value.Union]
@@ -1856,11 +1856,11 @@ object Value extends MetaStruct[Value] {
     case class float64(value: Option[java.lang.Double]) extends com.capnproto.schema.Value.Union
     case class text(value: Option[String]) extends com.capnproto.schema.Value.Union
     case class data(value: Option[Array[Byte]]) extends com.capnproto.schema.Value.Union
-    case class list(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
+    case class list(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
     case class __enum(value: Option[java.lang.Short]) extends com.capnproto.schema.Value.Union
-    case class __struct(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
+    case class __struct(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
     case class interface(value: Option[Unit]) extends com.capnproto.schema.Value.Union
-    case class __object(value: Option[Pointer]) extends com.capnproto.schema.Value.Union
+    case class __object(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
   }
 
   val void = new FieldDescriptor[Unit, Value, Value.type](
@@ -1975,11 +1975,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val list = new FieldDescriptor[Pointer, Value, Value.type](
+  val list = new FieldDescriptor[Pointer[_], Value, Value.type](
     name = "list",
     meta = Value,
     getter = _.list,
-    manifest = manifest[Pointer],
+    manifest = manifest[Pointer[_]],
     isUnion = true
   )
 
@@ -1991,11 +1991,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val __struct = new FieldDescriptor[Pointer, Value, Value.type](
+  val __struct = new FieldDescriptor[Pointer[_], Value, Value.type](
     name = "struct",
     meta = Value,
     getter = _.__struct,
-    manifest = manifest[Pointer],
+    manifest = manifest[Pointer[_]],
     isUnion = true
   )
 
@@ -2007,11 +2007,11 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val __object = new FieldDescriptor[Pointer, Value, Value.type](
+  val __object = new FieldDescriptor[Pointer[_], Value, Value.type](
     name = "object",
     meta = Value,
     getter = _.__object,
-    manifest = manifest[Pointer],
+    manifest = manifest[Pointer[_]],
     isUnion = true
   )
   override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
@@ -2040,11 +2040,11 @@ trait Value extends Struct[Value] with HasUnion[com.capnproto.schema.Value.Union
   def float64: Option[java.lang.Double]
   def text: Option[String]
   def data: Option[Array[Byte]]
-  def list: Option[Pointer]
+  def list: Option[Pointer[_]]
   def __enum: Option[java.lang.Short]
-  def __struct: Option[Pointer]
+  def __struct: Option[Pointer[_]]
   def interface: Option[Unit]
-  def __object: Option[Pointer]
+  def __object: Option[Pointer[_]]
 }
 
 class ValueMutable(override val struct: CapnpStruct) extends Value {
@@ -2087,11 +2087,11 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
   override def float64: Option[java.lang.Double] = struct.getDouble(1)
   override def text: Option[String] = struct.getString(0)
   override def data: Option[Array[Byte]] = struct.getData(0)
-  override def list: Option[Pointer] = struct.getPointer(0)
+  override def list: Option[Pointer[_]] = struct.getPointer(0)
   override def __enum: Option[java.lang.Short] = struct.getShort(1)
-  override def __struct: Option[Pointer] = struct.getPointer(0)
+  override def __struct: Option[Pointer[_]] = struct.getPointer(0)
   override def interface: Option[Unit] = struct.getNone()
-  override def __object: Option[Pointer] = struct.getPointer(0)
+  override def __object: Option[Pointer[_]] = struct.getPointer(0)
 }
 
 object Annotation extends MetaStruct[Annotation] {
