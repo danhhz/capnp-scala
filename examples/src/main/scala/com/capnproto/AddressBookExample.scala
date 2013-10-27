@@ -55,7 +55,7 @@ object AddressBookExample {
           case Some(Person.PhoneNumber.__Type.work) => "work"
           case _ => "UNKNOWN"
         }
-        println("  "+ phoneType+ " phone: " + phone.number.getOrElse(""))
+        println("  "+ phoneType + " phone: " + phone.number.getOrElse(""))
       })
       person.employment.switch match {
         case Person.Employment.Union.unemployed(_) => println("  unemployed")
