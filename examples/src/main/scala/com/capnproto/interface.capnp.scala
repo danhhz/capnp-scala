@@ -2,12 +2,11 @@
 
 package com.capnproto.examples.interface
 
-import com.foursquare.spindle.{Enum, EnumMeta}
 import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena, Enum, EnumMeta}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 

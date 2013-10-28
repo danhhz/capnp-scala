@@ -1,39 +1,29 @@
-// Copyright 2012 Foursquare Labs Inc. All Rights Reserved.
+// Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.foursquare.spindle
+package com.capnproto
 
 abstract class Enum[T <: Enum[T]] extends Ordered[T] { self: T =>
   def meta: EnumMeta[T]
 
-  def id: Int
+  def id: java.lang.Short
   def name: String
-  def stringValue: String
 
   override def toString: String = name
 
   // Implementation of Ordered[T].
-  override def compare(other: T) = this.id.compare(other.id)
+  override def compare(other: T) = this.id.toShort.compare(other.id)
 }
 
 abstract class EnumMeta[T <: Enum[T]] {
   def values: Vector[T]
 
-  def findByIdOrNull(id: Int): T
+  def findByIdOrNull(id: java.lang.Short): T
   def findByNameOrNull(name: String): T
 
-  def findById(id: Int): Option[T] = Option(findByIdOrNull(id))
+  def findById(id: java.lang.Short): Option[T] = Option(findByIdOrNull(id))
   def findByName(name: String): Option[T] = Option(findByNameOrNull(name))
 
-  def apply(id: Int): Option[T] = findById(id)
+  def apply(id: java.lang.Short): Option[T] = findById(id)
 
-  // This is useful if we want to pattern match strings into instances of the enumeration.
   def unapply(name: String): Option[T] = findByName(name)
-
-  // Some of our existing Mongo records store enumerations as string values. For backwards compatibility, we support
-  // decoding enumerations using those string values. See the string_value annotation on each enumeration value and the
-  // with_enum annotation that enhances string fields that should be typed as the enumeration.
-  def findByStringValue(v: String): Option[T] = Option(findByStringValueOrNull(v))
-
-  // Implemented by concrete subclasses to implement the conversion.
-  def findByStringValueOrNull(v: String): T
 }

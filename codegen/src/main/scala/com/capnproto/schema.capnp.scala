@@ -2,12 +2,11 @@
 
 package com.capnproto.schema
 
-import com.foursquare.spindle.{Enum, EnumMeta}
 import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena, Enum, EnumMeta}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 
@@ -244,7 +243,7 @@ object Node extends MetaStruct[Node] {
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
     override def dataWordCount: Option[java.lang.Short] = struct.getShort(7)
     override def pointerCount: Option[java.lang.Short] = struct.getShort(12)
-    override def preferredListEncoding: Option[com.capnproto.schema.ElementSize] = struct.getShort(13).map(id => com.capnproto.schema.ElementSize.findById(id.toInt).getOrElse(com.capnproto.schema.ElementSize.Unknown(id.toShort)))
+    override def preferredListEncoding: Option[com.capnproto.schema.ElementSize] = struct.getShort(13).map(id => com.capnproto.schema.ElementSize.findById(id).getOrElse(com.capnproto.schema.ElementSize.Unknown(id.toShort)))
     override def isGroup: Option[java.lang.Boolean] = struct.getBoolean(224)
     override def discriminantCount: Option[java.lang.Short] = struct.getShort(15)
     override def discriminantOffset: Option[java.lang.Integer] = struct.getInt(8)
@@ -2158,16 +2157,16 @@ class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
 }
 
 object ElementSize extends EnumMeta[ElementSize] {
-  case class Unknown(override val id: Int) extends ElementSize(ElementSize, id, null, null)
+  case class Unknown(override val id: java.lang.Short) extends ElementSize(ElementSize, id, null)
 
-  val empty = new ElementSize(this, 0, "empty", "empty")
-  val bit = new ElementSize(this, 1, "bit", "bit")
-  val byte = new ElementSize(this, 2, "byte", "byte")
-  val twoBytes = new ElementSize(this, 3, "twoBytes", "twoBytes")
-  val fourBytes = new ElementSize(this, 4, "fourBytes", "fourBytes")
-  val eightBytes = new ElementSize(this, 5, "eightBytes", "eightBytes")
-  val pointer = new ElementSize(this, 6, "pointer", "pointer")
-  val inlineComposite = new ElementSize(this, 7, "inlineComposite", "inlineComposite")
+  val empty = new ElementSize(this, 0.toShort, "empty")
+  val bit = new ElementSize(this, 1.toShort, "bit")
+  val byte = new ElementSize(this, 2.toShort, "byte")
+  val twoBytes = new ElementSize(this, 3.toShort, "twoBytes")
+  val fourBytes = new ElementSize(this, 4.toShort, "fourBytes")
+  val eightBytes = new ElementSize(this, 5.toShort, "eightBytes")
+  val pointer = new ElementSize(this, 6.toShort, "pointer")
+  val inlineComposite = new ElementSize(this, 7.toShort, "inlineComposite")
 
   override val values = Vector(
     empty,
@@ -2180,16 +2179,14 @@ object ElementSize extends EnumMeta[ElementSize] {
     inlineComposite
   )
 
-  override def findByIdOrNull(id: Int): ElementSize = values.lift(id).getOrElse(null)
+  override def findByIdOrNull(id: java.lang.Short): ElementSize = values.lift(id.toInt).getOrElse(null)
   override def findByNameOrNull(name: String): ElementSize = null
-  override def findByStringValueOrNull(v: String): ElementSize = null
 }
 
 sealed class ElementSize(
   override val meta: EnumMeta[ElementSize],
-  override val id: Int,
-  override val name: String,
-  override val stringValue: String
+  override val id: java.lang.Short,
+  override val name: String
 ) extends Enum[ElementSize]
 
 object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {

@@ -90,7 +90,7 @@ object CapnpScala {
             case _ => StringTree("getListList(", offset, ")")
           }
           case __Type.Union.__enum(_) => StringTree(
-            "getPrimitiveList(", offset, ", _.getShort _).map(id => ", genType(listType.elementType.get, scope), ".findByIdOrNull(id.toInt))"
+            "getPrimitiveList(", offset, ", _.getShort _).map(", genType(listType.elementType.get, scope), ".findByIdOrNull(_))"
           )
           case __Type.Union.__struct(_) => StringTree(
             "getStructList(", offset, ").map(new ", genType(listType.elementType.get, scope), "Mutable(_))"
@@ -100,7 +100,7 @@ object CapnpScala {
           case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
         }
         case __Type.Union.__enum(_) => StringTree(
-          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id.toInt).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
+          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
         )
         case __Type.Union.__struct(_) => StringTree(
           "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.typeId.get)), "Mutable(_))"
@@ -224,7 +224,7 @@ object CapnpScala {
           case list: CapnpList => genListValue(listType, list, scope)
           case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
         }
-        case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.get, ")")
+        case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.get, ".toShort)")
         case __Type.Union.__struct(_) => value.__object.get match {
           case struct: CapnpStruct => {
             val arena = new CapnpArenaBuilder()
@@ -486,23 +486,21 @@ object CapnpScala {
             indent, "object ", name, " extends EnumMeta[", name, "] {\n",
             genNestedDecls(schema, indent.next),
             if (exhaustiveMatch) StringTree() else StringTree(
-              indent.next, "case class Unknown(override val id: Int) extends ", name, "(", name, ", id, null, null)\n\n"
+              indent.next, "case class Unknown(override val id: java.lang.Short) extends ", name, "(", name, ", id, null)\n\n"
             ),
             StringTree.join("\n", enum.enumerants.sortBy(_.codeOrder).zipWithIndex.map({ case (e, i) => StringTree(
-              indent.next, "val ", e.name.get, " = new ", name, "(this, ", i.toString, ", \"", e.name.get, "\", \"", e.name.get, "\")"
+              indent.next, "val ", e.name.get, " = new ", name, "(this, ", i.toString, ".toShort, \"", e.name.get, "\")"
             )})), "\n\n",
             indent.next, "override val values = Vector(\n",
             StringTree.join(",\n", enum.enumerants.sortBy(_.codeOrder).map(e => StringTree(indent.next.next, e.name.get))), "\n",
             indent.next, ")\n\n",
-            indent.next, "override def findByIdOrNull(id: Int): ", name, " = values.lift(id).getOrElse(null)\n",
+            indent.next, "override def findByIdOrNull(id: java.lang.Short): ", name, " = values.lift(id.toInt).getOrElse(null)\n",
             indent.next, "override def findByNameOrNull(name: String): ", name, " = null\n",
-            indent.next, "override def findByStringValueOrNull(v: String): ", name, " = null\n",
             indent, "}\n\n",
             indent, "sealed class ", name, "(\n",
             indent.next, "override val meta: EnumMeta[", name, "],\n",
-            indent.next, "override val id: Int,\n",
-            indent.next, "override val name: String,\n",
-            indent.next, "override val stringValue: String\n",
+            indent.next, "override val id: java.lang.Short,\n",
+            indent.next, "override val name: String\n",
             indent, ") extends Enum[", name, "]\n"
           )
         }
@@ -570,12 +568,11 @@ object CapnpScala {
       StringTree(
         "// ", file.displayName, "\n\n",
         if (filePackage.isEmpty) StringTree() else StringTree("package ", filePackage, "\n\n"),
-        "import com.foursquare.spindle.{Enum, EnumMeta}\n",
         "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,\n",
         "  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,\n",
         "  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,\n",
         "  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,\n",
-        "  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}\n",
+        "  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena, Enum, EnumMeta}\n",
         "import com.twitter.util.Future\n",
         "import java.nio.ByteBuffer\n",
         "\n",

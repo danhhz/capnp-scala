@@ -2,12 +2,11 @@
 
 package com.capnproto.addressbook
 
-import com.foursquare.spindle.{Enum, EnumMeta}
 import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena, Enum, EnumMeta}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 
@@ -73,11 +72,11 @@ object Person extends MetaStruct[Person] {
     }
 
     object __Type extends EnumMeta[__Type] {
-      case class Unknown(override val id: Int) extends __Type(__Type, id, null, null)
+      case class Unknown(override val id: java.lang.Short) extends __Type(__Type, id, null)
 
-      val mobile = new __Type(this, 0, "mobile", "mobile")
-      val home = new __Type(this, 1, "home", "home")
-      val work = new __Type(this, 2, "work", "work")
+      val mobile = new __Type(this, 0.toShort, "mobile")
+      val home = new __Type(this, 1.toShort, "home")
+      val work = new __Type(this, 2.toShort, "work")
 
       override val values = Vector(
         mobile,
@@ -85,16 +84,14 @@ object Person extends MetaStruct[Person] {
         work
       )
 
-      override def findByIdOrNull(id: Int): __Type = values.lift(id).getOrElse(null)
+      override def findByIdOrNull(id: java.lang.Short): __Type = values.lift(id.toInt).getOrElse(null)
       override def findByNameOrNull(name: String): __Type = null
-      override def findByStringValueOrNull(v: String): __Type = null
     }
 
     sealed class __Type(
       override val meta: EnumMeta[__Type],
-      override val id: Int,
-      override val name: String,
-      override val stringValue: String
+      override val id: java.lang.Short,
+      override val name: String
     ) extends Enum[__Type]
     val number = new FieldDescriptor[String, PhoneNumber, PhoneNumber.type](
       name = "number",
@@ -129,7 +126,7 @@ object Person extends MetaStruct[Person] {
 
   class PhoneNumberMutable(override val struct: CapnpStruct) extends PhoneNumber {
     override def number: Option[String] = struct.getString(0)
-    override def __type: Option[com.capnproto.addressbook.Person.PhoneNumber.__Type] = struct.getShort(0).map(id => com.capnproto.addressbook.Person.PhoneNumber.__Type.findById(id.toInt).getOrElse(com.capnproto.addressbook.Person.PhoneNumber.__Type.Unknown(id.toShort)))
+    override def __type: Option[com.capnproto.addressbook.Person.PhoneNumber.__Type] = struct.getShort(0).map(id => com.capnproto.addressbook.Person.PhoneNumber.__Type.findById(id).getOrElse(com.capnproto.addressbook.Person.PhoneNumber.__Type.Unknown(id.toShort)))
   }
   object Employment extends MetaStruct[Employment] {
     override type Self = Employment.type

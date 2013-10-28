@@ -7,7 +7,6 @@ Before v0.1
 * unit test getters/setters
 * unit test serialization
 * unit test interfaces
-* switch Enum to use java.lang.Short for ids
 * support default values
 * replace __Type style escaping with \`Type\`
 * codegen plugin

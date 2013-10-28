@@ -2,26 +2,25 @@
 
 package com.capnproto.test
 
-import com.foursquare.spindle.{Enum, EnumMeta}
 import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,
-  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena}
+  Pointer, CapnpList, CapnpTag, CapnpArenaBuilder, CapnpArena, Enum, EnumMeta}
 import com.twitter.util.Future
 import java.nio.ByteBuffer
 
 object TestEnum extends EnumMeta[TestEnum] {
-  case class Unknown(override val id: Int) extends TestEnum(TestEnum, id, null, null)
+  case class Unknown(override val id: java.lang.Short) extends TestEnum(TestEnum, id, null)
 
-  val foo = new TestEnum(this, 0, "foo", "foo")
-  val bar = new TestEnum(this, 1, "bar", "bar")
-  val baz = new TestEnum(this, 2, "baz", "baz")
-  val qux = new TestEnum(this, 3, "qux", "qux")
-  val quux = new TestEnum(this, 4, "quux", "quux")
-  val corge = new TestEnum(this, 5, "corge", "corge")
-  val grault = new TestEnum(this, 6, "grault", "grault")
-  val garply = new TestEnum(this, 7, "garply", "garply")
+  val foo = new TestEnum(this, 0.toShort, "foo")
+  val bar = new TestEnum(this, 1.toShort, "bar")
+  val baz = new TestEnum(this, 2.toShort, "baz")
+  val qux = new TestEnum(this, 3.toShort, "qux")
+  val quux = new TestEnum(this, 4.toShort, "quux")
+  val corge = new TestEnum(this, 5.toShort, "corge")
+  val grault = new TestEnum(this, 6.toShort, "grault")
+  val garply = new TestEnum(this, 7.toShort, "garply")
 
   override val values = Vector(
     foo,
@@ -34,16 +33,14 @@ object TestEnum extends EnumMeta[TestEnum] {
     garply
   )
 
-  override def findByIdOrNull(id: Int): TestEnum = values.lift(id).getOrElse(null)
+  override def findByIdOrNull(id: java.lang.Short): TestEnum = values.lift(id.toInt).getOrElse(null)
   override def findByNameOrNull(name: String): TestEnum = null
-  override def findByStringValueOrNull(v: String): TestEnum = null
 }
 
 sealed class TestEnum(
   override val meta: EnumMeta[TestEnum],
-  override val id: Int,
-  override val name: String,
-  override val stringValue: String
+  override val id: java.lang.Short,
+  override val name: String
 ) extends Enum[TestEnum]
 
 object TestAllTypes extends MetaStruct[TestAllTypes] {
@@ -428,7 +425,7 @@ class TestAllTypesMutable(override val struct: CapnpStruct) extends TestAllTypes
   override def textField: Option[String] = struct.getString(0)
   override def dataField: Option[Array[Byte]] = struct.getData(1)
   override def structField: Option[com.capnproto.test.TestAllTypes] = struct.getStruct(2).map(new com.capnproto.test.TestAllTypesMutable(_))
-  override def enumField: Option[com.capnproto.test.TestEnum] = struct.getShort(18).map(id => com.capnproto.test.TestEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestEnum.Unknown(id.toShort)))
+  override def enumField: Option[com.capnproto.test.TestEnum] = struct.getShort(18).map(id => com.capnproto.test.TestEnum.findById(id).getOrElse(com.capnproto.test.TestEnum.Unknown(id.toShort)))
   override def interfaceField: Option[Unit] = struct.getNone()
   override def voidList: Seq[Unit] = struct.getPrimitiveList(3, _.getVoid _)
   override def boolList: Seq[java.lang.Boolean] = struct.getPrimitiveList(4, _.getBoolean _)
@@ -445,7 +442,7 @@ class TestAllTypesMutable(override val struct: CapnpStruct) extends TestAllTypes
   override def textList: Seq[String] = struct.getPrimitiveList(15, _.getString _)
   override def dataList: Seq[Array[Byte]] = struct.getPrimitiveList(16, _.getData _)
   override def structList: Seq[com.capnproto.test.TestAllTypes] = struct.getStructList(17).map(new com.capnproto.test.TestAllTypesMutable(_))
-  override def enumList: Seq[com.capnproto.test.TestEnum] = struct.getPrimitiveList(18, _.getShort _).map(id => com.capnproto.test.TestEnum.findByIdOrNull(id.toInt))
+  override def enumList: Seq[com.capnproto.test.TestEnum] = struct.getPrimitiveList(18, _.getShort _).map(com.capnproto.test.TestEnum.findByIdOrNull(_))
   override def interfaceList: Seq[Unit] = struct.getPrimitiveList(19, _.getVoid _)
 }
 
@@ -831,7 +828,7 @@ class TestDefaultsMutable(override val struct: CapnpStruct) extends TestDefaults
   override def textField: Option[String] = struct.getString(0)
   override def dataField: Option[Array[Byte]] = struct.getData(1)
   override def structField: Option[com.capnproto.test.TestAllTypes] = struct.getStruct(2).map(new com.capnproto.test.TestAllTypesMutable(_))
-  override def enumField: Option[com.capnproto.test.TestEnum] = struct.getShort(18).map(id => com.capnproto.test.TestEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestEnum.Unknown(id.toShort)))
+  override def enumField: Option[com.capnproto.test.TestEnum] = struct.getShort(18).map(id => com.capnproto.test.TestEnum.findById(id).getOrElse(com.capnproto.test.TestEnum.Unknown(id.toShort)))
   override def interfaceField: Option[Unit] = struct.getNone()
   override def voidList: Seq[Unit] = struct.getPrimitiveList(3, _.getVoid _)
   override def boolList: Seq[java.lang.Boolean] = struct.getPrimitiveList(4, _.getBoolean _)
@@ -848,7 +845,7 @@ class TestDefaultsMutable(override val struct: CapnpStruct) extends TestDefaults
   override def textList: Seq[String] = struct.getPrimitiveList(15, _.getString _)
   override def dataList: Seq[Array[Byte]] = struct.getPrimitiveList(16, _.getData _)
   override def structList: Seq[com.capnproto.test.TestAllTypes] = struct.getStructList(17).map(new com.capnproto.test.TestAllTypesMutable(_))
-  override def enumList: Seq[com.capnproto.test.TestEnum] = struct.getPrimitiveList(18, _.getShort _).map(id => com.capnproto.test.TestEnum.findByIdOrNull(id.toInt))
+  override def enumList: Seq[com.capnproto.test.TestEnum] = struct.getPrimitiveList(18, _.getShort _).map(com.capnproto.test.TestEnum.findByIdOrNull(_))
   override def interfaceList: Seq[Unit] = struct.getPrimitiveList(19, _.getVoid _)
 }
 
@@ -3276,26 +3273,24 @@ object TestNestedTypes extends MetaStruct[TestNestedTypes] {
   }
 
   object NestedEnum extends EnumMeta[NestedEnum] {
-    case class Unknown(override val id: Int) extends NestedEnum(NestedEnum, id, null, null)
+    case class Unknown(override val id: java.lang.Short) extends NestedEnum(NestedEnum, id, null)
 
-    val foo = new NestedEnum(this, 0, "foo", "foo")
-    val bar = new NestedEnum(this, 1, "bar", "bar")
+    val foo = new NestedEnum(this, 0.toShort, "foo")
+    val bar = new NestedEnum(this, 1.toShort, "bar")
 
     override val values = Vector(
       foo,
       bar
     )
 
-    override def findByIdOrNull(id: Int): NestedEnum = values.lift(id).getOrElse(null)
+    override def findByIdOrNull(id: java.lang.Short): NestedEnum = values.lift(id.toInt).getOrElse(null)
     override def findByNameOrNull(name: String): NestedEnum = null
-    override def findByStringValueOrNull(v: String): NestedEnum = null
   }
 
   sealed class NestedEnum(
     override val meta: EnumMeta[NestedEnum],
-    override val id: Int,
-    override val name: String,
-    override val stringValue: String
+    override val id: java.lang.Short,
+    override val name: String
   ) extends Enum[NestedEnum]
 
   object NestedStruct extends MetaStruct[NestedStruct] {
@@ -3326,11 +3321,11 @@ object TestNestedTypes extends MetaStruct[TestNestedTypes] {
     }
 
     object NestedEnum extends EnumMeta[NestedEnum] {
-      case class Unknown(override val id: Int) extends NestedEnum(NestedEnum, id, null, null)
+      case class Unknown(override val id: java.lang.Short) extends NestedEnum(NestedEnum, id, null)
 
-      val baz = new NestedEnum(this, 0, "baz", "baz")
-      val qux = new NestedEnum(this, 1, "qux", "qux")
-      val quux = new NestedEnum(this, 2, "quux", "quux")
+      val baz = new NestedEnum(this, 0.toShort, "baz")
+      val qux = new NestedEnum(this, 1.toShort, "qux")
+      val quux = new NestedEnum(this, 2.toShort, "quux")
 
       override val values = Vector(
         baz,
@@ -3338,16 +3333,14 @@ object TestNestedTypes extends MetaStruct[TestNestedTypes] {
         quux
       )
 
-      override def findByIdOrNull(id: Int): NestedEnum = values.lift(id).getOrElse(null)
+      override def findByIdOrNull(id: java.lang.Short): NestedEnum = values.lift(id.toInt).getOrElse(null)
       override def findByNameOrNull(name: String): NestedEnum = null
-      override def findByStringValueOrNull(v: String): NestedEnum = null
     }
 
     sealed class NestedEnum(
       override val meta: EnumMeta[NestedEnum],
-      override val id: Int,
-      override val name: String,
-      override val stringValue: String
+      override val id: java.lang.Short,
+      override val name: String
     ) extends Enum[NestedEnum]
     val outerNestedEnum = new FieldDescriptor[com.capnproto.test.TestNestedTypes.NestedEnum, NestedStruct, NestedStruct.type](
       name = "outerNestedEnum",
@@ -3381,8 +3374,8 @@ object TestNestedTypes extends MetaStruct[TestNestedTypes] {
   }
 
   class NestedStructMutable(override val struct: CapnpStruct) extends NestedStruct {
-    override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
-    override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
+    override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
+    override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
   }
   val nestedStruct = new FieldDescriptor[com.capnproto.test.TestNestedTypes.NestedStruct, TestNestedTypes, TestNestedTypes.type](
     name = "nestedStruct",
@@ -3426,8 +3419,8 @@ trait TestNestedTypes extends Struct[TestNestedTypes] {
 
 class TestNestedTypesMutable(override val struct: CapnpStruct) extends TestNestedTypes {
   override def nestedStruct: Option[com.capnproto.test.TestNestedTypes.NestedStruct] = struct.getStruct(0).map(new com.capnproto.test.TestNestedTypes.NestedStructMutable(_))
-  override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
-  override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
+  override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
+  override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
 }
 
 object TestUsing extends MetaStruct[TestUsing] {
@@ -3489,8 +3482,8 @@ trait TestUsing extends Struct[TestUsing] {
 }
 
 class TestUsingMutable(override val struct: CapnpStruct) extends TestUsing {
-  override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
-  override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id.toInt).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
+  override def outerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedEnum] = struct.getShort(1).map(id => com.capnproto.test.TestNestedTypes.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedEnum.Unknown(id.toShort)))
+  override def innerNestedEnum: Option[com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum] = struct.getShort(0).map(id => com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.findById(id).getOrElse(com.capnproto.test.TestNestedTypes.NestedStruct.NestedEnum.Unknown(id.toShort)))
 }
 
 object TestLists extends MetaStruct[TestLists] {
@@ -5273,7 +5266,7 @@ object TestConstants extends MetaStruct[TestConstants] {
 
   val StructConst: com.capnproto.test.TestAllTypes = CapnpArena.fromBytes(Array[Byte](0, 0, 0, 0, -48, 0, 0, 0, 0, 0, 0, 0, 6, 0, 20, 0, 1, -12, -128, 13, 14, 16, 76, -5, 78, 115, -24, 56, -90, 51, 0, 0, 90, 0, -46, 4, 20, -120, 98, 3, -46, 10, 111, 18, 33, 25, -52, 4, 95, 112, 9, -81, 2, 0, 0, 0, 0, 0, 0, 0, 0, -112, 117, 64, 77, 0, 0, 0, 34, 0, 0, 0, 77, 0, 0, 0, 26, 0, 0, 0, 76, 0, 0, 0, 6, 0, 20, 0, 37, 1, 0, 0, 24, 0, 0, 0, 33, 1, 0, 0, 41, 0, 0, 0, 33, 1, 0, 0, 34, 0, 0, 0, 33, 1, 0, 0, 35, 0, 0, 0, 33, 1, 0, 0, 36, 0, 0, 0, 37, 1, 0, 0, 37, 0, 0, 0, 49, 1, 0, 0, 34, 0, 0, 0, 49, 1, 0, 0, 35, 0, 0, 0, 49, 1, 0, 0, 36, 0, 0, 0, 53, 1, 0, 0, 37, 0, 0, 0, 65, 1, 0, 0, 52, 0, 0, 0, 73, 1, 0, 0, 53, 0, 0, 0, 93, 1, 0, 0, 30, 0, 0, 0, 113, 1, 0, 0, 30, 0, 0, 0, -123, 1, 0, 0, 119, 2, 0, 0, -43, 2, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 98, 97, 122, 0, 0, 0, 0, 0, 113, 117, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 77, 0, 0, 0, 58, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 72, 0, 0, 0, 6, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 110, 101, 115, 116, 101, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 77, 0, 0, 0, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 114, 101, 97, 108, 108, 121, 32, 110, 101, 115, 116, 101, 100, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 12, -34, -128, 127, 0, 0, 0, 0, -46, 4, -46, -23, 0, -128, -1, 127, 78, 97, -68, 0, 64, -45, -96, -6, 0, 0, 0, -128, -1, -1, -1, 127, 121, -33, 13, -122, 72, 112, 0, 0, 46, 117, 19, -3, -118, -106, -3, -1, 0, 0, 0, 0, 0, 0, 0, -128, -1, -1, -1, -1, -1, -1, -1, 127, 12, 34, 0, -1, 0, 0, 0, 0, -46, 4, 46, 22, 0, 0, -1, -1, 78, 97, -68, 0, -64, 44, 95, 5, 0, 0, 0, 0, -1, -1, -1, -1, 121, -33, 13, -122, 72, 112, 0, 0, -46, -118, -20, 2, 117, 105, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 56, -76, -106, 73, -62, -67, -16, 124, -62, -67, -16, -4, -22, 28, 8, 2, -22, 28, 8, -126, 0, 0, 0, 0, 0, 0, 0, 0, 64, -34, 119, -125, 33, 18, -36, 66, 41, -112, 35, -54, -27, -56, 118, 127, 41, -112, 35, -54, -27, -56, 118, -1, -111, -9, 80, 55, -98, 120, 102, 0, -111, -9, 80, 55, -98, 120, 102, -128, 9, 0, 0, 0, 42, 0, 0, 0, 9, 0, 0, 0, 50, 0, 0, 0, 9, 0, 0, 0, 58, 0, 0, 0, 113, 117, 117, 120, 0, 0, 0, 0, 99, 111, 114, 103, 101, 0, 0, 0, 103, 114, 97, 117, 108, 116, 0, 0, 9, 0, 0, 0, 50, 0, 0, 0, 9, 0, 0, 0, 42, 0, 0, 0, 9, 0, 0, 0, 34, 0, 0, 0, 103, 97, 114, 112, 108, 121, 0, 0, 119, 97, 108, 100, 111, 0, 0, 0, 102, 114, 101, 100, 0, 0, 0, 0, 12, 0, 0, 0, 6, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 1, 0, 0, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -67, 0, 0, 0, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 93, 0, 0, 0, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120, 32, 115, 116, 114, 117, 99, 116, 108, 105, 115, 116, 32, 49, 0, 0, 120, 32, 115, 116, 114, 117, 99, 116, 108, 105, 115, 116, 32, 50, 0, 0, 120, 32, 115, 116, 114, 117, 99, 116, 108, 105, 115, 116, 32, 51, 0, 0, 3, 0, 1, 0, 6, 0, 0, 0)).get.getRoot(com.capnproto.test.TestAllTypes).get
 
-  val EnumConst: com.capnproto.test.TestEnum = com.capnproto.test.TestEnum.findByIdOrNull(5)
+  val EnumConst: com.capnproto.test.TestEnum = com.capnproto.test.TestEnum.findByIdOrNull(5.toShort)
 
   val VoidListConst: Seq[Unit] = Seq[Unit](Unit)
 
