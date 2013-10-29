@@ -5,7 +5,7 @@ package com.capnproto.codegen
 import com.capnproto.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
 import com.capnproto.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
 
-import java.io.FileWriter
+import java.io.{File, FileWriter}
 import java.nio.{ByteBuffer, ByteOrder}
 
 object CapnpScala {
@@ -551,7 +551,8 @@ object CapnpScala {
             indent, "}\n"
           )
         }
-        case _ => throw new IllegalArgumentException("Unknown schema: " + schema)
+        case Node.Union.annotation(_) => StringTree()
+        case s => throw new IllegalArgumentException("Unknown schema: " + s)
       }
     }
 
@@ -581,12 +582,13 @@ object CapnpScala {
     }
 
     parsed.requestedFiles.map(requestedFile => {
-      val outputPath = requestedFile.filename.get + ".scala"
+      val outputFile = new File(requestedFile.filename.get + ".scala")
+      outputFile.getParentFile.mkdirs
       val output = genFile(schemasById(requestedFile.id.get)).flatten
-      val source = new FileWriter(outputPath)
+      val source = new FileWriter(outputFile)
       source.write(output)
       source.close
-      println("Wrote " + outputPath)
+      println("Wrote " + outputFile.getAbsolutePath)
     })
   }
 }

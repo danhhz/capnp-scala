@@ -1,4 +1,3 @@
 #! /bin/bash
 
 ./sbt codegen/run
-# tee schema.bin > /dev/null

@@ -1,10 +1,14 @@
 import sbt._
 import Keys._
+import com.capnproto.plugin.CapnpCodegenPlugin
+import sbtassembly.{Plugin => SbtAssemblyPlugin}
+import sbtassembly.Plugin.AssemblyKeys._
 
 object CapnpScalaBuild extends Build {
   override lazy val settings = super.settings ++ Seq(
   	name := "capnp-scala",
-  	version := "0.0.1",
+    organization := "com.capnproto",
+  	version := "0.0.1-SNAPSHOT",
   	scalaVersion := "2.10.3",
     resolvers += twitterRepo
   )
@@ -15,19 +19,43 @@ object CapnpScalaBuild extends Build {
   lazy val twitterFinatra = "com.twitter" % "finatra" % "1.4.0"
 
   lazy val commonProjectSettings = Project.defaultSettings ++ Seq(
-    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
+    scalacOptions ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings", "-feature")
   )
 
-  lazy val runtimeSettings = commonProjectSettings ++ Seq(
-    libraryDependencies ++= Seq(rogueField, twitterServer, twitterFinatra)
+  lazy val codegenSbtSettings = commonProjectSettings
+  lazy val codegenSbtPlugin = Project(
+    id = "capnp-codegen-plugin",
+    base = file("plugin"),
+    settings = codegenSbtSettings ++ Seq(
+      sbtPlugin := true
+    )
   )
-  lazy val runtime = Project(id = "runtime", base = file("runtime"), settings = runtimeSettings)
 
-  lazy val codegenSettings = commonProjectSettings ++ Seq(
-  	mainClass.in(Compile, run) := Some("com.capnproto.codegen.CapnpScala")
+  lazy val runtimeSettings = commonProjectSettings
+  lazy val runtime = Project(
+    id = "runtime",
+    base = file("runtime"),
+    settings = runtimeSettings ++ Seq(
+      libraryDependencies ++= Seq(rogueField, twitterServer, twitterFinatra)
+    )
   )
-  lazy val codegen = Project(id = "codegen", base = file("codegen"), settings = codegenSettings).dependsOn(runtime)
 
-  lazy val examplesSettings = commonProjectSettings
-  lazy val examples = Project(id = "examples", base = file("examples"), settings = examplesSettings).dependsOn(runtime)
+  lazy val codegenSettings = commonProjectSettings ++
+    SbtAssemblyPlugin.assemblySettings ++
+    addArtifact(Artifact("capnp-scala-codegen", "assembly"), SbtAssemblyPlugin.AssemblyKeys.assembly)
+  lazy val codegen = Project(
+    id = "codegen",
+    base = file("codegen"),
+    settings = codegenSettings ++ Seq(
+      jarName.in(assembly) <<= (name, scalaVersion, version).map({ _ + "_" + _ + "-" + _ + "-assembly.jar" })
+    )
+  ).dependsOn(runtime)
+
+  lazy val examplesSettings = commonProjectSettings ++
+    CapnpCodegenPlugin.capnpSettings
+  lazy val examples = Project(
+    id = "examples",
+    base = file("examples"),
+    settings = examplesSettings
+  ).dependsOn(runtime)
 }
