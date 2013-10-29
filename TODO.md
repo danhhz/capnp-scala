@@ -15,6 +15,7 @@ Before v0.1
 * write basic runtime docs
 * support top level consts
 * generate valid constants in .toString
+* pull twitterServer dep out of codegen assembly jar
 
 After
 -----

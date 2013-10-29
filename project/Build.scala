@@ -9,6 +9,7 @@ object CapnpScalaBuild extends Build {
     resolvers += twitterRepo
   )
 
+  lazy val rogueField = "com.foursquare" %% "rogue-field" % "2.2.1"
   lazy val twitterRepo = "Twitter Repo" at "http://maven.twttr.com"
   lazy val twitterServer = "com.twitter" %% "twitter-server" % "1.0.2"
   lazy val twitterFinatra = "com.twitter" % "finatra" % "1.4.0"
@@ -18,7 +19,7 @@ object CapnpScalaBuild extends Build {
   )
 
   lazy val runtimeSettings = commonProjectSettings ++ Seq(
-    libraryDependencies ++= Seq(twitterServer, twitterFinatra)
+    libraryDependencies ++= Seq(rogueField, twitterServer, twitterFinatra)
   )
   lazy val runtime = Project(id = "runtime", base = file("runtime"), settings = runtimeSettings)
 
