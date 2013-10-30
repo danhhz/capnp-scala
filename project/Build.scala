@@ -1,3 +1,5 @@
+// Copyright 2013 Daniel Harrison. All Rights Reserved.
+
 import sbt._
 import Keys._
 import com.capnproto.plugin.CapnpCodegenPlugin
@@ -6,15 +8,16 @@ import sbtassembly.Plugin.AssemblyKeys._
 
 object CapnpScalaBuild extends Build {
   override lazy val settings = super.settings ++ Seq(
-  	name := "capnp-scala",
+    name := "capnp-scala",
     organization := "com.capnproto",
-  	version := "0.0.1-SNAPSHOT",
-  	scalaVersion := "2.10.3",
+    version := "0.0.1-SNAPSHOT",
+    scalaVersion := "2.10.3",
     resolvers += twitterRepo
   )
 
   lazy val rogueField = "com.foursquare" %% "rogue-field" % "2.2.1"
   lazy val twitterRepo = "Twitter Repo" at "http://maven.twttr.com"
+  lazy val twitterUtilCore = "com.twitter" %% "util-core" % "6.3.6"
   lazy val twitterServer = "com.twitter" %% "twitter-server" % "1.0.2"
   lazy val twitterFinatra = "com.twitter" % "finatra" % "1.4.0"
 
@@ -31,14 +34,21 @@ object CapnpScalaBuild extends Build {
     )
   )
 
-  lazy val runtimeSettings = commonProjectSettings
-  lazy val runtime = Project(
-    id = "runtime",
-    base = file("runtime"),
-    settings = runtimeSettings ++ Seq(
-      libraryDependencies ++= Seq(rogueField, twitterServer, twitterFinatra)
+  lazy val runtimeCore = Project(
+    id = "runtime-core",
+    base = file("runtime/src/main/scala/com/capnproto/core"),
+    settings = commonProjectSettings ++ Seq(
+      libraryDependencies ++= Seq(rogueField, twitterUtilCore)
     )
   )
+
+  lazy val runtimeRpc = Project(
+    id = "runtime-rpc",
+    base = file("runtime/src/main/scala/com/capnproto/rpc"),
+    settings = commonProjectSettings ++ Seq(
+      libraryDependencies ++= Seq(twitterServer, twitterFinatra)
+    )
+  ).dependsOn(runtimeCore)
 
   lazy val codegenSettings = commonProjectSettings ++
     SbtAssemblyPlugin.assemblySettings ++
@@ -49,7 +59,7 @@ object CapnpScalaBuild extends Build {
     settings = codegenSettings ++ Seq(
       jarName.in(assembly) <<= (name, scalaVersion, version).map({ _ + "_" + _ + "-" + _ + "-assembly.jar" })
     )
-  ).dependsOn(runtime)
+  ).dependsOn(runtimeCore)
 
   lazy val examplesSettings = commonProjectSettings ++
     CapnpCodegenPlugin.capnpSettings
@@ -57,5 +67,5 @@ object CapnpScalaBuild extends Build {
     id = "examples",
     base = file("examples"),
     settings = examplesSettings
-  ).dependsOn(runtime)
+  ).dependsOn(runtimeCore, runtimeRpc)
 }

@@ -1,9 +1,8 @@
-// Copyright 2013 Foursquare Labs Inc. All Rights Reserved.
+// Copyright 2013 Daniel Harrison. All Rights Reserved.
 
 package com.capnproto.plugin
 
 import sbt._
-import sbt.Fork.ForkJava
 import sbt.Keys.TaskStreams
 import java.io.{File, FileWriter}
 import scala.language.postfixOps
@@ -48,9 +47,6 @@ object CapnpCodegenPlugin extends Plugin {
     ).map(capnpClean)
   )
 
-  /**
-   * @return the .scala files in `sourceManaged` after compilation.
-   */
   private def capnpCompile(
       capnpSources: Seq[File],
       classpathTypes: Set[String],
@@ -103,7 +99,7 @@ object CapnpCodegenPlugin extends Plugin {
         "--src-prefix", baseDirectory.getAbsolutePath,
         "--output", "%s:%s".format(capnpScalaPath, sourceManaged.absolutePath)
       ) ++ capnpSourcePaths
-      log.info("Capnp command line: " + cmd.mkString(" "))
+      log.debug("Capnp command line: " + cmd.mkString(" "))
       val returnCode = (cmd !)
       if (returnCode != 0) sys.error("Non zero return code from capnp [%d]".format(returnCode))
     } else {

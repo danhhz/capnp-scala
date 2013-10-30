@@ -2,7 +2,7 @@
 
 package com.capnproto.examples.addressbook
 
-import com.capnproto.{CapnpArena, CapnpArenaBuilder}
+import com.capnproto.core.{CapnpArena, CapnpArenaBuilder}
 import com.capnproto.addressbook.{AddressBook, Person}
 
 object AddressBookExample {

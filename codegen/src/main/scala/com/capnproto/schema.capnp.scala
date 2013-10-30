@@ -1,8 +1,8 @@
-// examples/src/main/scala/com/capnproto/schema.capnp
+// src/main/capnp/schema.capnp
 
 package com.capnproto.schema
 
-import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
+import com.capnproto.core.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,
   FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,
   StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,
   Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,

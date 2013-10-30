@@ -1,7 +1,8 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto
+package com.capnproto.rpc
 
+import com.capnproto.core.{Interface, UntypedMethodDescriptor, CapnpArena, Pointer, CapnpArenaBuilder}
 import com.twitter.finatra.{Controller, FinatraServer, Request}
 import com.twitter.server.Admin
 import com.twitter.util.Future

@@ -2,7 +2,7 @@
 
 package com.capnproto.codegen
 
-import com.capnproto.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
+import com.capnproto.core.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
 import com.capnproto.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
 
 import java.io.{File, FileWriter}
@@ -569,7 +569,7 @@ object CapnpScala {
       StringTree(
         "// ", file.displayName, "\n\n",
         if (filePackage.isEmpty) StringTree() else StringTree("package ", filePackage, "\n\n"),
-        "import com.capnproto.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,\n",
+        "import com.capnproto.core.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,\n",
         "  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,\n",
         "  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,\n",
         "  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,\n",

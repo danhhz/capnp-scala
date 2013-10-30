@@ -9,13 +9,11 @@ Before v0.1
 * unit test interfaces
 * support default values
 * replace __Type style escaping with \`Type\`
-* codegen plugin
 * audit match exhaustiveness
 * port one of Kenton's benchmarks
 * write basic runtime docs
 * support top level consts
 * generate valid constants in .toString
-* pull twitterServer dep out of codegen assembly jar
 
 After
 -----
@@ -28,7 +26,6 @@ After
 * json printer
 * dynamic api
 * support exhaustiveMatch annotation for union fields
-* replace __Type style escaping with \`Type\`
 * annotations for retired and deprecated
 * annotation for enhancedType
 * commandline rpc client

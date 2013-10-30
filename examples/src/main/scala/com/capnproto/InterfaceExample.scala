@@ -2,7 +2,8 @@
 
 package com.capnproto.examples.interface
 
-import com.capnproto.{CapnpArenaBuilder, RpcServer}
+import com.capnproto.core.CapnpArenaBuilder
+import com.capnproto.rpc.RpcServer
 import com.twitter.finatra.{Controller, FinatraServer, Request}
 import com.twitter.server.Admin
 import com.twitter.util.Future
