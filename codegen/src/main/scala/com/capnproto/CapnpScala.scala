@@ -52,58 +52,57 @@ object CapnpScala {
       })
     }
 
-    def genAccessor(ctype: __Type, scope: Node, offset: Int): StringTree = {
+    def genListAccessorFn(listType: __Type.List, scope: Node): StringTree = {
+      listType.elementType.get.switch match {
+        case __Type.Union.void(_) => StringTree("_.getVoid _")
+        case __Type.Union.bool(_) => StringTree("_.getBoolean _")
+        case __Type.Union.int8(_) => StringTree("_.getByte _")
+        case __Type.Union.int16(_) => StringTree("_.getShort _")
+        case __Type.Union.int32(_) => StringTree("_.getInt _")
+        case __Type.Union.int64(_) => StringTree("_.getLong _")
+        case __Type.Union.uint8(_) => StringTree("_.getByte _")
+        case __Type.Union.uint16(_) => StringTree("_.getShort _")
+        case __Type.Union.uint32(_) => StringTree("_.getInt _")
+        case __Type.Union.uint64(_) => StringTree("_.getLong _")
+        case __Type.Union.float32(_) => StringTree("_.getFloat _")
+        case __Type.Union.float64(_) => StringTree("_.getDouble _")
+        case __Type.Union.text(_) => StringTree("_.getString _")
+        case __Type.Union.data(_) => StringTree("_.getData _")
+        case __Type.Union.list(sublistType) => StringTree(
+          "(l: CapnpList) => (o: Int) => l.getList(o).toSeq(", genListAccessorFn(sublistType, scope), ")"
+        )
+        case __Type.Union.__enum(_) => StringTree("(l: CapnpList) => (o: Int) => ", genType(listType.elementType.get, scope), ".findById(l.getShort(o)).getOrElse(", genType(listType.elementType.get, scope), ".Unknown(l.getShort(o)))")
+        case __Type.Union.__struct(_) => StringTree("(l: CapnpList) => (o: Int) => l.getStruct(o, ", genType(listType.elementType.get, scope), ")")
+        case __Type.Union.interface(_) => StringTree("_.getVoid _")
+        case __Type.Union.__object(_) => StringTree("_.getPointer _")
+        case _ => throw new IllegalArgumentException("Unknown listType: " + listType)
+      }
+    }
+
+    def genAccessor(ctype: __Type, path: StringTree, field: Field, scope: Node, offset: Int): StringTree = {
       ctype.switch match {
         case __Type.Union.void(_) => StringTree("getNone()")
-        case __Type.Union.bool(_) => StringTree("getBoolean(", offset, ")")
-        case __Type.Union.int8(_) => StringTree("getByte(", offset, ")")
-        case __Type.Union.int16(_) => StringTree("getShort(", offset, ")")
-        case __Type.Union.int32(_) => StringTree("getInt(", offset, ")")
-        case __Type.Union.int64(_) => StringTree("getLong(", offset, ")")
-        case __Type.Union.uint8(_) => StringTree("getByte(", offset, ")")
-        case __Type.Union.uint16(_) => StringTree("getShort(", offset, ")")
-        case __Type.Union.uint32(_) => StringTree("getInt(", offset, ")")
-        case __Type.Union.uint64(_) => StringTree("getLong(", offset, ")")
-        case __Type.Union.float32(_) => StringTree("getFloat(", offset, ")")
-        case __Type.Union.float64(_) => StringTree("getDouble(", offset, ")")
-        case __Type.Union.text(_) => StringTree("getString(", offset, ")")
-        case __Type.Union.data(_) => StringTree("getData(", offset, ")")
-        case __Type.Union.list(listType) => listType.elementType.get.switch match {
-          case __Type.Union.void(_) => StringTree("getPrimitiveList(", offset, ", _.getVoid _)")
-          case __Type.Union.bool(_) => StringTree("getPrimitiveList(", offset, ", _.getBoolean _)")
-          case __Type.Union.int8(_) => StringTree("getPrimitiveList(", offset, ", _.getByte _)")
-          case __Type.Union.int16(_) => StringTree("getPrimitiveList(", offset, ", _.getShort _)")
-          case __Type.Union.int32(_) => StringTree("getPrimitiveList(", offset, ", _.getInt _)")
-          case __Type.Union.int64(_) => StringTree("getPrimitiveList(", offset, ", _.getLong _)")
-          case __Type.Union.uint8(_) => StringTree("getPrimitiveList(", offset, ", _.getByte _)")
-          case __Type.Union.uint16(_) => StringTree("getPrimitiveList(", offset, ", _.getShort _)")
-          case __Type.Union.uint32(_) => StringTree("getPrimitiveList(", offset, ", _.getInt _)")
-          case __Type.Union.uint64(_) => StringTree("getPrimitiveList(", offset, ", _.getLong _)")
-          case __Type.Union.float32(_) => StringTree("getPrimitiveList(", offset, ", _.getFloat _)")
-          case __Type.Union.float64(_) => StringTree("getPrimitiveList(", offset, ", _.getDouble _)")
-          case __Type.Union.text(_) => StringTree("getPrimitiveList(", offset, ", _.getString _)")
-          case __Type.Union.data(_) => StringTree("getPrimitiveList(", offset, ", _.getData _)")
-          case __Type.Union.list(sublistType) => sublistType.elementType.get.switch match {
-            case __Type.Union.int32(_) => StringTree("getListList(", offset, ").map(list => list.toSeq(list.getInt))")
-            case __Type.Union.text(_) => StringTree("getListList(", offset, ").map(list => list.toSeq(list.getString))")
-            case __Type.Union.__struct(_) => StringTree("getListList(", offset, ").map(list => list.toStructSeq.map(new ", genType(sublistType.elementType.get, scope), "Mutable(_)))")
-            case _ => StringTree("getListList(", offset, ")")
-          }
-          case __Type.Union.__enum(_) => StringTree(
-            "getPrimitiveList(", offset, ", _.getShort _).map(", genType(listType.elementType.get, scope), ".findByIdOrNull(_))"
-          )
-          case __Type.Union.__struct(_) => StringTree(
-            "getStructList(", offset, ").map(new ", genType(listType.elementType.get, scope), "Mutable(_))"
-          )
-          case __Type.Union.interface(_) => StringTree("getPrimitiveList(", offset, ", _.getVoid _)")
-          case __Type.Union.__object(_) => StringTree("getPointerList(", offset, ")")
-          case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
-        }
+        case __Type.Union.bool(_) => StringTree("getBoolean(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int8(_) => StringTree("getByte(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int16(_) => StringTree("getShort(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int32(_) => StringTree("getInt(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int64(_) => StringTree("getLong(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint8(_) => StringTree("getByte(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint16(_) => StringTree("getShort(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint32(_) => StringTree("getInt(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint64(_) => StringTree("getLong(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.float32(_) => StringTree("getFloat(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.float64(_) => StringTree("getDouble(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.text(_) => StringTree("getString(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.data(_) => StringTree("getData(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.list(listType) => StringTree(
+          "getList(", offset, ", ", genListAccessorFn(listType, scope), ", ", path, ".", scalaEscapeName(field.name.get), ".default)"
+        )
         case __Type.Union.__enum(_) => StringTree(
-          "getShort(", offset, ").map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
+          "getShort(", offset, ", ", path, ".", scalaEscapeName(field.name.get), ".default.map(_.id)).map(id => ", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".findById(id).getOrElse(", nodeName(getDependency(scope, ctype.__enum.typeId.get)), ".Unknown(id.toShort)))"
         )
         case __Type.Union.__struct(_) => StringTree(
-          "getStruct(", offset, ").map(new ", nodeName(getDependency(scope, ctype.__struct.typeId.get)), "Mutable(_))"
+          "getStruct(", offset, ", ", nodeName(getDependency(scope, ctype.__struct.typeId.get)), ", ", path, ".", scalaEscapeName(field.name.get), ".default)"
         )
         case __Type.Union.interface(_) => StringTree("getNone(", offset, ")")
         case __Type.Union.__object(_) => StringTree("getPointer(", offset, ")")
@@ -111,24 +110,24 @@ object CapnpScala {
       }
     }
 
-    def genSetter(ctype: __Type, scope: Node, offset: Int): StringTree = {
+    def genSetter(ctype: __Type, path: StringTree, field: Field, scope: Node, offset: Int): StringTree = {
       ctype.switch match {
         case __Type.Union.void(_) => StringTree("setNone()")
-        case __Type.Union.bool(_) => StringTree("setBoolean(", offset, ", value)")
-        case __Type.Union.int8(_) => StringTree("setByte(", offset, ", value)")
-        case __Type.Union.int16(_) => StringTree("setShort(", offset, ", value)")
-        case __Type.Union.int32(_) => StringTree("setInt(", offset, ", value)")
-        case __Type.Union.int64(_) => StringTree("setLong(", offset, ", value)")
-        case __Type.Union.uint8(_) => StringTree("setByte(", offset, ", value)")
-        case __Type.Union.uint16(_) => StringTree("setShort(", offset, ", value)")
-        case __Type.Union.uint32(_) => StringTree("setInt(", offset, ", value)")
-        case __Type.Union.uint64(_) => StringTree("setLong(", offset, ", value)")
-        case __Type.Union.float32(_) => StringTree("setFloat(", offset, ", value)")
-        case __Type.Union.float64(_) => StringTree("setDouble(", offset, ", value)")
+        case __Type.Union.bool(_) => StringTree("setBoolean(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int8(_) => StringTree("setByte(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int16(_) => StringTree("setShort(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int32(_) => StringTree("setInt(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.int64(_) => StringTree("setLong(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint8(_) => StringTree("setByte(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint16(_) => StringTree("setShort(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint32(_) => StringTree("setInt(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.uint64(_) => StringTree("setLong(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.float32(_) => StringTree("setFloat(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
+        case __Type.Union.float64(_) => StringTree("setDouble(", offset, ", value, ", path, ".", scalaEscapeName(field.name.get), ".default)")
         case __Type.Union.text(_) => StringTree("setString(", offset, ", value)")
         case __Type.Union.data(_) => StringTree("setData(", offset, ", value)")
         case __Type.Union.list(_) => StringTree("setNone()")
-        case __Type.Union.__enum(_) => StringTree("setShort(", offset, ", value.id.toShort)")
+        case __Type.Union.__enum(_) => StringTree("setShort(", offset, ", value.id.toShort, ", path, ".", scalaEscapeName(field.name.get), ".default.map(_.id))")
         case __Type.Union.__struct(_) => StringTree("setNone()")
         case __Type.Union.interface(_) => StringTree("setNone()")
         case __Type.Union.__object(_) => StringTree("setNone()")
@@ -150,21 +149,21 @@ object CapnpScala {
         "Seq[", genType(listType.elementType.get, scope), "](",
         listType.elementType.get.switch match {
           case __Type.Union.void(_) => StringTree("Unit")
-          case __Type.Union.bool(_) => list.toSeq(list.getBoolean).map(_.toString).mkString(", ")
-          case __Type.Union.int8(_) => list.toSeq(list.getByte).map(_.toString + ".toByte").mkString(", ")
-          case __Type.Union.int16(_) => list.toSeq(list.getShort).map(_.toString + ".toShort").mkString(", ")
-          case __Type.Union.int32(_) => list.toSeq(list.getInt).map(_.toString).mkString(", ")
-          case __Type.Union.int64(_) => list.toSeq(list.getLong).map(_.toString + "L").mkString(", ")
-          case __Type.Union.uint8(_) => list.toSeq(list.getByte).map(_.toString + ".toByte").mkString(", ")
-          case __Type.Union.uint16(_) => list.toSeq(list.getShort).map(_.toString + ".toShort").mkString(", ")
-          case __Type.Union.uint32(_) => list.toSeq(list.getInt).map(_.toString).mkString(", ")
-          case __Type.Union.uint64(_) => list.toSeq(list.getLong).map(_.toString + "L").mkString(", ")
-          case __Type.Union.float32(_) => list.toSeq(list.getFloat).map(f => printDouble(f.toDouble) + ".toFloat").mkString(", ")
-          case __Type.Union.float64(_) => list.toSeq(list.getDouble).map(printDouble(_)).mkString(", ")
-          case __Type.Union.text(_) => StringTree.join(", ", list.toSeq(list.getString).map(value => {
+          case __Type.Union.bool(_) => list.toSeq(_.getBoolean).map(_.toString).mkString(", ")
+          case __Type.Union.int8(_) => list.toSeq(_.getByte).map(_.toString + ".toByte").mkString(", ")
+          case __Type.Union.int16(_) => list.toSeq(_.getShort).map(_.toString + ".toShort").mkString(", ")
+          case __Type.Union.int32(_) => list.toSeq(_.getInt).map(_.toString).mkString(", ")
+          case __Type.Union.int64(_) => list.toSeq(_.getLong).map(_.toString + "L").mkString(", ")
+          case __Type.Union.uint8(_) => list.toSeq(_.getByte).map(_.toString + ".toByte").mkString(", ")
+          case __Type.Union.uint16(_) => list.toSeq(_.getShort).map(_.toString + ".toShort").mkString(", ")
+          case __Type.Union.uint32(_) => list.toSeq(_.getInt).map(_.toString).mkString(", ")
+          case __Type.Union.uint64(_) => list.toSeq(_.getLong).map(_.toString + "L").mkString(", ")
+          case __Type.Union.float32(_) => list.toSeq(_.getFloat).map(f => printDouble(f.toDouble) + ".toFloat").mkString(", ")
+          case __Type.Union.float64(_) => list.toSeq(_.getDouble).map(printDouble(_)).mkString(", ")
+          case __Type.Union.text(_) => StringTree.join(", ", list.toSeq(_.getString).map(value => {
             StringTree("\"", value, "\"")
           }))
-          case __Type.Union.data(_) => StringTree.join(", ", list.toSeq(list.getData).map(value => {
+          case __Type.Union.data(_) => StringTree.join(", ", list.toSeq(_.getData).map(value => {
             StringTree("Array[Byte](", value.mkString(", "), ")")
           }))
           case __Type.Union.list(sublistType) => list.toPointerSeq.map(_ match {
@@ -174,7 +173,7 @@ object CapnpScala {
           case __Type.Union.__enum(enumType) => {
             val node = getDependency(scope, enumType.typeId.get)
             node.switch match {
-              case Node.Union.__enum(enumDef) => StringTree.join(", ", list.toSeq(list.getShort).map(value => {
+              case Node.Union.__enum(enumDef) => StringTree.join(", ", list.toSeq(_.getShort).map(value => {
                 StringTree(nodeName(node), ".", enumDef.enumerants(value.toInt).name.get)
               }))
               case n => throw new IllegalArgumentException("Expected enum but got: " + n)
@@ -207,25 +206,27 @@ object CapnpScala {
     def genValue(ctype: __Type, value: Value, scope: Node): StringTree = {
       ctype.switch match {
         case __Type.Union.void(_) => StringTree("Unit")
-        case __Type.Union.bool(_) => StringTree(value.bool.get)
-        case __Type.Union.int8(_) => StringTree(value.int8.get + ".toByte")
-        case __Type.Union.int16(_) => StringTree(value.int16.get + ".toShort")
-        case __Type.Union.int32(_) => StringTree(value.int32.get)
-        case __Type.Union.int64(_) => StringTree(value.int64.get + "L")
-        case __Type.Union.uint8(_) => StringTree(value.uint8.get + ".toByte")
-        case __Type.Union.uint16(_) => StringTree(value.uint16.get + ".toShort")
-        case __Type.Union.uint32(_) => StringTree(value.uint32.get)
-        case __Type.Union.uint64(_) => StringTree(value.uint64.get + "L")
-        case __Type.Union.float32(_) => StringTree(printDouble(value.float32.get.toDouble) + ".toFloat")
-        case __Type.Union.float64(_) => StringTree(printDouble(value.float64.get))
-        case __Type.Union.text(_) => StringTree("\"", value.text.get, "\"")
-        case __Type.Union.data(_) => StringTree("Array[Byte](", value.data.get.mkString(", "), ")")
-        case __Type.Union.list(listType) => value.__object.get match {
+        case __Type.Union.bool(_) => StringTree("java.lang.Boolean.", {
+          if (value.bool.exists(x => x)) "TRUE" else "FALSE"
+        })
+        case __Type.Union.int8(_) => StringTree(value.int8.getOrElse(0.toByte) + ".toByte")
+        case __Type.Union.int16(_) => StringTree(value.int16.getOrElse(0.toShort) + ".toShort")
+        case __Type.Union.int32(_) => StringTree(value.int32.getOrElse(0))
+        case __Type.Union.int64(_) => StringTree(value.int64.getOrElse(0L) + "L")
+        case __Type.Union.uint8(_) => StringTree(value.uint8.getOrElse(0.toByte) + ".toByte")
+        case __Type.Union.uint16(_) => StringTree(value.uint16.getOrElse(0.toShort) + ".toShort")
+        case __Type.Union.uint32(_) => StringTree(value.uint32.getOrElse(0))
+        case __Type.Union.uint64(_) => StringTree(value.uint64.getOrElse(0L) + "L")
+        case __Type.Union.float32(_) => StringTree(printDouble(value.float32.getOrElse(new java.lang.Float(0.0)).toDouble) + ".toFloat")
+        case __Type.Union.float64(_) => StringTree(printDouble(value.float64.getOrElse(new java.lang.Double(0.0)).toDouble))
+        case __Type.Union.text(_) => StringTree("\"", value.text.getOrElse(""), "\"")
+        case __Type.Union.data(_) => StringTree("Array[Byte](", value.data.getOrElse(Array()).mkString(", "), ")")
+        case __Type.Union.list(listType) => value.__object.map(_ match {
           case list: CapnpList => genListValue(listType, list, scope)
           case p => throw new IllegalArgumentException("Expected Pointer of type CapnpList but got: " + p)
-        }
-        case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.get, ".toShort)")
-        case __Type.Union.__struct(_) => value.__object.get match {
+        }).getOrElse(StringTree("null"))
+        case __Type.Union.__enum(_) => StringTree(genType(ctype, scope), ".findByIdOrNull(", value.uint16.getOrElse(0.toShort), ".toShort)")
+        case __Type.Union.__struct(_) => value.__object.map(_ match {
           case struct: CapnpStruct => {
             val arena = new CapnpArenaBuilder()
             val (segment, offset) = arena.getRoot
@@ -238,9 +239,9 @@ object CapnpScala {
             )
           }
           case p => throw new IllegalArgumentException("Expected Pointer of type CapnpStruct but got: " + p)
-        }
-        case __Type.Union.interface(_) => StringTree("TODO")
-        case __Type.Union.__object(_) => StringTree("TODO")
+        }).getOrElse(StringTree("null"))
+        case __Type.Union.interface(_) => StringTree("null")
+        case __Type.Union.__object(_) => StringTree("null")
         case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
@@ -363,7 +364,7 @@ object CapnpScala {
                   }
                   case _ => StringTree(
                     indent.next.next, "def set", scalaCaseName(scalaEscapeName(field.name.get)), "(value: ", fieldScalaType(field, schema), "): Builder = { ",
-                    "struct.", genSetter(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0)), "; ",
+                    "struct.", genSetter(slot.__type.get, fullPath, field, schema, slot.offset.map(_.toInt).getOrElse(0)), "; ",
                     field.discriminantValue.map(d => StringTree(
                       "struct.setShort(", struct.discriminantOffset.getOrElse(0), ", ", d, "); "
                     )),
@@ -404,6 +405,21 @@ object CapnpScala {
               indent.next, "val ", scalaEscapeName(field.name.get), " = new FieldDescriptor[", fieldScalaType(field, schema), ", ", name, ", ", name, ".type](\n",
               indent.next.next, "name = \"", field.name.get, "\",\n",
               indent.next.next, "meta = ", name, ",\n",
+              indent.next.next, "default = ",
+              field.switch match {
+                case Field.Union.slot(slot) => {
+                  // TODO(dan): Figure out why hadExplicitDefault doesn't seem
+                  // to be set and use it.
+                  if (true /*slot.hadExplicitDefault.exists(x => x)*/) {
+                    StringTree("Option(", genValue(slot.__type.get, slot.defaultValue.get, schema), ")")
+                  } else StringTree("None")
+                }
+                case Field.Union.group(group) => {
+                  StringTree("None")
+                }
+                case _ => throw new IllegalArgumentException("Unknown: " + field.switch)
+              },
+              ",\n",
               indent.next.next, "getter = ",
               field.switch match {
                 case Field.Union.slot(slot) => slot.__type.get.switch match {
@@ -465,10 +481,10 @@ object CapnpScala {
               field.switch match {
                 case Field.Union.slot(slot) => slot.__type.get.switch match {
                   case __Type.Union.list(_) => StringTree(
-                    fieldScalaType(field, schema), " = struct.", genAccessor(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0))
+                    fieldScalaType(field, schema), " = struct.", genAccessor(slot.__type.get, fullPath, field, schema, slot.offset.map(_.toInt).getOrElse(0))
                   )
                   case _ => StringTree(
-                    "Option[", fieldScalaType(field, schema), "] = struct.", genAccessor(slot.__type.get, schema, slot.offset.map(_.toInt).getOrElse(0))
+                    "Option[", fieldScalaType(field, schema), "] = struct.", genAccessor(slot.__type.get, fullPath, field, schema, slot.offset.map(_.toInt).getOrElse(0))
                   )
                 }
                 case Field.Union.group(group) => StringTree(

@@ -13,6 +13,7 @@ import scala.io.Source
 
 trait UntypedFieldDescriptor {
   def name: String
+  def default: Option[Any]
   def unsafeGetter: Function1[Any, Option[Any]]
   def unsafeManifest: Manifest[_]
   def isUnion: Boolean
@@ -20,6 +21,7 @@ trait UntypedFieldDescriptor {
 case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
   override val name: String,
   meta: M,
+  override val default: Option[F],
   getter: S => Option[F],
   manifest: Manifest[F],
   override val isUnion: Boolean
@@ -355,8 +357,30 @@ class CapnpList(
     new CapnpStruct(arena, buf, pointerOffsetWords + 1 + dataOffsetWords, offsetWords, tag.dataSectionSizeWords, tag.pointerSectionSizeWords)
   }
 
-  def toSeq[A](f: Int => A): Seq[A] = {
-    Range(0, listElementCount).map(f)
+  def getPointerOrComposite(offset: Int): Pointer[_] = {
+    pointerSize match {
+      case 6 => getPointer(offset)
+      case 7 => getComposite(offset)
+    }
+  }
+
+  def getStruct[S <: Struct[S]](offset: Int, meta: MetaStruct[S]): S = {
+    getPointerOrComposite(offset) match {
+      case s: CapnpStruct => meta.create(s)
+      case p => throw new IllegalArgumentException("Expected pointer of type CapnpStruct, but got: " + p)
+    }
+  }
+
+  def getList(offset: Int): CapnpList = {
+    getPointerOrComposite(offset) match {
+      case l: CapnpList => l
+      case p => throw new IllegalArgumentException("Expected pointer of type CapnpList, but got: " + p)
+    }
+  }
+
+  def toSeq[A](f: CapnpList => Int => A): Seq[A] = {
+    val x = f(this)
+    Range(0, listElementCount).map(x)
   }
 
   def toPointerSeq: Seq[Pointer[_]] = {
@@ -445,67 +469,76 @@ class CapnpStruct(
     1 + dataSectionSizeWords + recursivePointerSectionSizeWords
   }
 
-  def getBoolean(offset: Int): Option[java.lang.Boolean] = {
+  def getBoolean(offset: Int, defaultOpt: Option[java.lang.Boolean] = None): Option[java.lang.Boolean] = {
     val byte = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + (offset / 8))
     val mask = 1 << (offset % 8)
-    Some(if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE)
+    val raw = if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE
+    val default: java.lang.Boolean = defaultOpt.exists(x => x)
+    if (raw != default) Some(raw ^ default) else None
   }
-  def getByte(offset: Int): Option[java.lang.Byte] = {
-    val ret = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
-    val default: java.lang.Byte = 0.toByte
-    if (ret != default) Some(ret) else None
+  def getByte(offset: Int, defaultOpt: Option[java.lang.Byte] = None): Option[java.lang.Byte] = {
+    val raw = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
+    val default = defaultOpt.getOrElse(new java.lang.Byte(0.toByte))
+    if (raw != 0) Some((raw ^ default).toByte) else None
   }
-  def getShort(offset: Int): Option[java.lang.Short] = {
-    val ret = buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
-    val default: java.lang.Short = 0.toShort
-    if (ret != default) Some(ret) else None
+  def getShort(offset: Int, defaultOpt: Option[java.lang.Short] = None): Option[java.lang.Short] = {
+    val raw = buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
+    val default = defaultOpt.getOrElse(new java.lang.Short(0.toShort))
+    if (raw != 0) Some((raw ^ default).toShort) else None
   }
-  def getInt(offset: Int): Option[java.lang.Integer] = {
-    val ret = buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
-    val default: java.lang.Integer = 0
-    if (ret != default) Some(ret) else None
+  def getInt(offset: Int, defaultOpt: Option[java.lang.Integer] = None): Option[java.lang.Integer] = {
+    val raw = buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+    val default = defaultOpt.getOrElse(new java.lang.Integer(0))
+    if (raw != 0) Some(raw ^ default) else None
   }
-  def getLong(offset: Int): Option[java.lang.Long] = {
-    val ret = buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
-    val default: java.lang.Long = 0
-    if (ret != default) Some(ret) else None
+  def getLong(offset: Int, defaultOpt: Option[java.lang.Long] = None): Option[java.lang.Long] = {
+    val raw = buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+    val default = defaultOpt.getOrElse(new java.lang.Long(0L))
+    if (raw != 0) Some(raw ^ default) else None
   }
-  def getFloat(offset: Int): Option[java.lang.Float] = {
-    val ret = buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
-    val default: java.lang.Double = 0
-    if (ret != default) Some(ret) else None
+  def getFloat(offset: Int, defaultOpt: Option[java.lang.Float] = None): Option[java.lang.Float] = {
+    val raw = buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
+    val default = defaultOpt.getOrElse(new java.lang.Float(0.0f))
+    if (raw != 0) Some({
+      java.lang.Float.intBitsToFloat(java.lang.Float.floatToRawIntBits(raw) ^ java.lang.Float.floatToRawIntBits(default))
+    }) else None
   }
-  def getDouble(offset: Int): Option[java.lang.Double] = {
-    val ret = buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
-    val default: java.lang.Double = 0
-    if (ret != default) Some(ret) else None
+  def getDouble(offset: Int, defaultOpt: Option[java.lang.Double] = None): Option[java.lang.Double] = {
+    val raw = buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
+    val default = defaultOpt.getOrElse(new java.lang.Double(0.0))
+    if (raw != 0) Some({
+      java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(raw) ^ java.lang.Double.doubleToRawLongBits(default))
+    }) else None
   }
 
-  def getPointer(offset: Int): Option[Pointer[_]] = {
-    Pointer(arena, buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
+  def getPointer(offset: Int, default: Option[Pointer[_]] = None): Option[Pointer[_]] = {
+    val raw = Pointer(arena, buf, pointerOffsetWords + 1 + dataOffsetWords + dataSectionSizeWords + offset)
+    raw.orElse(default)
   }
-  def getData(offset: Int): Option[Array[Byte]] = getPointer(offset).flatMap(_ match {
+  def getData(offset: Int, default: Option[Array[Byte]] = None): Option[Array[Byte]] = getPointer(offset).flatMap(_ match {
     case l: CapnpList => {
       Some((0 to l.listElementCount - 1).map(l.getByte(_).toByte).toArray)
     }
     case _ => None
-  })
-  def getString(offset: Int): Option[String] = getData(offset).map(bytes => new String(bytes.dropRight(1)))
+  }).orElse(default)
+  def getString(offset: Int, default: Option[String] = None): Option[String] = getData(offset)
+    .map(bytes => new String(bytes.dropRight(1)))
+    .orElse(default)
 
-  def getStruct(offset: Int): Option[CapnpStruct] = getPointer(offset).flatMap(_ match {
-    case s: CapnpStruct => Some(s)
+  def getStruct[S <: Struct[S]](offset: Int, meta: MetaStruct[S], default: Option[S] = None): Option[S] = getPointer(offset).flatMap(_ match {
+    case s: CapnpStruct => Some(s).map(meta.create(_))
     case _ => None
-  })
+  }).orElse(default)
 
   def getPointerList(offset: Int): Seq[Pointer[_]] = getPointer(offset) match {
-    case Some(l: CapnpList) => (0 to l.listElementCount-1).map(l.getPointer(_))
+    case Some(l: CapnpList) => (0 to l.listElementCount-1).map(l.getPointerOrComposite(_))
     case None => Nil
     case p => throw new IllegalArgumentException("This field is not a list: " + p)
   }
 
   def getStructList(offset: Int): Seq[CapnpStruct] = getPointer(offset) match {
     case Some(l: CapnpList) => {
-      (0 to l.listElementCount-1).map(l.getComposite(_)).map(_ match {
+      (0 to l.listElementCount-1).map(l.getPointerOrComposite(_)).map(_ match {
         case s: CapnpStruct => s
       })
     }
@@ -513,19 +546,9 @@ class CapnpStruct(
     case p => throw new IllegalArgumentException("This field is not a list: " + p)
   }
 
-  def getListList(offset: Int): Seq[CapnpList] = getPointer(offset) match {
-    case Some(l: CapnpList) => {
-      (0 to l.listElementCount-1).map(l.getComposite(_)).map(_ match {
-        case l: CapnpList => l
-      })
-    }
-    case None => Nil
-    case p => throw new IllegalArgumentException("This field is not a list: " + p)
-  }
-
-  def getPrimitiveList[T](offset: Int, fn: CapnpList => Int => T): Seq[T] = getPointer(offset) match {
-    case Some(l: CapnpList) => (0 to l.listElementCount-1).map(offset => fn(l)(offset))
-    case None => Nil
+  def getList[T](offset: Int, fn: CapnpList => Int => T, defaultOpt: Option[Seq[T]] = None): Seq[T] = getPointer(offset) match {
+    case Some(l: CapnpList) => l.toSeq(fn)
+    case None => defaultOpt.getOrElse(Nil)
     case p => throw new IllegalArgumentException("This field is not a list: " + p)
   }
 
@@ -761,24 +784,32 @@ class CapnpStructBuilder(
   override val pointerSectionSizeWords: Short
 ) extends CapnpStruct(arena, segment.buf, segment.offsetWords + pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords) {
 
-  def setBoolean(offset: Int, value: Boolean): Unit = ???
-  def setByte(offset: Int, value: Byte): Unit = {
-    segment.buf.put((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1, value)
+  def setBoolean(offset: Int, value: Boolean, defaultOpt: Option[java.lang.Boolean] = None): Unit = ???
+  def setByte(offset: Int, value: Byte, defaultOpt: Option[java.lang.Byte] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Byte(0.toByte))).toByte
+    segment.buf.put((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1, raw)
   }
-  def setShort(offset: Int, value: Short): Unit = {
-    segment.buf.putShort((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2, value)
+  def setShort(offset: Int, value: Short, defaultOpt: Option[java.lang.Short] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Short(0.toShort))).toShort
+    segment.buf.putShort((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2, raw)
   }
-  def setInt(offset: Int, value: Int): Unit = {
-    segment.buf.putInt((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, value)
+  def setInt(offset: Int, value: Int, defaultOpt: Option[java.lang.Integer] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Integer(0)))
+    segment.buf.putInt((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, raw)
   }
-  def setLong(offset: Int, value: Long): Unit = {
-    segment.buf.putLong((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, value)
+  def setLong(offset: Int, value: Long, defaultOpt: Option[java.lang.Long] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Long(0L)))
+    segment.buf.putLong((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, raw)
   }
-  def setFloat(offset: Int, value: Float): Unit = {
-    segment.buf.putFloat((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, value)
+  def setFloat(offset: Int, value: Float, defaultOpt: Option[java.lang.Float] = None): Unit = {
+    val default = defaultOpt.getOrElse(new java.lang.Float(0.0f))
+    val raw = java.lang.Float.intBitsToFloat(java.lang.Float.floatToRawIntBits(value) ^ java.lang.Float.floatToRawIntBits(default))
+    segment.buf.putFloat((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, raw)
   }
-  def setDouble(offset: Int, value: Double): Unit = {
-    segment.buf.putDouble((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, value)
+  def setDouble(offset: Int, value: Double, defaultOpt: Option[java.lang.Double] = None): Unit = {
+    val default = defaultOpt.getOrElse(new java.lang.Double(0.0))
+    val raw = java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(value) ^ java.lang.Double.doubleToRawLongBits(default))
+    segment.buf.putDouble((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, raw)
   }
 
   def setData(offset: Int, value: Array[Byte]): Unit = {

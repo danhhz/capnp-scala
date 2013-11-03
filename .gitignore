@@ -5,3 +5,5 @@ bin
 logs/
 *.sublime-project
 *.sublime-workspace
+**/src/main/capnp/**/*.scala
+**/src/main/capnp/**/*.json

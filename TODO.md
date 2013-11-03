@@ -7,7 +7,6 @@ Before v0.1
 * unit test getters/setters
 * unit test serialization
 * unit test interfaces
-* support default values
 * replace __Type style escaping with \`Type\`
 * audit match exhaustiveness
 * port one of Kenton's benchmarks

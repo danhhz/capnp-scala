@@ -61,6 +61,12 @@ object CapnpScalaBuild extends Build {
     )
   ).dependsOn(runtimeCore)
 
+  lazy val devel = Project(
+    id = "devel",
+    base = file("examples/src/main/capnp"),
+    settings = commonProjectSettings
+  ).dependsOn(runtimeCore, runtimeRpc)
+
   lazy val examplesSettings = commonProjectSettings ++
     CapnpCodegenPlugin.capnpSettings
   lazy val examples = Project(
