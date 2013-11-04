@@ -10,7 +10,7 @@ import java.nio.{ByteBuffer, ByteOrder}
 
 object CapnpScala {
 
-  def getSchemas(nodes: Seq[Node]): Map[java.lang.Long, Node] = {
+  def getSchemas(nodes: Seq[Node]): Map[Long, Node] = {
     nodes.map(node => (node.id.get, node)).toMap
   }
 
@@ -30,17 +30,17 @@ object CapnpScala {
     def genType(ctype: __Type, scope: Node): StringTree = {
       StringTree(ctype.switch match {
         case __Type.Union.void(_) => "Unit"
-        case __Type.Union.bool(_) => "java.lang.Boolean"
-        case __Type.Union.int8(_) => "java.lang.Byte"
-        case __Type.Union.int16(_) => "java.lang.Short"
-        case __Type.Union.int32(_) => "java.lang.Integer"
-        case __Type.Union.int64(_) => "java.lang.Long"
-        case __Type.Union.uint8(_) => "java.lang.Byte"
-        case __Type.Union.uint16(_) => "java.lang.Short"
-        case __Type.Union.uint32(_) => "java.lang.Integer"
-        case __Type.Union.uint64(_) => "java.lang.Long"
-        case __Type.Union.float32(_) => "java.lang.Float"
-        case __Type.Union.float64(_) => "java.lang.Double"
+        case __Type.Union.bool(_) => "Boolean"
+        case __Type.Union.int8(_) => "Byte"
+        case __Type.Union.int16(_) => "Short"
+        case __Type.Union.int32(_) => "Int"
+        case __Type.Union.int64(_) => "Long"
+        case __Type.Union.uint8(_) => "Byte"
+        case __Type.Union.uint16(_) => "Short"
+        case __Type.Union.uint32(_) => "Int"
+        case __Type.Union.uint64(_) => "Long"
+        case __Type.Union.float32(_) => "Float"
+        case __Type.Union.float64(_) => "Double"
         case __Type.Union.text(_) => "String"
         case __Type.Union.data(_) => "Array[Byte]"
         case __Type.Union.list(_) => StringTree("Seq[", genType(ctype.list.elementType.get, scope), "]")
@@ -206,9 +206,7 @@ object CapnpScala {
     def genValue(ctype: __Type, value: Value, scope: Node): StringTree = {
       ctype.switch match {
         case __Type.Union.void(_) => StringTree("Unit")
-        case __Type.Union.bool(_) => StringTree("java.lang.Boolean.", {
-          if (value.bool.exists(x => x)) "TRUE" else "FALSE"
-        })
+        case __Type.Union.bool(_) => StringTree(if (value.bool.exists(x => x)) "true" else "false")
         case __Type.Union.int8(_) => StringTree(value.int8.getOrElse(0.toByte) + ".toByte")
         case __Type.Union.int16(_) => StringTree(value.int16.getOrElse(0.toShort) + ".toShort")
         case __Type.Union.int32(_) => StringTree(value.int32.getOrElse(0))
@@ -217,8 +215,8 @@ object CapnpScala {
         case __Type.Union.uint16(_) => StringTree(value.uint16.getOrElse(0.toShort) + ".toShort")
         case __Type.Union.uint32(_) => StringTree(value.uint32.getOrElse(0))
         case __Type.Union.uint64(_) => StringTree(value.uint64.getOrElse(0L) + "L")
-        case __Type.Union.float32(_) => StringTree(printDouble(value.float32.getOrElse(new java.lang.Float(0.0)).toDouble) + ".toFloat")
-        case __Type.Union.float64(_) => StringTree(printDouble(value.float64.getOrElse(new java.lang.Double(0.0)).toDouble))
+        case __Type.Union.float32(_) => StringTree(printDouble(value.float32.getOrElse(0.0f).toDouble) + ".toFloat")
+        case __Type.Union.float64(_) => StringTree(printDouble(value.float64.getOrElse(0.0).toDouble))
         case __Type.Union.text(_) => StringTree("\"", value.text.getOrElse(""), "\"")
         case __Type.Union.data(_) => StringTree("Array[Byte](", value.data.getOrElse(Array()).mkString(", "), ")")
         case __Type.Union.list(listType) => value.__object.map(_ match {
@@ -466,7 +464,7 @@ object CapnpScala {
 
             indent, "class ", name, "Mutable(override val struct: CapnpStruct) extends ", name, " {\n",
             if (unionFields.isEmpty) StringTree() else StringTree(
-              indent.next, "override def discriminant: Short = (struct.getShort(", struct.discriminantOffset.getOrElse(0).toString, ").getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)\n",
+              indent.next, "override def discriminant: Short = (struct.getShort(", struct.discriminantOffset.getOrElse(0).toString, ").getOrElse(0.toShort): Short)\n",
               indent.next, "override def switch: ", unionPath, " = discriminant match {\n",
               unionFields.zipWithIndex.map({ case (unionField, i) => StringTree(
                 indent.next.next, "case ", i.toString, " => ", unionPath, ".", scalaEscapeName(unionField.name.get), "(", scalaEscapeName(unionField.name.get), ")\n"
@@ -502,7 +500,7 @@ object CapnpScala {
             indent, "object ", name, " extends EnumMeta[", name, "] {\n",
             genNestedDecls(schema, indent.next),
             if (exhaustiveMatch) StringTree() else StringTree(
-              indent.next, "case class Unknown(override val id: java.lang.Short) extends ", name, "(", name, ", id, null)\n\n"
+              indent.next, "case class Unknown(override val id: Short) extends ", name, "(", name, ", id, null)\n\n"
             ),
             StringTree.join("\n", enum.enumerants.sortBy(_.codeOrder).zipWithIndex.map({ case (e, i) => StringTree(
               indent.next, "val ", e.name.get, " = new ", name, "(this, ", i.toString, ".toShort, \"", e.name.get, "\")"
@@ -510,12 +508,12 @@ object CapnpScala {
             indent.next, "override val values = Vector(\n",
             StringTree.join(",\n", enum.enumerants.sortBy(_.codeOrder).map(e => StringTree(indent.next.next, e.name.get))), "\n",
             indent.next, ")\n\n",
-            indent.next, "override def findByIdOrNull(id: java.lang.Short): ", name, " = values.lift(id.toInt).getOrElse(null)\n",
+            indent.next, "override def findByIdOrNull(id: Short): ", name, " = values.lift(id.toInt).getOrElse(null)\n",
             indent.next, "override def findByNameOrNull(name: String): ", name, " = null\n",
             indent, "}\n\n",
             indent, "sealed class ", name, "(\n",
             indent.next, "override val meta: EnumMeta[", name, "],\n",
-            indent.next, "override val id: java.lang.Short,\n",
+            indent.next, "override val id: Short,\n",
             indent.next, "override val name: String\n",
             indent, ") extends Enum[", name, "]\n"
           )

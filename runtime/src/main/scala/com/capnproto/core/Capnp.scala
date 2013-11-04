@@ -300,39 +300,39 @@ class CapnpList(
     if (pointerSize != 0) throw new IllegalArgumentException("This list is not Voids.")
   }
 
-  def getBoolean(offset: Int): java.lang.Boolean = {
+  def getBoolean(offset: Int): Boolean = {
     if (pointerSize != 1) throw new IllegalArgumentException("This list is not Booleans.")
     val byte = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + (offset / 8))
     val mask = 1 << (offset % 8)
-    if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE
+    (byte & mask) != 0
   }
 
-  def getByte(offset: Int): java.lang.Byte = {
+  def getByte(offset: Int): Byte = {
     if (pointerSize != 2) throw new IllegalArgumentException("This list is not Bytes.")
     buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
   }
 
-  def getShort(offset: Int): java.lang.Short = {
+  def getShort(offset: Int): Short = {
     if (pointerSize != 3) throw new IllegalArgumentException("This list is not Shorts.")
     buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
   }
 
-  def getInt(offset: Int): java.lang.Integer = {
+  def getInt(offset: Int): Int = {
     if (pointerSize != 4) throw new IllegalArgumentException("This list is not Ints.")
     buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
   }
 
-  def getLong(offset: Int): java.lang.Long = {
+  def getLong(offset: Int): Long = {
     if (pointerSize != 5) throw new IllegalArgumentException("This list is not Longs.")
     buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
   }
 
-  def getFloat(offset: Int): java.lang.Float = {
+  def getFloat(offset: Int): Float = {
     if (pointerSize != 4) throw new IllegalArgumentException("This list is not Floats.")
     buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
   }
 
-  def getDouble(offset: Int): java.lang.Double = {
+  def getDouble(offset: Int): Double = {
     if (pointerSize != 5) throw new IllegalArgumentException("This list is not Doubles.")
     buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
   }
@@ -469,43 +469,43 @@ class CapnpStruct(
     1 + dataSectionSizeWords + recursivePointerSectionSizeWords
   }
 
-  def getBoolean(offset: Int, defaultOpt: Option[java.lang.Boolean] = None): Option[java.lang.Boolean] = {
+  def getBoolean(offset: Int, defaultOpt: Option[Boolean] = None): Option[Boolean] = {
     val byte = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + (offset / 8))
     val mask = 1 << (offset % 8)
-    val raw = if ((byte & mask) > 0) java.lang.Boolean.TRUE else java.lang.Boolean.FALSE
-    val default: java.lang.Boolean = defaultOpt.exists(x => x)
+    val raw = if ((byte & mask) > 0) true else false
+    val default: Boolean = defaultOpt.exists(x => x)
     if (raw != default) Some(raw ^ default) else None
   }
-  def getByte(offset: Int, defaultOpt: Option[java.lang.Byte] = None): Option[java.lang.Byte] = {
+  def getByte(offset: Int, defaultOpt: Option[Byte] = None): Option[Byte] = {
     val raw = buf.get((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1)
-    val default = defaultOpt.getOrElse(new java.lang.Byte(0.toByte))
+    val default = defaultOpt.getOrElse(0.toByte)
     if (raw != 0) Some((raw ^ default).toByte) else None
   }
-  def getShort(offset: Int, defaultOpt: Option[java.lang.Short] = None): Option[java.lang.Short] = {
+  def getShort(offset: Int, defaultOpt: Option[Short] = None): Option[Short] = {
     val raw = buf.getShort((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2)
-    val default = defaultOpt.getOrElse(new java.lang.Short(0.toShort))
+    val default = defaultOpt.getOrElse(0.toShort)
     if (raw != 0) Some((raw ^ default).toShort) else None
   }
-  def getInt(offset: Int, defaultOpt: Option[java.lang.Integer] = None): Option[java.lang.Integer] = {
+  def getInt(offset: Int, defaultOpt: Option[Int] = None): Option[Int] = {
     val raw = buf.getInt((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
-    val default = defaultOpt.getOrElse(new java.lang.Integer(0))
+    val default = defaultOpt.getOrElse(0)
     if (raw != 0) Some(raw ^ default) else None
   }
-  def getLong(offset: Int, defaultOpt: Option[java.lang.Long] = None): Option[java.lang.Long] = {
+  def getLong(offset: Int, defaultOpt: Option[Long] = None): Option[Long] = {
     val raw = buf.getLong((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
-    val default = defaultOpt.getOrElse(new java.lang.Long(0L))
+    val default = defaultOpt.getOrElse(0L)
     if (raw != 0) Some(raw ^ default) else None
   }
-  def getFloat(offset: Int, defaultOpt: Option[java.lang.Float] = None): Option[java.lang.Float] = {
+  def getFloat(offset: Int, defaultOpt: Option[Float] = None): Option[Float] = {
     val raw = buf.getFloat((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4)
-    val default = defaultOpt.getOrElse(new java.lang.Float(0.0f))
+    val default = defaultOpt.getOrElse(0.0f)
     if (raw != 0) Some({
       java.lang.Float.intBitsToFloat(java.lang.Float.floatToRawIntBits(raw) ^ java.lang.Float.floatToRawIntBits(default))
     }) else None
   }
-  def getDouble(offset: Int, defaultOpt: Option[java.lang.Double] = None): Option[java.lang.Double] = {
+  def getDouble(offset: Int, defaultOpt: Option[Double] = None): Option[Double] = {
     val raw = buf.getDouble((pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8)
-    val default = defaultOpt.getOrElse(new java.lang.Double(0.0))
+    val default = defaultOpt.getOrElse(0.0)
     if (raw != 0) Some({
       java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(raw) ^ java.lang.Double.doubleToRawLongBits(default))
     }) else None
@@ -784,30 +784,30 @@ class CapnpStructBuilder(
   override val pointerSectionSizeWords: Short
 ) extends CapnpStruct(arena, segment.buf, segment.offsetWords + pointerOffsetWords, dataOffsetWords, dataSectionSizeWords, pointerSectionSizeWords) {
 
-  def setBoolean(offset: Int, value: Boolean, defaultOpt: Option[java.lang.Boolean] = None): Unit = ???
-  def setByte(offset: Int, value: Byte, defaultOpt: Option[java.lang.Byte] = None): Unit = {
-    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Byte(0.toByte))).toByte
+  def setBoolean(offset: Int, value: Boolean, defaultOpt: Option[Boolean] = None): Unit = ???
+  def setByte(offset: Int, value: Byte, defaultOpt: Option[Byte] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(0.toByte)).toByte
     segment.buf.put((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 1, raw)
   }
-  def setShort(offset: Int, value: Short, defaultOpt: Option[java.lang.Short] = None): Unit = {
-    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Short(0.toShort))).toShort
+  def setShort(offset: Int, value: Short, defaultOpt: Option[Short] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(0.toShort)).toShort
     segment.buf.putShort((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 2, raw)
   }
-  def setInt(offset: Int, value: Int, defaultOpt: Option[java.lang.Integer] = None): Unit = {
-    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Integer(0)))
+  def setInt(offset: Int, value: Int, defaultOpt: Option[Int] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(0))
     segment.buf.putInt((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, raw)
   }
-  def setLong(offset: Int, value: Long, defaultOpt: Option[java.lang.Long] = None): Unit = {
-    val raw = (value ^ defaultOpt.getOrElse(new java.lang.Long(0L)))
+  def setLong(offset: Int, value: Long, defaultOpt: Option[Long] = None): Unit = {
+    val raw = (value ^ defaultOpt.getOrElse(0L))
     segment.buf.putLong((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, raw)
   }
-  def setFloat(offset: Int, value: Float, defaultOpt: Option[java.lang.Float] = None): Unit = {
-    val default = defaultOpt.getOrElse(new java.lang.Float(0.0f))
+  def setFloat(offset: Int, value: Float, defaultOpt: Option[Float] = None): Unit = {
+    val default = defaultOpt.getOrElse(0.0f)
     val raw = java.lang.Float.intBitsToFloat(java.lang.Float.floatToRawIntBits(value) ^ java.lang.Float.floatToRawIntBits(default))
     segment.buf.putFloat((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 4, raw)
   }
-  def setDouble(offset: Int, value: Double, defaultOpt: Option[java.lang.Double] = None): Unit = {
-    val default = defaultOpt.getOrElse(new java.lang.Double(0.0))
+  def setDouble(offset: Int, value: Double, defaultOpt: Option[Double] = None): Unit = {
+    val default = defaultOpt.getOrElse(0.0)
     val raw = java.lang.Double.longBitsToDouble(java.lang.Double.doubleToRawLongBits(value) ^ java.lang.Double.doubleToRawLongBits(default))
     segment.buf.putDouble((segment.offsetWords + pointerOffsetWords + 1 + dataOffsetWords) * 8 + offset * 8, raw)
   }

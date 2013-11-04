@@ -33,10 +33,10 @@ object Node extends MetaStruct[Node] {
 
     override def meta: Node.type = Node
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Node.Builder
-    def setId(value: java.lang.Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Node.id.default); this }
+    def setId(value: Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Node.id.default); this }
     def setDisplayName(value: String): Builder = { struct.setString(0, value); this }
-    def setDisplayNamePrefixLength(value: java.lang.Integer): Builder = { struct.setInt(2, value, com.capnproto.schema.Node.displayNamePrefixLength.default); this }
-    def setScopeId(value: java.lang.Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Node.scopeId.default); this }
+    def setDisplayNamePrefixLength(value: Int): Builder = { struct.setInt(2, value, com.capnproto.schema.Node.displayNamePrefixLength.default); this }
+    def setScopeId(value: Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Node.scopeId.default); this }
     def initNestedNodes(count: Int): Seq[com.capnproto.schema.Node.NestedNode.Builder] = {
       val list = struct.initPointerList(1, count, com.capnproto.schema.Node.NestedNode.Builder)
       Range(0, count).map(i => new com.capnproto.schema.Node.NestedNode.Builder(list.initStruct(i, com.capnproto.schema.Node.NestedNode.Builder)))
@@ -79,7 +79,7 @@ object Node extends MetaStruct[Node] {
       override def meta: NestedNode.type = NestedNode
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Node.NestedNode.Builder
       def setName(value: String): Builder = { struct.setString(0, value); this }
-      def setId(value: java.lang.Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Node.NestedNode.id.default); this }
+      def setId(value: Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Node.NestedNode.id.default); this }
     }
 
     val name = new FieldDescriptor[String, NestedNode, NestedNode.type](
@@ -91,12 +91,12 @@ object Node extends MetaStruct[Node] {
       isUnion = false
     )
 
-    val id = new FieldDescriptor[java.lang.Long, NestedNode, NestedNode.type](
+    val id = new FieldDescriptor[Long, NestedNode, NestedNode.type](
       name = "id",
       meta = NestedNode,
       default = Option(0L),
       getter = _.id,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, NestedNode, NestedNode.type]] = Seq(name, id)
@@ -112,12 +112,12 @@ object Node extends MetaStruct[Node] {
     def struct: CapnpStruct
 
     def name: Option[String]
-    def id: Option[java.lang.Long]
+    def id: Option[Long]
   }
 
   class NestedNodeMutable(override val struct: CapnpStruct) extends NestedNode {
     override def name: Option[String] = struct.getString(0, com.capnproto.schema.Node.NestedNode.name.default)
-    override def id: Option[java.lang.Long] = struct.getLong(0, com.capnproto.schema.Node.NestedNode.id.default)
+    override def id: Option[Long] = struct.getLong(0, com.capnproto.schema.Node.NestedNode.id.default)
   }
   sealed trait Union extends UnionValue[com.capnproto.schema.Node.Union]
   object Union extends UnionMeta[com.capnproto.schema.Node.Union] {
@@ -153,12 +153,12 @@ object Node extends MetaStruct[Node] {
 
       override def meta: __Struct.type = __Struct
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Node.__Struct.Builder
-      def setDataWordCount(value: java.lang.Short): Builder = { struct.setShort(7, value, com.capnproto.schema.Node.__Struct.dataWordCount.default); this }
-      def setPointerCount(value: java.lang.Short): Builder = { struct.setShort(12, value, com.capnproto.schema.Node.__Struct.pointerCount.default); this }
+      def setDataWordCount(value: Short): Builder = { struct.setShort(7, value, com.capnproto.schema.Node.__Struct.dataWordCount.default); this }
+      def setPointerCount(value: Short): Builder = { struct.setShort(12, value, com.capnproto.schema.Node.__Struct.pointerCount.default); this }
       def setPreferredListEncoding(value: com.capnproto.schema.ElementSize): Builder = { struct.setShort(13, value.id.toShort, com.capnproto.schema.Node.__Struct.preferredListEncoding.default.map(_.id)); this }
-      def setIsGroup(value: java.lang.Boolean): Builder = { struct.setBoolean(224, value, com.capnproto.schema.Node.__Struct.isGroup.default); this }
-      def setDiscriminantCount(value: java.lang.Short): Builder = { struct.setShort(15, value, com.capnproto.schema.Node.__Struct.discriminantCount.default); this }
-      def setDiscriminantOffset(value: java.lang.Integer): Builder = { struct.setInt(8, value, com.capnproto.schema.Node.__Struct.discriminantOffset.default); this }
+      def setIsGroup(value: Boolean): Builder = { struct.setBoolean(224, value, com.capnproto.schema.Node.__Struct.isGroup.default); this }
+      def setDiscriminantCount(value: Short): Builder = { struct.setShort(15, value, com.capnproto.schema.Node.__Struct.discriminantCount.default); this }
+      def setDiscriminantOffset(value: Int): Builder = { struct.setInt(8, value, com.capnproto.schema.Node.__Struct.discriminantOffset.default); this }
       def init__Fields(count: Int): Seq[com.capnproto.schema.Field.Builder] = {
         val list = struct.initPointerList(3, count, com.capnproto.schema.Field.Builder)
         Range(0, count).map(i => new com.capnproto.schema.Field.Builder(list.initStruct(i, com.capnproto.schema.Field.Builder)))
@@ -166,21 +166,21 @@ object Node extends MetaStruct[Node] {
       def set__Fields(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Field.Builder]): Builder = { struct.setStructList(3, com.capnproto.schema.Field.Builder, buildFn(struct.arena).map(_.struct)); this }
     }
 
-    val dataWordCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
+    val dataWordCount = new FieldDescriptor[Short, __Struct, __Struct.type](
       name = "dataWordCount",
       meta = __Struct,
       default = Option(0.toShort),
       getter = _.dataWordCount,
-      manifest = manifest[java.lang.Short],
+      manifest = manifest[Short],
       isUnion = false
     )
 
-    val pointerCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
+    val pointerCount = new FieldDescriptor[Short, __Struct, __Struct.type](
       name = "pointerCount",
       meta = __Struct,
       default = Option(0.toShort),
       getter = _.pointerCount,
-      manifest = manifest[java.lang.Short],
+      manifest = manifest[Short],
       isUnion = false
     )
 
@@ -193,30 +193,30 @@ object Node extends MetaStruct[Node] {
       isUnion = false
     )
 
-    val isGroup = new FieldDescriptor[java.lang.Boolean, __Struct, __Struct.type](
+    val isGroup = new FieldDescriptor[Boolean, __Struct, __Struct.type](
       name = "isGroup",
       meta = __Struct,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.isGroup,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val discriminantCount = new FieldDescriptor[java.lang.Short, __Struct, __Struct.type](
+    val discriminantCount = new FieldDescriptor[Short, __Struct, __Struct.type](
       name = "discriminantCount",
       meta = __Struct,
       default = Option(0.toShort),
       getter = _.discriminantCount,
-      manifest = manifest[java.lang.Short],
+      manifest = manifest[Short],
       isUnion = false
     )
 
-    val discriminantOffset = new FieldDescriptor[java.lang.Integer, __Struct, __Struct.type](
+    val discriminantOffset = new FieldDescriptor[Int, __Struct, __Struct.type](
       name = "discriminantOffset",
       meta = __Struct,
       default = Option(0),
       getter = _.discriminantOffset,
-      manifest = manifest[java.lang.Integer],
+      manifest = manifest[Int],
       isUnion = false
     )
 
@@ -240,22 +240,22 @@ object Node extends MetaStruct[Node] {
 
     def struct: CapnpStruct
 
-    def dataWordCount: Option[java.lang.Short]
-    def pointerCount: Option[java.lang.Short]
+    def dataWordCount: Option[Short]
+    def pointerCount: Option[Short]
     def preferredListEncoding: Option[com.capnproto.schema.ElementSize]
-    def isGroup: Option[java.lang.Boolean]
-    def discriminantCount: Option[java.lang.Short]
-    def discriminantOffset: Option[java.lang.Integer]
+    def isGroup: Option[Boolean]
+    def discriminantCount: Option[Short]
+    def discriminantOffset: Option[Int]
     def __fields: Seq[com.capnproto.schema.Field]
   }
 
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-    override def dataWordCount: Option[java.lang.Short] = struct.getShort(7, com.capnproto.schema.Node.__Struct.dataWordCount.default)
-    override def pointerCount: Option[java.lang.Short] = struct.getShort(12, com.capnproto.schema.Node.__Struct.pointerCount.default)
+    override def dataWordCount: Option[Short] = struct.getShort(7, com.capnproto.schema.Node.__Struct.dataWordCount.default)
+    override def pointerCount: Option[Short] = struct.getShort(12, com.capnproto.schema.Node.__Struct.pointerCount.default)
     override def preferredListEncoding: Option[com.capnproto.schema.ElementSize] = struct.getShort(13, com.capnproto.schema.Node.__Struct.preferredListEncoding.default.map(_.id)).map(id => com.capnproto.schema.ElementSize.findById(id).getOrElse(com.capnproto.schema.ElementSize.Unknown(id.toShort)))
-    override def isGroup: Option[java.lang.Boolean] = struct.getBoolean(224, com.capnproto.schema.Node.__Struct.isGroup.default)
-    override def discriminantCount: Option[java.lang.Short] = struct.getShort(15, com.capnproto.schema.Node.__Struct.discriminantCount.default)
-    override def discriminantOffset: Option[java.lang.Integer] = struct.getInt(8, com.capnproto.schema.Node.__Struct.discriminantOffset.default)
+    override def isGroup: Option[Boolean] = struct.getBoolean(224, com.capnproto.schema.Node.__Struct.isGroup.default)
+    override def discriminantCount: Option[Short] = struct.getShort(15, com.capnproto.schema.Node.__Struct.discriminantCount.default)
+    override def discriminantOffset: Option[Int] = struct.getInt(8, com.capnproto.schema.Node.__Struct.discriminantOffset.default)
     override def __fields: Seq[com.capnproto.schema.Field] = struct.getList(3, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Field), com.capnproto.schema.Node.__Struct.__fields.default)
   }
   object __Enum extends MetaStruct[__Enum] {
@@ -458,18 +458,18 @@ object Node extends MetaStruct[Node] {
       override def meta: Annotation.type = Annotation
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Node.Annotation.Builder
       def set__Type(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
-      def setTargetsFile(value: java.lang.Boolean): Builder = { struct.setBoolean(112, value, com.capnproto.schema.Node.Annotation.targetsFile.default); this }
-      def setTargetsConst(value: java.lang.Boolean): Builder = { struct.setBoolean(113, value, com.capnproto.schema.Node.Annotation.targetsConst.default); this }
-      def setTargetsEnum(value: java.lang.Boolean): Builder = { struct.setBoolean(114, value, com.capnproto.schema.Node.Annotation.targetsEnum.default); this }
-      def setTargetsEnumerant(value: java.lang.Boolean): Builder = { struct.setBoolean(115, value, com.capnproto.schema.Node.Annotation.targetsEnumerant.default); this }
-      def setTargetsStruct(value: java.lang.Boolean): Builder = { struct.setBoolean(116, value, com.capnproto.schema.Node.Annotation.targetsStruct.default); this }
-      def setTargetsField(value: java.lang.Boolean): Builder = { struct.setBoolean(117, value, com.capnproto.schema.Node.Annotation.targetsField.default); this }
-      def setTargetsUnion(value: java.lang.Boolean): Builder = { struct.setBoolean(118, value, com.capnproto.schema.Node.Annotation.targetsUnion.default); this }
-      def setTargetsGroup(value: java.lang.Boolean): Builder = { struct.setBoolean(119, value, com.capnproto.schema.Node.Annotation.targetsGroup.default); this }
-      def setTargetsInterface(value: java.lang.Boolean): Builder = { struct.setBoolean(120, value, com.capnproto.schema.Node.Annotation.targetsInterface.default); this }
-      def setTargetsMethod(value: java.lang.Boolean): Builder = { struct.setBoolean(121, value, com.capnproto.schema.Node.Annotation.targetsMethod.default); this }
-      def setTargetsParam(value: java.lang.Boolean): Builder = { struct.setBoolean(122, value, com.capnproto.schema.Node.Annotation.targetsParam.default); this }
-      def setTargetsAnnotation(value: java.lang.Boolean): Builder = { struct.setBoolean(123, value, com.capnproto.schema.Node.Annotation.targetsAnnotation.default); this }
+      def setTargetsFile(value: Boolean): Builder = { struct.setBoolean(112, value, com.capnproto.schema.Node.Annotation.targetsFile.default); this }
+      def setTargetsConst(value: Boolean): Builder = { struct.setBoolean(113, value, com.capnproto.schema.Node.Annotation.targetsConst.default); this }
+      def setTargetsEnum(value: Boolean): Builder = { struct.setBoolean(114, value, com.capnproto.schema.Node.Annotation.targetsEnum.default); this }
+      def setTargetsEnumerant(value: Boolean): Builder = { struct.setBoolean(115, value, com.capnproto.schema.Node.Annotation.targetsEnumerant.default); this }
+      def setTargetsStruct(value: Boolean): Builder = { struct.setBoolean(116, value, com.capnproto.schema.Node.Annotation.targetsStruct.default); this }
+      def setTargetsField(value: Boolean): Builder = { struct.setBoolean(117, value, com.capnproto.schema.Node.Annotation.targetsField.default); this }
+      def setTargetsUnion(value: Boolean): Builder = { struct.setBoolean(118, value, com.capnproto.schema.Node.Annotation.targetsUnion.default); this }
+      def setTargetsGroup(value: Boolean): Builder = { struct.setBoolean(119, value, com.capnproto.schema.Node.Annotation.targetsGroup.default); this }
+      def setTargetsInterface(value: Boolean): Builder = { struct.setBoolean(120, value, com.capnproto.schema.Node.Annotation.targetsInterface.default); this }
+      def setTargetsMethod(value: Boolean): Builder = { struct.setBoolean(121, value, com.capnproto.schema.Node.Annotation.targetsMethod.default); this }
+      def setTargetsParam(value: Boolean): Builder = { struct.setBoolean(122, value, com.capnproto.schema.Node.Annotation.targetsParam.default); this }
+      def setTargetsAnnotation(value: Boolean): Builder = { struct.setBoolean(123, value, com.capnproto.schema.Node.Annotation.targetsAnnotation.default); this }
     }
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Annotation, Annotation.type](
@@ -481,111 +481,111 @@ object Node extends MetaStruct[Node] {
       isUnion = false
     )
 
-    val targetsFile = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsFile = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsFile",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsFile,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsConst = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsConst = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsConst",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsConst,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsEnum = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsEnum = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsEnum",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsEnum,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsEnumerant = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsEnumerant = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsEnumerant",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsEnumerant,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsStruct = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsStruct = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsStruct",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsStruct,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsField = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsField = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsField",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsField,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsUnion = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsUnion = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsUnion",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsUnion,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsGroup = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsGroup = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsGroup",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsGroup,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsInterface = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsInterface = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsInterface",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsInterface,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsMethod = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsMethod = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsMethod",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsMethod,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsParam = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsParam = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsParam",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsParam,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
 
-    val targetsAnnotation = new FieldDescriptor[java.lang.Boolean, Annotation, Annotation.type](
+    val targetsAnnotation = new FieldDescriptor[Boolean, Annotation, Annotation.type](
       name = "targetsAnnotation",
       meta = Annotation,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.targetsAnnotation,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(__type, targetsFile, targetsConst, targetsEnum, targetsEnumerant, targetsStruct, targetsField, targetsUnion, targetsGroup, targetsInterface, targetsMethod, targetsParam, targetsAnnotation)
@@ -601,41 +601,41 @@ object Node extends MetaStruct[Node] {
     def struct: CapnpStruct
 
     def __type: Option[com.capnproto.schema.__Type]
-    def targetsFile: Option[java.lang.Boolean]
-    def targetsConst: Option[java.lang.Boolean]
-    def targetsEnum: Option[java.lang.Boolean]
-    def targetsEnumerant: Option[java.lang.Boolean]
-    def targetsStruct: Option[java.lang.Boolean]
-    def targetsField: Option[java.lang.Boolean]
-    def targetsUnion: Option[java.lang.Boolean]
-    def targetsGroup: Option[java.lang.Boolean]
-    def targetsInterface: Option[java.lang.Boolean]
-    def targetsMethod: Option[java.lang.Boolean]
-    def targetsParam: Option[java.lang.Boolean]
-    def targetsAnnotation: Option[java.lang.Boolean]
+    def targetsFile: Option[Boolean]
+    def targetsConst: Option[Boolean]
+    def targetsEnum: Option[Boolean]
+    def targetsEnumerant: Option[Boolean]
+    def targetsStruct: Option[Boolean]
+    def targetsField: Option[Boolean]
+    def targetsUnion: Option[Boolean]
+    def targetsGroup: Option[Boolean]
+    def targetsInterface: Option[Boolean]
+    def targetsMethod: Option[Boolean]
+    def targetsParam: Option[Boolean]
+    def targetsAnnotation: Option[Boolean]
   }
 
   class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(3, com.capnproto.schema.__Type, com.capnproto.schema.Node.Annotation.__type.default)
-    override def targetsFile: Option[java.lang.Boolean] = struct.getBoolean(112, com.capnproto.schema.Node.Annotation.targetsFile.default)
-    override def targetsConst: Option[java.lang.Boolean] = struct.getBoolean(113, com.capnproto.schema.Node.Annotation.targetsConst.default)
-    override def targetsEnum: Option[java.lang.Boolean] = struct.getBoolean(114, com.capnproto.schema.Node.Annotation.targetsEnum.default)
-    override def targetsEnumerant: Option[java.lang.Boolean] = struct.getBoolean(115, com.capnproto.schema.Node.Annotation.targetsEnumerant.default)
-    override def targetsStruct: Option[java.lang.Boolean] = struct.getBoolean(116, com.capnproto.schema.Node.Annotation.targetsStruct.default)
-    override def targetsField: Option[java.lang.Boolean] = struct.getBoolean(117, com.capnproto.schema.Node.Annotation.targetsField.default)
-    override def targetsUnion: Option[java.lang.Boolean] = struct.getBoolean(118, com.capnproto.schema.Node.Annotation.targetsUnion.default)
-    override def targetsGroup: Option[java.lang.Boolean] = struct.getBoolean(119, com.capnproto.schema.Node.Annotation.targetsGroup.default)
-    override def targetsInterface: Option[java.lang.Boolean] = struct.getBoolean(120, com.capnproto.schema.Node.Annotation.targetsInterface.default)
-    override def targetsMethod: Option[java.lang.Boolean] = struct.getBoolean(121, com.capnproto.schema.Node.Annotation.targetsMethod.default)
-    override def targetsParam: Option[java.lang.Boolean] = struct.getBoolean(122, com.capnproto.schema.Node.Annotation.targetsParam.default)
-    override def targetsAnnotation: Option[java.lang.Boolean] = struct.getBoolean(123, com.capnproto.schema.Node.Annotation.targetsAnnotation.default)
+    override def targetsFile: Option[Boolean] = struct.getBoolean(112, com.capnproto.schema.Node.Annotation.targetsFile.default)
+    override def targetsConst: Option[Boolean] = struct.getBoolean(113, com.capnproto.schema.Node.Annotation.targetsConst.default)
+    override def targetsEnum: Option[Boolean] = struct.getBoolean(114, com.capnproto.schema.Node.Annotation.targetsEnum.default)
+    override def targetsEnumerant: Option[Boolean] = struct.getBoolean(115, com.capnproto.schema.Node.Annotation.targetsEnumerant.default)
+    override def targetsStruct: Option[Boolean] = struct.getBoolean(116, com.capnproto.schema.Node.Annotation.targetsStruct.default)
+    override def targetsField: Option[Boolean] = struct.getBoolean(117, com.capnproto.schema.Node.Annotation.targetsField.default)
+    override def targetsUnion: Option[Boolean] = struct.getBoolean(118, com.capnproto.schema.Node.Annotation.targetsUnion.default)
+    override def targetsGroup: Option[Boolean] = struct.getBoolean(119, com.capnproto.schema.Node.Annotation.targetsGroup.default)
+    override def targetsInterface: Option[Boolean] = struct.getBoolean(120, com.capnproto.schema.Node.Annotation.targetsInterface.default)
+    override def targetsMethod: Option[Boolean] = struct.getBoolean(121, com.capnproto.schema.Node.Annotation.targetsMethod.default)
+    override def targetsParam: Option[Boolean] = struct.getBoolean(122, com.capnproto.schema.Node.Annotation.targetsParam.default)
+    override def targetsAnnotation: Option[Boolean] = struct.getBoolean(123, com.capnproto.schema.Node.Annotation.targetsAnnotation.default)
   }
-  val id = new FieldDescriptor[java.lang.Long, Node, Node.type](
+  val id = new FieldDescriptor[Long, Node, Node.type](
     name = "id",
     meta = Node,
     default = Option(0L),
     getter = _.id,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = false
   )
 
@@ -648,21 +648,21 @@ object Node extends MetaStruct[Node] {
     isUnion = false
   )
 
-  val displayNamePrefixLength = new FieldDescriptor[java.lang.Integer, Node, Node.type](
+  val displayNamePrefixLength = new FieldDescriptor[Int, Node, Node.type](
     name = "displayNamePrefixLength",
     meta = Node,
     default = Option(0),
     getter = _.displayNamePrefixLength,
-    manifest = manifest[java.lang.Integer],
+    manifest = manifest[Int],
     isUnion = false
   )
 
-  val scopeId = new FieldDescriptor[java.lang.Long, Node, Node.type](
+  val scopeId = new FieldDescriptor[Long, Node, Node.type](
     name = "scopeId",
     meta = Node,
     default = Option(0L),
     getter = _.scopeId,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = false
   )
 
@@ -749,10 +749,10 @@ trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
 
   def struct: CapnpStruct
 
-  def id: Option[java.lang.Long]
+  def id: Option[Long]
   def displayName: Option[String]
-  def displayNamePrefixLength: Option[java.lang.Integer]
-  def scopeId: Option[java.lang.Long]
+  def displayNamePrefixLength: Option[Int]
+  def scopeId: Option[Long]
   def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode]
   def annotations: Seq[com.capnproto.schema.Annotation]
   def file: Option[Unit]
@@ -764,7 +764,7 @@ trait Node extends Struct[Node] with HasUnion[com.capnproto.schema.Node.Union] {
 }
 
 class NodeMutable(override val struct: CapnpStruct) extends Node {
-  override def discriminant: Short = (struct.getShort(6).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
+  override def discriminant: Short = (struct.getShort(6).getOrElse(0.toShort): Short)
   override def switch: com.capnproto.schema.Node.Union = discriminant match {
     case 0 => com.capnproto.schema.Node.Union.file(file)
     case 1 => com.capnproto.schema.Node.Union.__struct(__struct)
@@ -776,10 +776,10 @@ class NodeMutable(override val struct: CapnpStruct) extends Node {
   }
   override def union: UnionMeta[com.capnproto.schema.Node.Union] = com.capnproto.schema.Node.Union
 
-  override def id: Option[java.lang.Long] = struct.getLong(0, com.capnproto.schema.Node.id.default)
+  override def id: Option[Long] = struct.getLong(0, com.capnproto.schema.Node.id.default)
   override def displayName: Option[String] = struct.getString(0, com.capnproto.schema.Node.displayName.default)
-  override def displayNamePrefixLength: Option[java.lang.Integer] = struct.getInt(2, com.capnproto.schema.Node.displayNamePrefixLength.default)
-  override def scopeId: Option[java.lang.Long] = struct.getLong(2, com.capnproto.schema.Node.scopeId.default)
+  override def displayNamePrefixLength: Option[Int] = struct.getInt(2, com.capnproto.schema.Node.displayNamePrefixLength.default)
+  override def scopeId: Option[Long] = struct.getLong(2, com.capnproto.schema.Node.scopeId.default)
   override def nestedNodes: Seq[com.capnproto.schema.Node.NestedNode] = struct.getList(1, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Node.NestedNode), com.capnproto.schema.Node.nestedNodes.default)
   override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getList(2, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Annotation), com.capnproto.schema.Node.annotations.default)
   override def file: Option[Unit] = struct.getNone()
@@ -819,13 +819,13 @@ object Field extends MetaStruct[Field] {
     override def meta: Field.type = Field
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Field.Builder
     def setName(value: String): Builder = { struct.setString(0, value); this }
-    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Field.codeOrder.default); this }
+    def setCodeOrder(value: Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Field.codeOrder.default); this }
     def initAnnotations(count: Int): Seq[com.capnproto.schema.Annotation.Builder] = {
       val list = struct.initPointerList(1, count, com.capnproto.schema.Annotation.Builder)
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
     }
     def setAnnotations(buildFn: CapnpArenaBuilder => Seq[com.capnproto.schema.Annotation.Builder]): Builder = { struct.setStructList(1, com.capnproto.schema.Annotation.Builder, buildFn(struct.arena).map(_.struct)); this }
-    def setDiscriminantValue(value: java.lang.Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Field.discriminantValue.default); this }
+    def setDiscriminantValue(value: Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Field.discriminantValue.default); this }
     override def slot: com.capnproto.schema.Field.Slot.Builder = new com.capnproto.schema.Field.Slot.Builder(struct)
     override def group: com.capnproto.schema.Field.Group.Builder = new com.capnproto.schema.Field.Group.Builder(struct)
     override def ordinal: com.capnproto.schema.Field.Ordinal.Builder = new com.capnproto.schema.Field.Ordinal.Builder(struct)
@@ -861,18 +861,18 @@ object Field extends MetaStruct[Field] {
 
       override def meta: Slot.type = Slot
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Field.Slot.Builder
-      def setOffset(value: java.lang.Integer): Builder = { struct.setInt(1, value, com.capnproto.schema.Field.Slot.offset.default); this }
+      def setOffset(value: Int): Builder = { struct.setInt(1, value, com.capnproto.schema.Field.Slot.offset.default); this }
       def set__Type(value: com.capnproto.schema.__Type): Builder = { struct.setNone(); this }
       def setDefaultValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
-      def setHadExplicitDefault(value: java.lang.Boolean): Builder = { struct.setBoolean(128, value, com.capnproto.schema.Field.Slot.hadExplicitDefault.default); this }
+      def setHadExplicitDefault(value: Boolean): Builder = { struct.setBoolean(128, value, com.capnproto.schema.Field.Slot.hadExplicitDefault.default); this }
     }
 
-    val offset = new FieldDescriptor[java.lang.Integer, Slot, Slot.type](
+    val offset = new FieldDescriptor[Int, Slot, Slot.type](
       name = "offset",
       meta = Slot,
       default = Option(0),
       getter = _.offset,
-      manifest = manifest[java.lang.Integer],
+      manifest = manifest[Int],
       isUnion = false
     )
 
@@ -894,12 +894,12 @@ object Field extends MetaStruct[Field] {
       isUnion = false
     )
 
-    val hadExplicitDefault = new FieldDescriptor[java.lang.Boolean, Slot, Slot.type](
+    val hadExplicitDefault = new FieldDescriptor[Boolean, Slot, Slot.type](
       name = "hadExplicitDefault",
       meta = Slot,
-      default = Option(java.lang.Boolean.FALSE),
+      default = Option(false),
       getter = _.hadExplicitDefault,
-      manifest = manifest[java.lang.Boolean],
+      manifest = manifest[Boolean],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue, hadExplicitDefault)
@@ -914,17 +914,17 @@ object Field extends MetaStruct[Field] {
 
     def struct: CapnpStruct
 
-    def offset: Option[java.lang.Integer]
+    def offset: Option[Int]
     def __type: Option[com.capnproto.schema.__Type]
     def defaultValue: Option[com.capnproto.schema.Value]
-    def hadExplicitDefault: Option[java.lang.Boolean]
+    def hadExplicitDefault: Option[Boolean]
   }
 
   class SlotMutable(override val struct: CapnpStruct) extends Slot {
-    override def offset: Option[java.lang.Integer] = struct.getInt(1, com.capnproto.schema.Field.Slot.offset.default)
+    override def offset: Option[Int] = struct.getInt(1, com.capnproto.schema.Field.Slot.offset.default)
     override def __type: Option[com.capnproto.schema.__Type] = struct.getStruct(2, com.capnproto.schema.__Type, com.capnproto.schema.Field.Slot.__type.default)
     override def defaultValue: Option[com.capnproto.schema.Value] = struct.getStruct(3, com.capnproto.schema.Value, com.capnproto.schema.Field.Slot.defaultValue.default)
-    override def hadExplicitDefault: Option[java.lang.Boolean] = struct.getBoolean(128, com.capnproto.schema.Field.Slot.hadExplicitDefault.default)
+    override def hadExplicitDefault: Option[Boolean] = struct.getBoolean(128, com.capnproto.schema.Field.Slot.hadExplicitDefault.default)
   }
   object Group extends MetaStruct[Group] {
     override type Self = Group.type
@@ -949,15 +949,15 @@ object Field extends MetaStruct[Field] {
 
       override def meta: Group.type = Group
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Field.Group.Builder
-      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Field.Group.typeId.default); this }
+      def setTypeId(value: Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Field.Group.typeId.default); this }
     }
 
-    val typeId = new FieldDescriptor[java.lang.Long, Group, Group.type](
+    val typeId = new FieldDescriptor[Long, Group, Group.type](
       name = "typeId",
       meta = Group,
       default = Option(0L),
       getter = _.typeId,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, Group, Group.type]] = Seq(typeId)
@@ -972,11 +972,11 @@ object Field extends MetaStruct[Field] {
 
     def struct: CapnpStruct
 
-    def typeId: Option[java.lang.Long]
+    def typeId: Option[Long]
   }
 
   class GroupMutable(override val struct: CapnpStruct) extends Group {
-    override def typeId: Option[java.lang.Long] = struct.getLong(2, com.capnproto.schema.Field.Group.typeId.default)
+    override def typeId: Option[Long] = struct.getLong(2, com.capnproto.schema.Field.Group.typeId.default)
   }
   object Ordinal extends MetaStruct[Ordinal] {
     override type Self = Ordinal.type
@@ -1002,14 +1002,14 @@ object Field extends MetaStruct[Field] {
       override def meta: Ordinal.type = Ordinal
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.Field.Ordinal.Builder
       def set__Implicit(value: Unit): Builder = { struct.setNone(); struct.setShort(5, 0); this }
-      def setExplicit(value: java.lang.Short): Builder = { struct.setShort(6, value, com.capnproto.schema.Field.Ordinal.explicit.default); struct.setShort(5, 1); this }
+      def setExplicit(value: Short): Builder = { struct.setShort(6, value, com.capnproto.schema.Field.Ordinal.explicit.default); struct.setShort(5, 1); this }
     }
 
     sealed trait Union extends UnionValue[com.capnproto.schema.Field.Ordinal.Union]
     object Union extends UnionMeta[com.capnproto.schema.Field.Ordinal.Union] {
       case class Unknown(discriminant: Short) extends com.capnproto.schema.Field.Ordinal.Union
       case class __implicit(value: Option[Unit]) extends com.capnproto.schema.Field.Ordinal.Union
-      case class explicit(value: Option[java.lang.Short]) extends com.capnproto.schema.Field.Ordinal.Union
+      case class explicit(value: Option[Short]) extends com.capnproto.schema.Field.Ordinal.Union
     }
 
     val __implicit = new FieldDescriptor[Unit, Ordinal, Ordinal.type](
@@ -1021,12 +1021,12 @@ object Field extends MetaStruct[Field] {
       isUnion = true
     )
 
-    val explicit = new FieldDescriptor[java.lang.Short, Ordinal, Ordinal.type](
+    val explicit = new FieldDescriptor[Short, Ordinal, Ordinal.type](
       name = "explicit",
       meta = Ordinal,
       default = Option(0.toShort),
       getter = _.explicit,
-      manifest = manifest[java.lang.Short],
+      manifest = manifest[Short],
       isUnion = true
     )
     override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
@@ -1042,11 +1042,11 @@ object Field extends MetaStruct[Field] {
     def struct: CapnpStruct
 
     def __implicit: Option[Unit]
-    def explicit: Option[java.lang.Short]
+    def explicit: Option[Short]
   }
 
   class OrdinalMutable(override val struct: CapnpStruct) extends Ordinal {
-    override def discriminant: Short = (struct.getShort(5).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
+    override def discriminant: Short = (struct.getShort(5).getOrElse(0.toShort): Short)
     override def switch: com.capnproto.schema.Field.Ordinal.Union = discriminant match {
       case 0 => com.capnproto.schema.Field.Ordinal.Union.__implicit(__implicit)
       case 1 => com.capnproto.schema.Field.Ordinal.Union.explicit(explicit)
@@ -1055,7 +1055,7 @@ object Field extends MetaStruct[Field] {
     override def union: UnionMeta[com.capnproto.schema.Field.Ordinal.Union] = com.capnproto.schema.Field.Ordinal.Union
 
     override def __implicit: Option[Unit] = struct.getNone()
-    override def explicit: Option[java.lang.Short] = struct.getShort(6, com.capnproto.schema.Field.Ordinal.explicit.default)
+    override def explicit: Option[Short] = struct.getShort(6, com.capnproto.schema.Field.Ordinal.explicit.default)
   }
   val name = new FieldDescriptor[String, Field, Field.type](
     name = "name",
@@ -1066,12 +1066,12 @@ object Field extends MetaStruct[Field] {
     isUnion = false
   )
 
-  val codeOrder = new FieldDescriptor[java.lang.Short, Field, Field.type](
+  val codeOrder = new FieldDescriptor[Short, Field, Field.type](
     name = "codeOrder",
     meta = Field,
     default = Option(0.toShort),
     getter = _.codeOrder,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = false
   )
 
@@ -1084,12 +1084,12 @@ object Field extends MetaStruct[Field] {
     isUnion = false
   )
 
-  val discriminantValue = new FieldDescriptor[java.lang.Short, Field, Field.type](
+  val discriminantValue = new FieldDescriptor[Short, Field, Field.type](
     name = "discriminantValue",
     meta = Field,
     default = Option(-1.toShort),
     getter = _.discriminantValue,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = false
   )
 
@@ -1132,16 +1132,16 @@ trait Field extends Struct[Field] with HasUnion[com.capnproto.schema.Field.Union
   def struct: CapnpStruct
 
   def name: Option[String]
-  def codeOrder: Option[java.lang.Short]
+  def codeOrder: Option[Short]
   def annotations: Seq[com.capnproto.schema.Annotation]
-  def discriminantValue: Option[java.lang.Short]
+  def discriminantValue: Option[Short]
   def slot: com.capnproto.schema.Field.Slot
   def group: com.capnproto.schema.Field.Group
   def ordinal: com.capnproto.schema.Field.Ordinal
 }
 
 class FieldMutable(override val struct: CapnpStruct) extends Field {
-  override def discriminant: Short = (struct.getShort(4).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
+  override def discriminant: Short = (struct.getShort(4).getOrElse(0.toShort): Short)
   override def switch: com.capnproto.schema.Field.Union = discriminant match {
     case 0 => com.capnproto.schema.Field.Union.slot(slot)
     case 1 => com.capnproto.schema.Field.Union.group(group)
@@ -1150,9 +1150,9 @@ class FieldMutable(override val struct: CapnpStruct) extends Field {
   override def union: UnionMeta[com.capnproto.schema.Field.Union] = com.capnproto.schema.Field.Union
 
   override def name: Option[String] = struct.getString(0, com.capnproto.schema.Field.name.default)
-  override def codeOrder: Option[java.lang.Short] = struct.getShort(0, com.capnproto.schema.Field.codeOrder.default)
+  override def codeOrder: Option[Short] = struct.getShort(0, com.capnproto.schema.Field.codeOrder.default)
   override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getList(1, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Annotation), com.capnproto.schema.Field.annotations.default)
-  override def discriminantValue: Option[java.lang.Short] = struct.getShort(1, com.capnproto.schema.Field.discriminantValue.default)
+  override def discriminantValue: Option[Short] = struct.getShort(1, com.capnproto.schema.Field.discriminantValue.default)
   override def slot: com.capnproto.schema.Field.Slot = new com.capnproto.schema.Field.SlotMutable(struct)
 
   override def group: com.capnproto.schema.Field.Group = new com.capnproto.schema.Field.GroupMutable(struct)
@@ -1185,7 +1185,7 @@ object Enumerant extends MetaStruct[Enumerant] {
     override def meta: Enumerant.type = Enumerant
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Enumerant.Builder
     def setName(value: String): Builder = { struct.setString(0, value); this }
-    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Enumerant.codeOrder.default); this }
+    def setCodeOrder(value: Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Enumerant.codeOrder.default); this }
     def initAnnotations(count: Int): Seq[com.capnproto.schema.Annotation.Builder] = {
       val list = struct.initPointerList(1, count, com.capnproto.schema.Annotation.Builder)
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
@@ -1202,12 +1202,12 @@ object Enumerant extends MetaStruct[Enumerant] {
     isUnion = false
   )
 
-  val codeOrder = new FieldDescriptor[java.lang.Short, Enumerant, Enumerant.type](
+  val codeOrder = new FieldDescriptor[Short, Enumerant, Enumerant.type](
     name = "codeOrder",
     meta = Enumerant,
     default = Option(0.toShort),
     getter = _.codeOrder,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = false
   )
 
@@ -1232,13 +1232,13 @@ trait Enumerant extends Struct[Enumerant] {
   def struct: CapnpStruct
 
   def name: Option[String]
-  def codeOrder: Option[java.lang.Short]
+  def codeOrder: Option[Short]
   def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 class EnumerantMutable(override val struct: CapnpStruct) extends Enumerant {
   override def name: Option[String] = struct.getString(0, com.capnproto.schema.Enumerant.name.default)
-  override def codeOrder: Option[java.lang.Short] = struct.getShort(0, com.capnproto.schema.Enumerant.codeOrder.default)
+  override def codeOrder: Option[Short] = struct.getShort(0, com.capnproto.schema.Enumerant.codeOrder.default)
   override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getList(1, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Annotation), com.capnproto.schema.Enumerant.annotations.default)
 }
 
@@ -1266,9 +1266,9 @@ object Method extends MetaStruct[Method] {
     override def meta: Method.type = Method
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Method.Builder
     def setName(value: String): Builder = { struct.setString(0, value); this }
-    def setCodeOrder(value: java.lang.Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Method.codeOrder.default); this }
-    def setParamStructType(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Method.paramStructType.default); this }
-    def setResultStructType(value: java.lang.Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Method.resultStructType.default); this }
+    def setCodeOrder(value: Short): Builder = { struct.setShort(0, value, com.capnproto.schema.Method.codeOrder.default); this }
+    def setParamStructType(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Method.paramStructType.default); this }
+    def setResultStructType(value: Long): Builder = { struct.setLong(2, value, com.capnproto.schema.Method.resultStructType.default); this }
     def initAnnotations(count: Int): Seq[com.capnproto.schema.Annotation.Builder] = {
       val list = struct.initPointerList(1, count, com.capnproto.schema.Annotation.Builder)
       Range(0, count).map(i => new com.capnproto.schema.Annotation.Builder(list.initStruct(i, com.capnproto.schema.Annotation.Builder)))
@@ -1285,30 +1285,30 @@ object Method extends MetaStruct[Method] {
     isUnion = false
   )
 
-  val codeOrder = new FieldDescriptor[java.lang.Short, Method, Method.type](
+  val codeOrder = new FieldDescriptor[Short, Method, Method.type](
     name = "codeOrder",
     meta = Method,
     default = Option(0.toShort),
     getter = _.codeOrder,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = false
   )
 
-  val paramStructType = new FieldDescriptor[java.lang.Long, Method, Method.type](
+  val paramStructType = new FieldDescriptor[Long, Method, Method.type](
     name = "paramStructType",
     meta = Method,
     default = Option(0L),
     getter = _.paramStructType,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = false
   )
 
-  val resultStructType = new FieldDescriptor[java.lang.Long, Method, Method.type](
+  val resultStructType = new FieldDescriptor[Long, Method, Method.type](
     name = "resultStructType",
     meta = Method,
     default = Option(0L),
     getter = _.resultStructType,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = false
   )
 
@@ -1333,17 +1333,17 @@ trait Method extends Struct[Method] {
   def struct: CapnpStruct
 
   def name: Option[String]
-  def codeOrder: Option[java.lang.Short]
-  def paramStructType: Option[java.lang.Long]
-  def resultStructType: Option[java.lang.Long]
+  def codeOrder: Option[Short]
+  def paramStructType: Option[Long]
+  def resultStructType: Option[Long]
   def annotations: Seq[com.capnproto.schema.Annotation]
 }
 
 class MethodMutable(override val struct: CapnpStruct) extends Method {
   override def name: Option[String] = struct.getString(0, com.capnproto.schema.Method.name.default)
-  override def codeOrder: Option[java.lang.Short] = struct.getShort(0, com.capnproto.schema.Method.codeOrder.default)
-  override def paramStructType: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.Method.paramStructType.default)
-  override def resultStructType: Option[java.lang.Long] = struct.getLong(2, com.capnproto.schema.Method.resultStructType.default)
+  override def codeOrder: Option[Short] = struct.getShort(0, com.capnproto.schema.Method.codeOrder.default)
+  override def paramStructType: Option[Long] = struct.getLong(1, com.capnproto.schema.Method.paramStructType.default)
+  override def resultStructType: Option[Long] = struct.getLong(2, com.capnproto.schema.Method.resultStructType.default)
   override def annotations: Seq[com.capnproto.schema.Annotation] = struct.getList(1, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.Annotation), com.capnproto.schema.Method.annotations.default)
 }
 
@@ -1490,15 +1490,15 @@ object __Type extends MetaStruct[__Type] {
 
       override def meta: __Enum.type = __Enum
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.__Type.__Enum.Builder
-      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.__Enum.typeId.default); this }
+      def setTypeId(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.__Enum.typeId.default); this }
     }
 
-    val typeId = new FieldDescriptor[java.lang.Long, __Enum, __Enum.type](
+    val typeId = new FieldDescriptor[Long, __Enum, __Enum.type](
       name = "typeId",
       meta = __Enum,
       default = Option(0L),
       getter = _.typeId,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(typeId)
@@ -1513,11 +1513,11 @@ object __Type extends MetaStruct[__Type] {
 
     def struct: CapnpStruct
 
-    def typeId: Option[java.lang.Long]
+    def typeId: Option[Long]
   }
 
   class __EnumMutable(override val struct: CapnpStruct) extends __Enum {
-    override def typeId: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.__Type.__Enum.typeId.default)
+    override def typeId: Option[Long] = struct.getLong(1, com.capnproto.schema.__Type.__Enum.typeId.default)
   }
   object __Struct extends MetaStruct[__Struct] {
     override type Self = __Struct.type
@@ -1542,15 +1542,15 @@ object __Type extends MetaStruct[__Type] {
 
       override def meta: __Struct.type = __Struct
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.__Type.__Struct.Builder
-      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.__Struct.typeId.default); this }
+      def setTypeId(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.__Struct.typeId.default); this }
     }
 
-    val typeId = new FieldDescriptor[java.lang.Long, __Struct, __Struct.type](
+    val typeId = new FieldDescriptor[Long, __Struct, __Struct.type](
       name = "typeId",
       meta = __Struct,
       default = Option(0L),
       getter = _.typeId,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(typeId)
@@ -1565,11 +1565,11 @@ object __Type extends MetaStruct[__Type] {
 
     def struct: CapnpStruct
 
-    def typeId: Option[java.lang.Long]
+    def typeId: Option[Long]
   }
 
   class __StructMutable(override val struct: CapnpStruct) extends __Struct {
-    override def typeId: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.__Type.__Struct.typeId.default)
+    override def typeId: Option[Long] = struct.getLong(1, com.capnproto.schema.__Type.__Struct.typeId.default)
   }
   object Interface extends MetaStruct[Interface] {
     override type Self = Interface.type
@@ -1594,15 +1594,15 @@ object __Type extends MetaStruct[__Type] {
 
       override def meta: Interface.type = Interface
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.__Type.Interface.Builder
-      def setTypeId(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.Interface.typeId.default); this }
+      def setTypeId(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.__Type.Interface.typeId.default); this }
     }
 
-    val typeId = new FieldDescriptor[java.lang.Long, Interface, Interface.type](
+    val typeId = new FieldDescriptor[Long, Interface, Interface.type](
       name = "typeId",
       meta = Interface,
       default = Option(0L),
       getter = _.typeId,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
     override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(typeId)
@@ -1617,11 +1617,11 @@ object __Type extends MetaStruct[__Type] {
 
     def struct: CapnpStruct
 
-    def typeId: Option[java.lang.Long]
+    def typeId: Option[Long]
   }
 
   class InterfaceMutable(override val struct: CapnpStruct) extends Interface {
-    override def typeId: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.__Type.Interface.typeId.default)
+    override def typeId: Option[Long] = struct.getLong(1, com.capnproto.schema.__Type.Interface.typeId.default)
   }
   val void = new FieldDescriptor[Unit, __Type, __Type.type](
     name = "void",
@@ -1827,7 +1827,7 @@ trait __Type extends Struct[__Type] with HasUnion[com.capnproto.schema.__Type.Un
 }
 
 class __TypeMutable(override val struct: CapnpStruct) extends __Type {
-  override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
+  override def discriminant: Short = (struct.getShort(0).getOrElse(0.toShort): Short)
   override def switch: com.capnproto.schema.__Type.Union = discriminant match {
     case 0 => com.capnproto.schema.__Type.Union.void(void)
     case 1 => com.capnproto.schema.__Type.Union.bool(bool)
@@ -1901,21 +1901,21 @@ object Value extends MetaStruct[Value] {
     override def meta: Value.type = Value
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Value.Builder
     def setVoid(value: Unit): Builder = { struct.setNone(); struct.setShort(0, 0); this }
-    def setBool(value: java.lang.Boolean): Builder = { struct.setBoolean(16, value, com.capnproto.schema.Value.bool.default); struct.setShort(0, 1); this }
-    def setInt8(value: java.lang.Byte): Builder = { struct.setByte(2, value, com.capnproto.schema.Value.int8.default); struct.setShort(0, 2); this }
-    def setInt16(value: java.lang.Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.int16.default); struct.setShort(0, 3); this }
-    def setInt32(value: java.lang.Integer): Builder = { struct.setInt(1, value, com.capnproto.schema.Value.int32.default); struct.setShort(0, 4); this }
-    def setInt64(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Value.int64.default); struct.setShort(0, 5); this }
-    def setUint8(value: java.lang.Byte): Builder = { struct.setByte(2, value, com.capnproto.schema.Value.uint8.default); struct.setShort(0, 6); this }
-    def setUint16(value: java.lang.Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.uint16.default); struct.setShort(0, 7); this }
-    def setUint32(value: java.lang.Integer): Builder = { struct.setInt(1, value, com.capnproto.schema.Value.uint32.default); struct.setShort(0, 8); this }
-    def setUint64(value: java.lang.Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Value.uint64.default); struct.setShort(0, 9); this }
-    def setFloat32(value: java.lang.Float): Builder = { struct.setFloat(1, value, com.capnproto.schema.Value.float32.default); struct.setShort(0, 10); this }
-    def setFloat64(value: java.lang.Double): Builder = { struct.setDouble(1, value, com.capnproto.schema.Value.float64.default); struct.setShort(0, 11); this }
+    def setBool(value: Boolean): Builder = { struct.setBoolean(16, value, com.capnproto.schema.Value.bool.default); struct.setShort(0, 1); this }
+    def setInt8(value: Byte): Builder = { struct.setByte(2, value, com.capnproto.schema.Value.int8.default); struct.setShort(0, 2); this }
+    def setInt16(value: Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.int16.default); struct.setShort(0, 3); this }
+    def setInt32(value: Int): Builder = { struct.setInt(1, value, com.capnproto.schema.Value.int32.default); struct.setShort(0, 4); this }
+    def setInt64(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Value.int64.default); struct.setShort(0, 5); this }
+    def setUint8(value: Byte): Builder = { struct.setByte(2, value, com.capnproto.schema.Value.uint8.default); struct.setShort(0, 6); this }
+    def setUint16(value: Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.uint16.default); struct.setShort(0, 7); this }
+    def setUint32(value: Int): Builder = { struct.setInt(1, value, com.capnproto.schema.Value.uint32.default); struct.setShort(0, 8); this }
+    def setUint64(value: Long): Builder = { struct.setLong(1, value, com.capnproto.schema.Value.uint64.default); struct.setShort(0, 9); this }
+    def setFloat32(value: Float): Builder = { struct.setFloat(1, value, com.capnproto.schema.Value.float32.default); struct.setShort(0, 10); this }
+    def setFloat64(value: Double): Builder = { struct.setDouble(1, value, com.capnproto.schema.Value.float64.default); struct.setShort(0, 11); this }
     def setText(value: String): Builder = { struct.setString(0, value); struct.setShort(0, 12); this }
     def setData(value: Array[Byte]): Builder = { struct.setData(0, value); struct.setShort(0, 13); this }
     def setList(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, 14); this }
-    def set__Enum(value: java.lang.Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.__enum.default); struct.setShort(0, 15); this }
+    def set__Enum(value: Short): Builder = { struct.setShort(1, value, com.capnproto.schema.Value.__enum.default); struct.setShort(0, 15); this }
     def set__Struct(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, 16); this }
     def setInterface(value: Unit): Builder = { struct.setNone(); struct.setShort(0, 17); this }
     def set__Object(value: Pointer[_]): Builder = { struct.setNone(); struct.setShort(0, 18); this }
@@ -1925,21 +1925,21 @@ object Value extends MetaStruct[Value] {
   object Union extends UnionMeta[com.capnproto.schema.Value.Union] {
     case class Unknown(discriminant: Short) extends com.capnproto.schema.Value.Union
     case class void(value: Option[Unit]) extends com.capnproto.schema.Value.Union
-    case class bool(value: Option[java.lang.Boolean]) extends com.capnproto.schema.Value.Union
-    case class int8(value: Option[java.lang.Byte]) extends com.capnproto.schema.Value.Union
-    case class int16(value: Option[java.lang.Short]) extends com.capnproto.schema.Value.Union
-    case class int32(value: Option[java.lang.Integer]) extends com.capnproto.schema.Value.Union
-    case class int64(value: Option[java.lang.Long]) extends com.capnproto.schema.Value.Union
-    case class uint8(value: Option[java.lang.Byte]) extends com.capnproto.schema.Value.Union
-    case class uint16(value: Option[java.lang.Short]) extends com.capnproto.schema.Value.Union
-    case class uint32(value: Option[java.lang.Integer]) extends com.capnproto.schema.Value.Union
-    case class uint64(value: Option[java.lang.Long]) extends com.capnproto.schema.Value.Union
-    case class float32(value: Option[java.lang.Float]) extends com.capnproto.schema.Value.Union
-    case class float64(value: Option[java.lang.Double]) extends com.capnproto.schema.Value.Union
+    case class bool(value: Option[Boolean]) extends com.capnproto.schema.Value.Union
+    case class int8(value: Option[Byte]) extends com.capnproto.schema.Value.Union
+    case class int16(value: Option[Short]) extends com.capnproto.schema.Value.Union
+    case class int32(value: Option[Int]) extends com.capnproto.schema.Value.Union
+    case class int64(value: Option[Long]) extends com.capnproto.schema.Value.Union
+    case class uint8(value: Option[Byte]) extends com.capnproto.schema.Value.Union
+    case class uint16(value: Option[Short]) extends com.capnproto.schema.Value.Union
+    case class uint32(value: Option[Int]) extends com.capnproto.schema.Value.Union
+    case class uint64(value: Option[Long]) extends com.capnproto.schema.Value.Union
+    case class float32(value: Option[Float]) extends com.capnproto.schema.Value.Union
+    case class float64(value: Option[Double]) extends com.capnproto.schema.Value.Union
     case class text(value: Option[String]) extends com.capnproto.schema.Value.Union
     case class data(value: Option[Array[Byte]]) extends com.capnproto.schema.Value.Union
     case class list(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
-    case class __enum(value: Option[java.lang.Short]) extends com.capnproto.schema.Value.Union
+    case class __enum(value: Option[Short]) extends com.capnproto.schema.Value.Union
     case class __struct(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
     case class interface(value: Option[Unit]) extends com.capnproto.schema.Value.Union
     case class __object(value: Option[Pointer[_]]) extends com.capnproto.schema.Value.Union
@@ -1954,102 +1954,102 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val bool = new FieldDescriptor[java.lang.Boolean, Value, Value.type](
+  val bool = new FieldDescriptor[Boolean, Value, Value.type](
     name = "bool",
     meta = Value,
-    default = Option(java.lang.Boolean.FALSE),
+    default = Option(false),
     getter = _.bool,
-    manifest = manifest[java.lang.Boolean],
+    manifest = manifest[Boolean],
     isUnion = true
   )
 
-  val int8 = new FieldDescriptor[java.lang.Byte, Value, Value.type](
+  val int8 = new FieldDescriptor[Byte, Value, Value.type](
     name = "int8",
     meta = Value,
     default = Option(0.toByte),
     getter = _.int8,
-    manifest = manifest[java.lang.Byte],
+    manifest = manifest[Byte],
     isUnion = true
   )
 
-  val int16 = new FieldDescriptor[java.lang.Short, Value, Value.type](
+  val int16 = new FieldDescriptor[Short, Value, Value.type](
     name = "int16",
     meta = Value,
     default = Option(0.toShort),
     getter = _.int16,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = true
   )
 
-  val int32 = new FieldDescriptor[java.lang.Integer, Value, Value.type](
+  val int32 = new FieldDescriptor[Int, Value, Value.type](
     name = "int32",
     meta = Value,
     default = Option(0),
     getter = _.int32,
-    manifest = manifest[java.lang.Integer],
+    manifest = manifest[Int],
     isUnion = true
   )
 
-  val int64 = new FieldDescriptor[java.lang.Long, Value, Value.type](
+  val int64 = new FieldDescriptor[Long, Value, Value.type](
     name = "int64",
     meta = Value,
     default = Option(0L),
     getter = _.int64,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = true
   )
 
-  val uint8 = new FieldDescriptor[java.lang.Byte, Value, Value.type](
+  val uint8 = new FieldDescriptor[Byte, Value, Value.type](
     name = "uint8",
     meta = Value,
     default = Option(0.toByte),
     getter = _.uint8,
-    manifest = manifest[java.lang.Byte],
+    manifest = manifest[Byte],
     isUnion = true
   )
 
-  val uint16 = new FieldDescriptor[java.lang.Short, Value, Value.type](
+  val uint16 = new FieldDescriptor[Short, Value, Value.type](
     name = "uint16",
     meta = Value,
     default = Option(0.toShort),
     getter = _.uint16,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = true
   )
 
-  val uint32 = new FieldDescriptor[java.lang.Integer, Value, Value.type](
+  val uint32 = new FieldDescriptor[Int, Value, Value.type](
     name = "uint32",
     meta = Value,
     default = Option(0),
     getter = _.uint32,
-    manifest = manifest[java.lang.Integer],
+    manifest = manifest[Int],
     isUnion = true
   )
 
-  val uint64 = new FieldDescriptor[java.lang.Long, Value, Value.type](
+  val uint64 = new FieldDescriptor[Long, Value, Value.type](
     name = "uint64",
     meta = Value,
     default = Option(0L),
     getter = _.uint64,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = true
   )
 
-  val float32 = new FieldDescriptor[java.lang.Float, Value, Value.type](
+  val float32 = new FieldDescriptor[Float, Value, Value.type](
     name = "float32",
     meta = Value,
     default = Option(0.0.toFloat),
     getter = _.float32,
-    manifest = manifest[java.lang.Float],
+    manifest = manifest[Float],
     isUnion = true
   )
 
-  val float64 = new FieldDescriptor[java.lang.Double, Value, Value.type](
+  val float64 = new FieldDescriptor[Double, Value, Value.type](
     name = "float64",
     meta = Value,
     default = Option(0.0),
     getter = _.float64,
-    manifest = manifest[java.lang.Double],
+    manifest = manifest[Double],
     isUnion = true
   )
 
@@ -2080,12 +2080,12 @@ object Value extends MetaStruct[Value] {
     isUnion = true
   )
 
-  val __enum = new FieldDescriptor[java.lang.Short, Value, Value.type](
+  val __enum = new FieldDescriptor[Short, Value, Value.type](
     name = "enum",
     meta = Value,
     default = Option(0.toShort),
     getter = _.__enum,
-    manifest = manifest[java.lang.Short],
+    manifest = manifest[Short],
     isUnion = true
   )
 
@@ -2128,28 +2128,28 @@ trait Value extends Struct[Value] with HasUnion[com.capnproto.schema.Value.Union
   def struct: CapnpStruct
 
   def void: Option[Unit]
-  def bool: Option[java.lang.Boolean]
-  def int8: Option[java.lang.Byte]
-  def int16: Option[java.lang.Short]
-  def int32: Option[java.lang.Integer]
-  def int64: Option[java.lang.Long]
-  def uint8: Option[java.lang.Byte]
-  def uint16: Option[java.lang.Short]
-  def uint32: Option[java.lang.Integer]
-  def uint64: Option[java.lang.Long]
-  def float32: Option[java.lang.Float]
-  def float64: Option[java.lang.Double]
+  def bool: Option[Boolean]
+  def int8: Option[Byte]
+  def int16: Option[Short]
+  def int32: Option[Int]
+  def int64: Option[Long]
+  def uint8: Option[Byte]
+  def uint16: Option[Short]
+  def uint32: Option[Int]
+  def uint64: Option[Long]
+  def float32: Option[Float]
+  def float64: Option[Double]
   def text: Option[String]
   def data: Option[Array[Byte]]
   def list: Option[Pointer[_]]
-  def __enum: Option[java.lang.Short]
+  def __enum: Option[Short]
   def __struct: Option[Pointer[_]]
   def interface: Option[Unit]
   def __object: Option[Pointer[_]]
 }
 
 class ValueMutable(override val struct: CapnpStruct) extends Value {
-  override def discriminant: Short = (struct.getShort(0).getOrElse(new java.lang.Short(0.toShort)): java.lang.Short)
+  override def discriminant: Short = (struct.getShort(0).getOrElse(0.toShort): Short)
   override def switch: com.capnproto.schema.Value.Union = discriminant match {
     case 0 => com.capnproto.schema.Value.Union.void(void)
     case 1 => com.capnproto.schema.Value.Union.bool(bool)
@@ -2175,21 +2175,21 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
   override def union: UnionMeta[com.capnproto.schema.Value.Union] = com.capnproto.schema.Value.Union
 
   override def void: Option[Unit] = struct.getNone()
-  override def bool: Option[java.lang.Boolean] = struct.getBoolean(16, com.capnproto.schema.Value.bool.default)
-  override def int8: Option[java.lang.Byte] = struct.getByte(2, com.capnproto.schema.Value.int8.default)
-  override def int16: Option[java.lang.Short] = struct.getShort(1, com.capnproto.schema.Value.int16.default)
-  override def int32: Option[java.lang.Integer] = struct.getInt(1, com.capnproto.schema.Value.int32.default)
-  override def int64: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.Value.int64.default)
-  override def uint8: Option[java.lang.Byte] = struct.getByte(2, com.capnproto.schema.Value.uint8.default)
-  override def uint16: Option[java.lang.Short] = struct.getShort(1, com.capnproto.schema.Value.uint16.default)
-  override def uint32: Option[java.lang.Integer] = struct.getInt(1, com.capnproto.schema.Value.uint32.default)
-  override def uint64: Option[java.lang.Long] = struct.getLong(1, com.capnproto.schema.Value.uint64.default)
-  override def float32: Option[java.lang.Float] = struct.getFloat(1, com.capnproto.schema.Value.float32.default)
-  override def float64: Option[java.lang.Double] = struct.getDouble(1, com.capnproto.schema.Value.float64.default)
+  override def bool: Option[Boolean] = struct.getBoolean(16, com.capnproto.schema.Value.bool.default)
+  override def int8: Option[Byte] = struct.getByte(2, com.capnproto.schema.Value.int8.default)
+  override def int16: Option[Short] = struct.getShort(1, com.capnproto.schema.Value.int16.default)
+  override def int32: Option[Int] = struct.getInt(1, com.capnproto.schema.Value.int32.default)
+  override def int64: Option[Long] = struct.getLong(1, com.capnproto.schema.Value.int64.default)
+  override def uint8: Option[Byte] = struct.getByte(2, com.capnproto.schema.Value.uint8.default)
+  override def uint16: Option[Short] = struct.getShort(1, com.capnproto.schema.Value.uint16.default)
+  override def uint32: Option[Int] = struct.getInt(1, com.capnproto.schema.Value.uint32.default)
+  override def uint64: Option[Long] = struct.getLong(1, com.capnproto.schema.Value.uint64.default)
+  override def float32: Option[Float] = struct.getFloat(1, com.capnproto.schema.Value.float32.default)
+  override def float64: Option[Double] = struct.getDouble(1, com.capnproto.schema.Value.float64.default)
   override def text: Option[String] = struct.getString(0, com.capnproto.schema.Value.text.default)
   override def data: Option[Array[Byte]] = struct.getData(0, com.capnproto.schema.Value.data.default)
   override def list: Option[Pointer[_]] = struct.getPointer(0)
-  override def __enum: Option[java.lang.Short] = struct.getShort(1, com.capnproto.schema.Value.__enum.default)
+  override def __enum: Option[Short] = struct.getShort(1, com.capnproto.schema.Value.__enum.default)
   override def __struct: Option[Pointer[_]] = struct.getPointer(0)
   override def interface: Option[Unit] = struct.getNone()
   override def __object: Option[Pointer[_]] = struct.getPointer(0)
@@ -2218,16 +2218,16 @@ object Annotation extends MetaStruct[Annotation] {
 
     override def meta: Annotation.type = Annotation
     override def metaBuilder: MetaBuilderT = com.capnproto.schema.Annotation.Builder
-    def setId(value: java.lang.Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Annotation.id.default); this }
+    def setId(value: Long): Builder = { struct.setLong(0, value, com.capnproto.schema.Annotation.id.default); this }
     def setValue(value: com.capnproto.schema.Value): Builder = { struct.setNone(); this }
   }
 
-  val id = new FieldDescriptor[java.lang.Long, Annotation, Annotation.type](
+  val id = new FieldDescriptor[Long, Annotation, Annotation.type](
     name = "id",
     meta = Annotation,
     default = Option(0L),
     getter = _.id,
-    manifest = manifest[java.lang.Long],
+    manifest = manifest[Long],
     isUnion = false
   )
 
@@ -2251,17 +2251,17 @@ trait Annotation extends Struct[Annotation] {
 
   def struct: CapnpStruct
 
-  def id: Option[java.lang.Long]
+  def id: Option[Long]
   def value: Option[com.capnproto.schema.Value]
 }
 
 class AnnotationMutable(override val struct: CapnpStruct) extends Annotation {
-  override def id: Option[java.lang.Long] = struct.getLong(0, com.capnproto.schema.Annotation.id.default)
+  override def id: Option[Long] = struct.getLong(0, com.capnproto.schema.Annotation.id.default)
   override def value: Option[com.capnproto.schema.Value] = struct.getStruct(0, com.capnproto.schema.Value, com.capnproto.schema.Annotation.value.default)
 }
 
 object ElementSize extends EnumMeta[ElementSize] {
-  case class Unknown(override val id: java.lang.Short) extends ElementSize(ElementSize, id, null)
+  case class Unknown(override val id: Short) extends ElementSize(ElementSize, id, null)
 
   val empty = new ElementSize(this, 0.toShort, "empty")
   val bit = new ElementSize(this, 1.toShort, "bit")
@@ -2283,13 +2283,13 @@ object ElementSize extends EnumMeta[ElementSize] {
     inlineComposite
   )
 
-  override def findByIdOrNull(id: java.lang.Short): ElementSize = values.lift(id.toInt).getOrElse(null)
+  override def findByIdOrNull(id: Short): ElementSize = values.lift(id.toInt).getOrElse(null)
   override def findByNameOrNull(name: String): ElementSize = null
 }
 
 sealed class ElementSize(
   override val meta: EnumMeta[ElementSize],
-  override val id: java.lang.Short,
+  override val id: Short,
   override val name: String
 ) extends Enum[ElementSize]
 
@@ -2351,7 +2351,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
       override def meta: RequestedFile.type = RequestedFile
       override def metaBuilder: MetaBuilderT = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.Builder
-      def setId(value: java.lang.Long): Builder = { struct.setLong(0, value, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.id.default); this }
+      def setId(value: Long): Builder = { struct.setLong(0, value, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.id.default); this }
       def setFilename(value: String): Builder = { struct.setString(0, value); this }
       def initImports(count: Int): Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder] = {
         val list = struct.initPointerList(1, count, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder)
@@ -2383,16 +2383,16 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
         override def meta: __Import.type = __Import
         override def metaBuilder: MetaBuilderT = com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.Builder
-        def setId(value: java.lang.Long): Builder = { struct.setLong(0, value, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.id.default); this }
+        def setId(value: Long): Builder = { struct.setLong(0, value, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.id.default); this }
         def setName(value: String): Builder = { struct.setString(0, value); this }
       }
 
-      val id = new FieldDescriptor[java.lang.Long, __Import, __Import.type](
+      val id = new FieldDescriptor[Long, __Import, __Import.type](
         name = "id",
         meta = __Import,
         default = Option(0L),
         getter = _.id,
-        manifest = manifest[java.lang.Long],
+        manifest = manifest[Long],
         isUnion = false
       )
 
@@ -2416,20 +2416,20 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
       def struct: CapnpStruct
 
-      def id: Option[java.lang.Long]
+      def id: Option[Long]
       def name: Option[String]
     }
 
     class __ImportMutable(override val struct: CapnpStruct) extends __Import {
-      override def id: Option[java.lang.Long] = struct.getLong(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.id.default)
+      override def id: Option[Long] = struct.getLong(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.id.default)
       override def name: Option[String] = struct.getString(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import.name.default)
     }
-    val id = new FieldDescriptor[java.lang.Long, RequestedFile, RequestedFile.type](
+    val id = new FieldDescriptor[Long, RequestedFile, RequestedFile.type](
       name = "id",
       meta = RequestedFile,
       default = Option(0L),
       getter = _.id,
-      manifest = manifest[java.lang.Long],
+      manifest = manifest[Long],
       isUnion = false
     )
 
@@ -2462,13 +2462,13 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
 
     def struct: CapnpStruct
 
-    def id: Option[java.lang.Long]
+    def id: Option[Long]
     def filename: Option[String]
     def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]
   }
 
   class RequestedFileMutable(override val struct: CapnpStruct) extends RequestedFile {
-    override def id: Option[java.lang.Long] = struct.getLong(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.id.default)
+    override def id: Option[Long] = struct.getLong(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.id.default)
     override def filename: Option[String] = struct.getString(0, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.filename.default)
     override def imports: Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import] = struct.getList(1, (l: CapnpList) => (o: Int) => l.getStruct(o, com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import), com.capnproto.schema.CodeGeneratorRequest.RequestedFile.imports.default)
   }
