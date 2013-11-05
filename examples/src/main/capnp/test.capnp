@@ -565,13 +565,12 @@ struct TestConstants {
   const enumListConst      :List(TestEnum) = [foo, garply];
 }
 
-# const globalInt :UInt32 = 12345;
-# const globalText :Text = "foobar";
-# const globalStruct :TestAllTypes = (int32Field = 54321);
-# const derivedConstant :TestAllTypes = (
-#     uInt32Field = .globalInt,
-#     textField = TestConstants.textConst,
-#     structField = TestConstants.structConst,
-#     int16List = TestConstants.int16ListConst,
-#     structList = TestConstants.structListConst);
-#
+const globalInt :UInt32 = 12345;
+const globalText :Text = "foobar";
+const globalStruct :TestAllTypes = (int32Field = 54321);
+const derivedConstant :TestAllTypes = (
+    uInt32Field = .globalInt,
+    textField = TestConstants.textConst,
+    structField = TestConstants.structConst,
+    int16List = TestConstants.int16ListConst,
+    structList = TestConstants.structListConst);

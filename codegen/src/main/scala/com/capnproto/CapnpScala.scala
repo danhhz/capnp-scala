@@ -518,9 +518,16 @@ object CapnpScala {
             indent, ") extends Enum[", name, "]\n"
           )
         }
-        case Node.Union.const(const) => StringTree(
-          indent, "val ", scalaCaseName(name), ": ", genType(const.__type.get, schema), " = ", genValue(const.__type.get, const.value.get, schema), "\n"
-        )
+        case Node.Union.const(const) => schemasById.get(schema.scopeId.get).get.switch match {
+          case Node.Union.file(_) => StringTree(
+            indent, "object ", scalaCaseName(name), " {\n",
+            indent.next, "val apply: ", genType(const.__type.get, schema), " = ", genValue(const.__type.get, const.value.get, schema), "\n",
+            indent, "}\n"
+          )
+          case _ => StringTree(
+            indent, "val ", scalaCaseName(name), ": ", genType(const.__type.get, schema), " = ", genValue(const.__type.get, const.value.get, schema), "\n"
+          )
+        }
         case Node.Union.interface(interface) => {
           StringTree(
             indent, "object ", name, " extends MetaInterface[", name, "] {\n",

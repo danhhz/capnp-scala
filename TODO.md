@@ -10,7 +10,6 @@ Before v0.1
 * audit match exhaustiveness
 * port one of Kenton's benchmarks
 * write basic runtime docs
-* support top level consts
 
 After
 -----
