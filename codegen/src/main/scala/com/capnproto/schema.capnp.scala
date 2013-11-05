@@ -121,7 +121,6 @@ object Node extends MetaStruct[Node] {
   }
   sealed trait Union extends UnionValue[com.capnproto.schema.Node.Union]
   object Union extends UnionMeta[com.capnproto.schema.Node.Union] {
-    case class Unknown(discriminant: Short) extends com.capnproto.schema.Node.Union
     case class file(value: Option[Unit]) extends com.capnproto.schema.Node.Union
     case class __struct(value: com.capnproto.schema.Node.__Struct) extends com.capnproto.schema.Node.Union
     case class __enum(value: com.capnproto.schema.Node.__Enum) extends com.capnproto.schema.Node.Union
@@ -772,7 +771,7 @@ class NodeMutable(override val struct: CapnpStruct) extends Node {
     case 3 => com.capnproto.schema.Node.Union.interface(interface)
     case 4 => com.capnproto.schema.Node.Union.const(const)
     case 5 => com.capnproto.schema.Node.Union.annotation(annotation)
-    case d => com.capnproto.schema.Node.Union.Unknown(d)
+    case d => throw new IllegalArgumentException("Unknown discriminant: " + d)
   }
   override def union: UnionMeta[com.capnproto.schema.Node.Union] = com.capnproto.schema.Node.Union
 
@@ -833,7 +832,6 @@ object Field extends MetaStruct[Field] {
 
   sealed trait Union extends UnionValue[com.capnproto.schema.Field.Union]
   object Union extends UnionMeta[com.capnproto.schema.Field.Union] {
-    case class Unknown(discriminant: Short) extends com.capnproto.schema.Field.Union
     case class slot(value: com.capnproto.schema.Field.Slot) extends com.capnproto.schema.Field.Union
     case class group(value: com.capnproto.schema.Field.Group) extends com.capnproto.schema.Field.Union
   }
@@ -1007,7 +1005,6 @@ object Field extends MetaStruct[Field] {
 
     sealed trait Union extends UnionValue[com.capnproto.schema.Field.Ordinal.Union]
     object Union extends UnionMeta[com.capnproto.schema.Field.Ordinal.Union] {
-      case class Unknown(discriminant: Short) extends com.capnproto.schema.Field.Ordinal.Union
       case class __implicit(value: Option[Unit]) extends com.capnproto.schema.Field.Ordinal.Union
       case class explicit(value: Option[Short]) extends com.capnproto.schema.Field.Ordinal.Union
     }
@@ -1050,7 +1047,7 @@ object Field extends MetaStruct[Field] {
     override def switch: com.capnproto.schema.Field.Ordinal.Union = discriminant match {
       case 0 => com.capnproto.schema.Field.Ordinal.Union.__implicit(__implicit)
       case 1 => com.capnproto.schema.Field.Ordinal.Union.explicit(explicit)
-      case d => com.capnproto.schema.Field.Ordinal.Union.Unknown(d)
+      case d => throw new IllegalArgumentException("Unknown discriminant: " + d)
     }
     override def union: UnionMeta[com.capnproto.schema.Field.Ordinal.Union] = com.capnproto.schema.Field.Ordinal.Union
 
@@ -1145,7 +1142,7 @@ class FieldMutable(override val struct: CapnpStruct) extends Field {
   override def switch: com.capnproto.schema.Field.Union = discriminant match {
     case 0 => com.capnproto.schema.Field.Union.slot(slot)
     case 1 => com.capnproto.schema.Field.Union.group(group)
-    case d => com.capnproto.schema.Field.Union.Unknown(d)
+    case d => throw new IllegalArgumentException("Unknown discriminant: " + d)
   }
   override def union: UnionMeta[com.capnproto.schema.Field.Union] = com.capnproto.schema.Field.Union
 
@@ -1393,7 +1390,6 @@ object __Type extends MetaStruct[__Type] {
 
   sealed trait Union extends UnionValue[com.capnproto.schema.__Type.Union]
   object Union extends UnionMeta[com.capnproto.schema.__Type.Union] {
-    case class Unknown(discriminant: Short) extends com.capnproto.schema.__Type.Union
     case class void(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
     case class bool(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
     case class int8(value: Option[Unit]) extends com.capnproto.schema.__Type.Union
@@ -1848,7 +1844,7 @@ class __TypeMutable(override val struct: CapnpStruct) extends __Type {
     case 16 => com.capnproto.schema.__Type.Union.__struct(__struct)
     case 17 => com.capnproto.schema.__Type.Union.interface(interface)
     case 18 => com.capnproto.schema.__Type.Union.__object(__object)
-    case d => com.capnproto.schema.__Type.Union.Unknown(d)
+    case d => throw new IllegalArgumentException("Unknown discriminant: " + d)
   }
   override def union: UnionMeta[com.capnproto.schema.__Type.Union] = com.capnproto.schema.__Type.Union
 
@@ -1923,7 +1919,6 @@ object Value extends MetaStruct[Value] {
 
   sealed trait Union extends UnionValue[com.capnproto.schema.Value.Union]
   object Union extends UnionMeta[com.capnproto.schema.Value.Union] {
-    case class Unknown(discriminant: Short) extends com.capnproto.schema.Value.Union
     case class void(value: Option[Unit]) extends com.capnproto.schema.Value.Union
     case class bool(value: Option[Boolean]) extends com.capnproto.schema.Value.Union
     case class int8(value: Option[Byte]) extends com.capnproto.schema.Value.Union
@@ -2170,7 +2165,7 @@ class ValueMutable(override val struct: CapnpStruct) extends Value {
     case 16 => com.capnproto.schema.Value.Union.__struct(__struct)
     case 17 => com.capnproto.schema.Value.Union.interface(interface)
     case 18 => com.capnproto.schema.Value.Union.__object(__object)
-    case d => com.capnproto.schema.Value.Union.Unknown(d)
+    case d => throw new IllegalArgumentException("Unknown discriminant: " + d)
   }
   override def union: UnionMeta[com.capnproto.schema.Value.Union] = com.capnproto.schema.Value.Union
 

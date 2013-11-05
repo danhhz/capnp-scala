@@ -48,7 +48,6 @@ object CapnpScala {
         case __Type.Union.__struct(_) => nodeName(getDependency(scope, ctype.__struct.typeId.get))
         case __Type.Union.interface(_) => nodeName(getDependency(scope, ctype.interface.typeId.get))
         case __Type.Union.__object(_) => "Pointer[_]"
-        case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       })
     }
 
@@ -75,7 +74,6 @@ object CapnpScala {
         case __Type.Union.__struct(_) => StringTree("(l: CapnpList) => (o: Int) => l.getStruct(o, ", genType(listType.elementType.get, scope), ")")
         case __Type.Union.interface(_) => StringTree("_.getVoid _")
         case __Type.Union.__object(_) => StringTree("_.getPointer _")
-        case _ => throw new IllegalArgumentException("Unknown listType: " + listType)
       }
     }
 
@@ -106,7 +104,6 @@ object CapnpScala {
         )
         case __Type.Union.interface(_) => StringTree("getNone(", offset, ")")
         case __Type.Union.__object(_) => StringTree("getPointer(", offset, ")")
-        case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
 
@@ -131,7 +128,6 @@ object CapnpScala {
         case __Type.Union.__struct(_) => StringTree("setNone()")
         case __Type.Union.interface(_) => StringTree("setNone()")
         case __Type.Union.__object(_) => StringTree("setNone()")
-        case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
 
@@ -197,7 +193,6 @@ object CapnpScala {
           }))
           case __Type.Union.interface(_) => StringTree("TODO")
           case __Type.Union.__object(_) => StringTree("TODO")
-          case _ => throw new IllegalArgumentException("")
         },
         ")"
       )
@@ -240,7 +235,6 @@ object CapnpScala {
         }).getOrElse(StringTree("null"))
         case __Type.Union.interface(_) => StringTree("null")
         case __Type.Union.__object(_) => StringTree("null")
-        case _ => throw new IllegalArgumentException("Unknown ctype: " + ctype)
       }
     }
 
@@ -291,7 +285,6 @@ object CapnpScala {
           var path = nodeName(parent)
           StringTree(path, ".", scalaEscapeName(scalaCaseName(field.name.get)))
         }
-        case _ => throw new IllegalArgumentException("Unknown field: " + field)
       }
     }
 
@@ -315,12 +308,14 @@ object CapnpScala {
       val name = scalaEscapeName(nameRaw)
       val fullPath = StringTree(path, name)
       schema.switch match {
+        case Node.Union.file(_) => throw new IllegalArgumentException("Unexpected file node: " + schema)
         case Node.Union.__struct(struct) => {
           val unionPath = StringTree(fullPath, ".Union")
           val mutablePath = StringTree(fullPath, "Mutable")
           val builderPath = StringTree(fullPath, ".Builder")
           val fields = struct.__fields.sortBy(_.codeOrder)
           val unionFields = fields.filter(_.discriminantValue.isDefined)
+          val unionExhaustiveMatch = false
           val groupFields = fields.filter(_.switch match { case Field.Union.group(_) => true; case _ => false})
           StringTree(
             indent, "object ", name, " extends MetaStruct[", name, "] {\n",
@@ -380,7 +375,9 @@ object CapnpScala {
             if (unionFields.isEmpty) StringTree() else StringTree(
               indent.next, "sealed trait Union extends UnionValue[", unionPath, "]\n",
               indent.next, "object Union extends UnionMeta[", unionPath, "] {\n",
-              indent.next.next, "case class Unknown(discriminant: Short) extends ", unionPath, "\n",
+              if (unionExhaustiveMatch) Some(StringTree(
+                indent.next.next, "case class Unknown(discriminant: Short) extends ", unionPath, "\n"
+              )) else None,
               unionFields.map(unionField => StringTree(
                 indent.next.next, "case class ", scalaEscapeName(unionField.name.get), "(value: ",
                 unionField.switch match {
@@ -469,7 +466,11 @@ object CapnpScala {
               unionFields.zipWithIndex.map({ case (unionField, i) => StringTree(
                 indent.next.next, "case ", i.toString, " => ", unionPath, ".", scalaEscapeName(unionField.name.get), "(", scalaEscapeName(unionField.name.get), ")\n"
               )}),
-              indent.next.next, "case d => ", unionPath, ".Unknown(d)\n",
+              if (unionExhaustiveMatch) StringTree(
+                indent.next.next, "case d => ", unionPath, ".Unknown(d)\n"
+              ) else StringTree(
+                indent.next.next, "case d => throw new IllegalArgumentException(\"Unknown discriminant: \" + d)\n"
+              ),
               indent.next, "}\n",
               indent.next, "override def union: UnionMeta[", unionPath, "] = ", unionPath, "\n",
               "\n"
@@ -573,7 +574,6 @@ object CapnpScala {
           )
         }
         case Node.Union.annotation(_) => StringTree()
-        case s => throw new IllegalArgumentException("Unknown schema: " + s)
       }
     }
 
