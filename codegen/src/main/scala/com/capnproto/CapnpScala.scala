@@ -429,7 +429,7 @@ object CapnpScala {
               },
               ",\n",
               indent.next.next, "manifest = manifest[", fieldScalaType(field, schema), "],\n",
-              indent.next.next, "isUnion = ", if (field.discriminantValue.isDefined) "true" else "false", "\n",
+              indent.next.next, "discriminantValue = ", field.discriminantValue.toString, "\n",
               indent.next, ")\n"
             ))),
             indent.next, "override val fields: Seq[FieldDescriptor[_, ", name, ", ", name, ".type]] = Seq(",

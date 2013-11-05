@@ -16,7 +16,7 @@ trait UntypedFieldDescriptor {
   def default: Option[Any]
   def unsafeGetter: Function1[Any, Option[Any]]
   def unsafeManifest: Manifest[_]
-  def isUnion: Boolean
+  def discriminantValue: Option[Short]
 }
 case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
   override val name: String,
@@ -24,7 +24,7 @@ case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
   override val default: Option[F],
   getter: S => Option[F],
   manifest: Manifest[F],
-  override val isUnion: Boolean
+  override val discriminantValue: Option[Short]
 ) extends RField[F, M] with UntypedFieldDescriptor {
   override final def owner: M = meta
   override def unsafeGetter: Function1[Any, Option[Any]] = getter.asInstanceOf[Function1[Any, Option[Any]]]
@@ -34,18 +34,84 @@ case class FieldDescriptor[F, S <: Struct[S], M <: MetaStruct[S]](
 trait UntypedStruct {
   def meta: UntypedMetaStruct
 
-  override def toString: String = {
-    val union = this match {
-      case u: HasUnion[_] => " [" + u.switch.toString + "]"
-      case _ => ""
+  private def toCapnpField(v: Any, pretty: Boolean, indent: String): Option[String] = {
+    v match {
+      case Nil => None
+      case None => None
+      case x if x.isInstanceOf[scala.runtime.BoxedUnit] => Some("void")
+      case s: String if s.isEmpty => None
+      case s: String => Some("\"" + s + "\"")
+      case d: Array[Byte] => Some("\"" + new String(d) + "\"")
+      case l: Seq[Any] => Some("[" + (if (pretty) "\n" + indent + "  " else "") + l.map(x => toCapnpField(x, pretty, indent + "  ").getOrElse("")).mkString("," + (if (pretty) "\n" + indent + "  " else "")) + (if (pretty) "\n" + indent else "") + "]")
+      case s: UntypedStruct => Some(s.toCapnp(pretty, indent + "  "))
+      case Double.PositiveInfinity => Some("inf")
+      case Double.NegativeInfinity => Some("inf")
+      case d: Double if d.isNaN => Some("nan")
+      case f: Float if f.isNaN => Some("nan")
+      case _ => Some(v.toString)
+    }
+  }
+  def toCapnp(pretty: Boolean = false, indent: String = ""): String = {
+    val nextIndent = indent + "  "
+    val unionDiscriminant = this match {
+      case u: HasUnion[_] => Some(u.discriminant)
+      case _ => None
     }
     "(" +
-    meta.fields.filterNot(_.isUnion).flatMap(field => {
-      field.unsafeGetter(this).map(v => field.name + ": " + v)
-    }).mkString(", ") +
-    union +
+    (if (pretty) "\n" + nextIndent else "") +
+    meta.fields.flatMap(field => {
+      field.discriminantValue match {
+        case Some(fd) => {
+          if (unionDiscriminant.exists(_ == fd)) {
+            field.unsafeGetter(this).orElse(field.default).flatMap(v => toCapnpField(v, pretty, nextIndent).map(field.name + (if (pretty) " = " else "=") + _))
+          } else None
+        }
+        case _ => field.unsafeGetter(this).flatMap(v => toCapnpField(v, pretty, nextIndent).map(field.name + (if (pretty) " = " else "=") + _))
+      }
+    }).mkString("," + (if (pretty) "\n" + nextIndent else "")) +
+    ( if (pretty) "\n" + indent else "") +
     ")"
   }
+  def toCapnp: String = toCapnp(pretty = true)
+
+  private def toJsonField(v: Any, pretty: Boolean, indent: String): Option[String] = {
+    v match {
+      case Nil => None
+      case None => None
+      case x if x.isInstanceOf[scala.runtime.BoxedUnit] => Some("null")
+      case b: Boolean => Some(b.toString)
+      case s: String if s.isEmpty => None
+      case s: String => Some("\"" + s + "\"")
+      case d: Array[Byte] => Some("\"" + new String(d) + "\"")
+      case l: Seq[Any] => Some("[" + (if (pretty) "\n" + indent + "  " else "") + l.map(x => toJsonField(x, pretty, indent + "  ").getOrElse("")).mkString("," + (if (pretty) "\n" + indent + "  " else "")) + (if (pretty) "\n" + indent else "") + "]")
+      case s: UntypedStruct => Some(s.toJson(pretty, indent))
+      case x => Some("\"" + v.toString + "\"")
+    }
+  }
+  def toJson(pretty: Boolean = false, indent: String = ""): String = {
+    val nextIndent = indent + "  "
+    val unionDiscriminant = this match {
+      case u: HasUnion[_] => Some(u.discriminant)
+      case _ => None
+    }
+    "{" +
+    (if (pretty) "\n" + nextIndent else "") +
+    meta.fields.flatMap(field => {
+      field.discriminantValue match {
+        case Some(fd) => {
+          if (unionDiscriminant.exists(_ == fd)) {
+            field.unsafeGetter(this).orElse(field.default).flatMap(v => toJsonField(v, pretty, nextIndent).map("\"" + field.name + "\"" + (if (pretty) " : " else ":") + _))
+          } else None
+        }
+        case _ => field.unsafeGetter(this).flatMap(v => toJsonField(v, pretty, nextIndent).map("\"" + field.name + "\"" + (if (pretty) " : " else ":") + _))
+      }
+    }).mkString("," + (if (pretty) "\n" + nextIndent else "")) +
+    (if (pretty) "\n" + indent else "") +
+    "}"
+  }
+  def toJson: String = toJson(pretty = false)
+
+  override def toString: String = toCapnp(pretty = false)
 }
 trait Struct[S <: Struct[S]] extends UntypedStruct { self: S =>
   type MetaT <: MetaStruct[S]

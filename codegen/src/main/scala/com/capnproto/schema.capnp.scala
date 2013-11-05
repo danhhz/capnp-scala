@@ -88,7 +88,7 @@ object Node extends MetaStruct[Node] {
       default = Option(""),
       getter = _.name,
       manifest = manifest[String],
-      isUnion = false
+      discriminantValue = None
     )
 
     val id = new FieldDescriptor[Long, NestedNode, NestedNode.type](
@@ -97,7 +97,7 @@ object Node extends MetaStruct[Node] {
       default = Option(0L),
       getter = _.id,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, NestedNode, NestedNode.type]] = Seq(name, id)
   }
@@ -172,7 +172,7 @@ object Node extends MetaStruct[Node] {
       default = Option(0.toShort),
       getter = _.dataWordCount,
       manifest = manifest[Short],
-      isUnion = false
+      discriminantValue = None
     )
 
     val pointerCount = new FieldDescriptor[Short, __Struct, __Struct.type](
@@ -181,7 +181,7 @@ object Node extends MetaStruct[Node] {
       default = Option(0.toShort),
       getter = _.pointerCount,
       manifest = manifest[Short],
-      isUnion = false
+      discriminantValue = None
     )
 
     val preferredListEncoding = new FieldDescriptor[com.capnproto.schema.ElementSize, __Struct, __Struct.type](
@@ -190,7 +190,7 @@ object Node extends MetaStruct[Node] {
       default = Option(com.capnproto.schema.ElementSize.findByIdOrNull(0.toShort)),
       getter = _.preferredListEncoding,
       manifest = manifest[com.capnproto.schema.ElementSize],
-      isUnion = false
+      discriminantValue = None
     )
 
     val isGroup = new FieldDescriptor[Boolean, __Struct, __Struct.type](
@@ -199,7 +199,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.isGroup,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val discriminantCount = new FieldDescriptor[Short, __Struct, __Struct.type](
@@ -208,7 +208,7 @@ object Node extends MetaStruct[Node] {
       default = Option(0.toShort),
       getter = _.discriminantCount,
       manifest = manifest[Short],
-      isUnion = false
+      discriminantValue = None
     )
 
     val discriminantOffset = new FieldDescriptor[Int, __Struct, __Struct.type](
@@ -217,7 +217,7 @@ object Node extends MetaStruct[Node] {
       default = Option(0),
       getter = _.discriminantOffset,
       manifest = manifest[Int],
-      isUnion = false
+      discriminantValue = None
     )
 
     val __fields = new FieldDescriptor[Seq[com.capnproto.schema.Field], __Struct, __Struct.type](
@@ -226,7 +226,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = x => Some(x.__fields),
       manifest = manifest[Seq[com.capnproto.schema.Field]],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(dataWordCount, pointerCount, preferredListEncoding, isGroup, discriminantCount, discriminantOffset, __fields)
   }
@@ -294,7 +294,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = x => Some(x.enumerants),
       manifest = manifest[Seq[com.capnproto.schema.Enumerant]],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(enumerants)
   }
@@ -350,7 +350,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = x => Some(x.methods),
       manifest = manifest[Seq[com.capnproto.schema.Method]],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(methods)
   }
@@ -403,7 +403,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = _.__type,
       manifest = manifest[com.capnproto.schema.__Type],
-      isUnion = false
+      discriminantValue = None
     )
 
     val value = new FieldDescriptor[com.capnproto.schema.Value, Const, Const.type](
@@ -412,7 +412,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = _.value,
       manifest = manifest[com.capnproto.schema.Value],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Const, Const.type]] = Seq(__type, value)
   }
@@ -478,7 +478,7 @@ object Node extends MetaStruct[Node] {
       default = Option(null),
       getter = _.__type,
       manifest = manifest[com.capnproto.schema.__Type],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsFile = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -487,7 +487,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsFile,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsConst = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -496,7 +496,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsConst,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsEnum = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -505,7 +505,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsEnum,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsEnumerant = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -514,7 +514,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsEnumerant,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsStruct = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -523,7 +523,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsStruct,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsField = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -532,7 +532,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsField,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsUnion = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -541,7 +541,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsUnion,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsGroup = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -550,7 +550,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsGroup,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsInterface = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -559,7 +559,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsInterface,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsMethod = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -568,7 +568,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsMethod,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsParam = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -577,7 +577,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsParam,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
 
     val targetsAnnotation = new FieldDescriptor[Boolean, Annotation, Annotation.type](
@@ -586,7 +586,7 @@ object Node extends MetaStruct[Node] {
       default = Option(false),
       getter = _.targetsAnnotation,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(__type, targetsFile, targetsConst, targetsEnum, targetsEnumerant, targetsStruct, targetsField, targetsUnion, targetsGroup, targetsInterface, targetsMethod, targetsParam, targetsAnnotation)
   }
@@ -636,7 +636,7 @@ object Node extends MetaStruct[Node] {
     default = Option(0L),
     getter = _.id,
     manifest = manifest[Long],
-    isUnion = false
+    discriminantValue = None
   )
 
   val displayName = new FieldDescriptor[String, Node, Node.type](
@@ -645,7 +645,7 @@ object Node extends MetaStruct[Node] {
     default = Option(""),
     getter = _.displayName,
     manifest = manifest[String],
-    isUnion = false
+    discriminantValue = None
   )
 
   val displayNamePrefixLength = new FieldDescriptor[Int, Node, Node.type](
@@ -654,7 +654,7 @@ object Node extends MetaStruct[Node] {
     default = Option(0),
     getter = _.displayNamePrefixLength,
     manifest = manifest[Int],
-    isUnion = false
+    discriminantValue = None
   )
 
   val scopeId = new FieldDescriptor[Long, Node, Node.type](
@@ -663,7 +663,7 @@ object Node extends MetaStruct[Node] {
     default = Option(0L),
     getter = _.scopeId,
     manifest = manifest[Long],
-    isUnion = false
+    discriminantValue = None
   )
 
   val nestedNodes = new FieldDescriptor[Seq[com.capnproto.schema.Node.NestedNode], Node, Node.type](
@@ -672,7 +672,7 @@ object Node extends MetaStruct[Node] {
     default = Option(null),
     getter = x => Some(x.nestedNodes),
     manifest = manifest[Seq[com.capnproto.schema.Node.NestedNode]],
-    isUnion = false
+    discriminantValue = None
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Node, Node.type](
@@ -681,7 +681,7 @@ object Node extends MetaStruct[Node] {
     default = Option(null),
     getter = x => Some(x.annotations),
     manifest = manifest[Seq[com.capnproto.schema.Annotation]],
-    isUnion = false
+    discriminantValue = None
   )
 
   val file = new FieldDescriptor[Unit, Node, Node.type](
@@ -690,7 +690,7 @@ object Node extends MetaStruct[Node] {
     default = Option(Unit),
     getter = _.file,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(0)
   )
 
   val __struct = new FieldDescriptor[com.capnproto.schema.Node.__Struct, Node, Node.type](
@@ -699,7 +699,7 @@ object Node extends MetaStruct[Node] {
     default = None,
     getter = x => Some(x.__struct),
     manifest = manifest[com.capnproto.schema.Node.__Struct],
-    isUnion = true
+    discriminantValue = Some(1)
   )
 
   val __enum = new FieldDescriptor[com.capnproto.schema.Node.__Enum, Node, Node.type](
@@ -708,7 +708,7 @@ object Node extends MetaStruct[Node] {
     default = None,
     getter = x => Some(x.__enum),
     manifest = manifest[com.capnproto.schema.Node.__Enum],
-    isUnion = true
+    discriminantValue = Some(2)
   )
 
   val interface = new FieldDescriptor[com.capnproto.schema.Node.Interface, Node, Node.type](
@@ -717,7 +717,7 @@ object Node extends MetaStruct[Node] {
     default = None,
     getter = x => Some(x.interface),
     manifest = manifest[com.capnproto.schema.Node.Interface],
-    isUnion = true
+    discriminantValue = Some(3)
   )
 
   val const = new FieldDescriptor[com.capnproto.schema.Node.Const, Node, Node.type](
@@ -726,7 +726,7 @@ object Node extends MetaStruct[Node] {
     default = None,
     getter = x => Some(x.const),
     manifest = manifest[com.capnproto.schema.Node.Const],
-    isUnion = true
+    discriminantValue = Some(4)
   )
 
   val annotation = new FieldDescriptor[com.capnproto.schema.Node.Annotation, Node, Node.type](
@@ -735,7 +735,7 @@ object Node extends MetaStruct[Node] {
     default = None,
     getter = x => Some(x.annotation),
     manifest = manifest[com.capnproto.schema.Node.Annotation],
-    isUnion = true
+    discriminantValue = Some(5)
   )
   override val fields: Seq[FieldDescriptor[_, Node, Node.type]] = Seq(id, displayName, displayNamePrefixLength, scopeId, nestedNodes, annotations, file, __struct, __enum, interface, const, annotation)
 }
@@ -873,7 +873,7 @@ object Field extends MetaStruct[Field] {
       default = Option(0),
       getter = _.offset,
       manifest = manifest[Int],
-      isUnion = false
+      discriminantValue = None
     )
 
     val __type = new FieldDescriptor[com.capnproto.schema.__Type, Slot, Slot.type](
@@ -882,7 +882,7 @@ object Field extends MetaStruct[Field] {
       default = Option(null),
       getter = _.__type,
       manifest = manifest[com.capnproto.schema.__Type],
-      isUnion = false
+      discriminantValue = None
     )
 
     val defaultValue = new FieldDescriptor[com.capnproto.schema.Value, Slot, Slot.type](
@@ -891,7 +891,7 @@ object Field extends MetaStruct[Field] {
       default = Option(null),
       getter = _.defaultValue,
       manifest = manifest[com.capnproto.schema.Value],
-      isUnion = false
+      discriminantValue = None
     )
 
     val hadExplicitDefault = new FieldDescriptor[Boolean, Slot, Slot.type](
@@ -900,7 +900,7 @@ object Field extends MetaStruct[Field] {
       default = Option(false),
       getter = _.hadExplicitDefault,
       manifest = manifest[Boolean],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Slot, Slot.type]] = Seq(offset, __type, defaultValue, hadExplicitDefault)
   }
@@ -958,7 +958,7 @@ object Field extends MetaStruct[Field] {
       default = Option(0L),
       getter = _.typeId,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Group, Group.type]] = Seq(typeId)
   }
@@ -1018,7 +1018,7 @@ object Field extends MetaStruct[Field] {
       default = Option(Unit),
       getter = _.__implicit,
       manifest = manifest[Unit],
-      isUnion = true
+      discriminantValue = Some(0)
     )
 
     val explicit = new FieldDescriptor[Short, Ordinal, Ordinal.type](
@@ -1027,7 +1027,7 @@ object Field extends MetaStruct[Field] {
       default = Option(0.toShort),
       getter = _.explicit,
       manifest = manifest[Short],
-      isUnion = true
+      discriminantValue = Some(1)
     )
     override val fields: Seq[FieldDescriptor[_, Ordinal, Ordinal.type]] = Seq(__implicit, explicit)
   }
@@ -1063,7 +1063,7 @@ object Field extends MetaStruct[Field] {
     default = Option(""),
     getter = _.name,
     manifest = manifest[String],
-    isUnion = false
+    discriminantValue = None
   )
 
   val codeOrder = new FieldDescriptor[Short, Field, Field.type](
@@ -1072,7 +1072,7 @@ object Field extends MetaStruct[Field] {
     default = Option(0.toShort),
     getter = _.codeOrder,
     manifest = manifest[Short],
-    isUnion = false
+    discriminantValue = None
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Field, Field.type](
@@ -1081,7 +1081,7 @@ object Field extends MetaStruct[Field] {
     default = Option(null),
     getter = x => Some(x.annotations),
     manifest = manifest[Seq[com.capnproto.schema.Annotation]],
-    isUnion = false
+    discriminantValue = None
   )
 
   val discriminantValue = new FieldDescriptor[Short, Field, Field.type](
@@ -1090,7 +1090,7 @@ object Field extends MetaStruct[Field] {
     default = Option(-1.toShort),
     getter = _.discriminantValue,
     manifest = manifest[Short],
-    isUnion = false
+    discriminantValue = None
   )
 
   val slot = new FieldDescriptor[com.capnproto.schema.Field.Slot, Field, Field.type](
@@ -1099,7 +1099,7 @@ object Field extends MetaStruct[Field] {
     default = None,
     getter = x => Some(x.slot),
     manifest = manifest[com.capnproto.schema.Field.Slot],
-    isUnion = true
+    discriminantValue = Some(0)
   )
 
   val group = new FieldDescriptor[com.capnproto.schema.Field.Group, Field, Field.type](
@@ -1108,7 +1108,7 @@ object Field extends MetaStruct[Field] {
     default = None,
     getter = x => Some(x.group),
     manifest = manifest[com.capnproto.schema.Field.Group],
-    isUnion = true
+    discriminantValue = Some(1)
   )
 
   val ordinal = new FieldDescriptor[com.capnproto.schema.Field.Ordinal, Field, Field.type](
@@ -1117,7 +1117,7 @@ object Field extends MetaStruct[Field] {
     default = None,
     getter = x => Some(x.ordinal),
     manifest = manifest[com.capnproto.schema.Field.Ordinal],
-    isUnion = false
+    discriminantValue = None
   )
   override val fields: Seq[FieldDescriptor[_, Field, Field.type]] = Seq(name, codeOrder, annotations, discriminantValue, slot, group, ordinal)
 }
@@ -1199,7 +1199,7 @@ object Enumerant extends MetaStruct[Enumerant] {
     default = Option(""),
     getter = _.name,
     manifest = manifest[String],
-    isUnion = false
+    discriminantValue = None
   )
 
   val codeOrder = new FieldDescriptor[Short, Enumerant, Enumerant.type](
@@ -1208,7 +1208,7 @@ object Enumerant extends MetaStruct[Enumerant] {
     default = Option(0.toShort),
     getter = _.codeOrder,
     manifest = manifest[Short],
-    isUnion = false
+    discriminantValue = None
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Enumerant, Enumerant.type](
@@ -1217,7 +1217,7 @@ object Enumerant extends MetaStruct[Enumerant] {
     default = Option(null),
     getter = x => Some(x.annotations),
     manifest = manifest[Seq[com.capnproto.schema.Annotation]],
-    isUnion = false
+    discriminantValue = None
   )
   override val fields: Seq[FieldDescriptor[_, Enumerant, Enumerant.type]] = Seq(name, codeOrder, annotations)
 }
@@ -1282,7 +1282,7 @@ object Method extends MetaStruct[Method] {
     default = Option(""),
     getter = _.name,
     manifest = manifest[String],
-    isUnion = false
+    discriminantValue = None
   )
 
   val codeOrder = new FieldDescriptor[Short, Method, Method.type](
@@ -1291,7 +1291,7 @@ object Method extends MetaStruct[Method] {
     default = Option(0.toShort),
     getter = _.codeOrder,
     manifest = manifest[Short],
-    isUnion = false
+    discriminantValue = None
   )
 
   val paramStructType = new FieldDescriptor[Long, Method, Method.type](
@@ -1300,7 +1300,7 @@ object Method extends MetaStruct[Method] {
     default = Option(0L),
     getter = _.paramStructType,
     manifest = manifest[Long],
-    isUnion = false
+    discriminantValue = None
   )
 
   val resultStructType = new FieldDescriptor[Long, Method, Method.type](
@@ -1309,7 +1309,7 @@ object Method extends MetaStruct[Method] {
     default = Option(0L),
     getter = _.resultStructType,
     manifest = manifest[Long],
-    isUnion = false
+    discriminantValue = None
   )
 
   val annotations = new FieldDescriptor[Seq[com.capnproto.schema.Annotation], Method, Method.type](
@@ -1318,7 +1318,7 @@ object Method extends MetaStruct[Method] {
     default = Option(null),
     getter = x => Some(x.annotations),
     manifest = manifest[Seq[com.capnproto.schema.Annotation]],
-    isUnion = false
+    discriminantValue = None
   )
   override val fields: Seq[FieldDescriptor[_, Method, Method.type]] = Seq(name, codeOrder, paramStructType, resultStructType, annotations)
 }
@@ -1447,7 +1447,7 @@ object __Type extends MetaStruct[__Type] {
       default = Option(null),
       getter = _.elementType,
       manifest = manifest[com.capnproto.schema.__Type],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, List, List.type]] = Seq(elementType)
   }
@@ -1499,7 +1499,7 @@ object __Type extends MetaStruct[__Type] {
       default = Option(0L),
       getter = _.typeId,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, __Enum, __Enum.type]] = Seq(typeId)
   }
@@ -1551,7 +1551,7 @@ object __Type extends MetaStruct[__Type] {
       default = Option(0L),
       getter = _.typeId,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, __Struct, __Struct.type]] = Seq(typeId)
   }
@@ -1603,7 +1603,7 @@ object __Type extends MetaStruct[__Type] {
       default = Option(0L),
       getter = _.typeId,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, Interface, Interface.type]] = Seq(typeId)
   }
@@ -1629,7 +1629,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.void,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(0)
   )
 
   val bool = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1638,7 +1638,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.bool,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(1)
   )
 
   val int8 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1647,7 +1647,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.int8,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(2)
   )
 
   val int16 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1656,7 +1656,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.int16,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(3)
   )
 
   val int32 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1665,7 +1665,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.int32,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(4)
   )
 
   val int64 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1674,7 +1674,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.int64,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(5)
   )
 
   val uint8 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1683,7 +1683,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.uint8,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(6)
   )
 
   val uint16 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1692,7 +1692,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.uint16,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(7)
   )
 
   val uint32 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1701,7 +1701,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.uint32,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(8)
   )
 
   val uint64 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1710,7 +1710,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.uint64,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(9)
   )
 
   val float32 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1719,7 +1719,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.float32,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(10)
   )
 
   val float64 = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1728,7 +1728,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.float64,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(11)
   )
 
   val text = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1737,7 +1737,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.text,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(12)
   )
 
   val data = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1746,7 +1746,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.data,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(13)
   )
 
   val list = new FieldDescriptor[com.capnproto.schema.__Type.List, __Type, __Type.type](
@@ -1755,7 +1755,7 @@ object __Type extends MetaStruct[__Type] {
     default = None,
     getter = x => Some(x.list),
     manifest = manifest[com.capnproto.schema.__Type.List],
-    isUnion = true
+    discriminantValue = Some(14)
   )
 
   val __enum = new FieldDescriptor[com.capnproto.schema.__Type.__Enum, __Type, __Type.type](
@@ -1764,7 +1764,7 @@ object __Type extends MetaStruct[__Type] {
     default = None,
     getter = x => Some(x.__enum),
     manifest = manifest[com.capnproto.schema.__Type.__Enum],
-    isUnion = true
+    discriminantValue = Some(15)
   )
 
   val __struct = new FieldDescriptor[com.capnproto.schema.__Type.__Struct, __Type, __Type.type](
@@ -1773,7 +1773,7 @@ object __Type extends MetaStruct[__Type] {
     default = None,
     getter = x => Some(x.__struct),
     manifest = manifest[com.capnproto.schema.__Type.__Struct],
-    isUnion = true
+    discriminantValue = Some(16)
   )
 
   val interface = new FieldDescriptor[com.capnproto.schema.__Type.Interface, __Type, __Type.type](
@@ -1782,7 +1782,7 @@ object __Type extends MetaStruct[__Type] {
     default = None,
     getter = x => Some(x.interface),
     manifest = manifest[com.capnproto.schema.__Type.Interface],
-    isUnion = true
+    discriminantValue = Some(17)
   )
 
   val __object = new FieldDescriptor[Unit, __Type, __Type.type](
@@ -1791,7 +1791,7 @@ object __Type extends MetaStruct[__Type] {
     default = Option(Unit),
     getter = _.__object,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(18)
   )
   override val fields: Seq[FieldDescriptor[_, __Type, __Type.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 }
@@ -1951,7 +1951,7 @@ object Value extends MetaStruct[Value] {
     default = Option(Unit),
     getter = _.void,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(0)
   )
 
   val bool = new FieldDescriptor[Boolean, Value, Value.type](
@@ -1960,7 +1960,7 @@ object Value extends MetaStruct[Value] {
     default = Option(false),
     getter = _.bool,
     manifest = manifest[Boolean],
-    isUnion = true
+    discriminantValue = Some(1)
   )
 
   val int8 = new FieldDescriptor[Byte, Value, Value.type](
@@ -1969,7 +1969,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.toByte),
     getter = _.int8,
     manifest = manifest[Byte],
-    isUnion = true
+    discriminantValue = Some(2)
   )
 
   val int16 = new FieldDescriptor[Short, Value, Value.type](
@@ -1978,7 +1978,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.toShort),
     getter = _.int16,
     manifest = manifest[Short],
-    isUnion = true
+    discriminantValue = Some(3)
   )
 
   val int32 = new FieldDescriptor[Int, Value, Value.type](
@@ -1987,7 +1987,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0),
     getter = _.int32,
     manifest = manifest[Int],
-    isUnion = true
+    discriminantValue = Some(4)
   )
 
   val int64 = new FieldDescriptor[Long, Value, Value.type](
@@ -1996,7 +1996,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0L),
     getter = _.int64,
     manifest = manifest[Long],
-    isUnion = true
+    discriminantValue = Some(5)
   )
 
   val uint8 = new FieldDescriptor[Byte, Value, Value.type](
@@ -2005,7 +2005,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.toByte),
     getter = _.uint8,
     manifest = manifest[Byte],
-    isUnion = true
+    discriminantValue = Some(6)
   )
 
   val uint16 = new FieldDescriptor[Short, Value, Value.type](
@@ -2014,7 +2014,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.toShort),
     getter = _.uint16,
     manifest = manifest[Short],
-    isUnion = true
+    discriminantValue = Some(7)
   )
 
   val uint32 = new FieldDescriptor[Int, Value, Value.type](
@@ -2023,7 +2023,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0),
     getter = _.uint32,
     manifest = manifest[Int],
-    isUnion = true
+    discriminantValue = Some(8)
   )
 
   val uint64 = new FieldDescriptor[Long, Value, Value.type](
@@ -2032,7 +2032,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0L),
     getter = _.uint64,
     manifest = manifest[Long],
-    isUnion = true
+    discriminantValue = Some(9)
   )
 
   val float32 = new FieldDescriptor[Float, Value, Value.type](
@@ -2041,7 +2041,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.0.toFloat),
     getter = _.float32,
     manifest = manifest[Float],
-    isUnion = true
+    discriminantValue = Some(10)
   )
 
   val float64 = new FieldDescriptor[Double, Value, Value.type](
@@ -2050,7 +2050,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.0),
     getter = _.float64,
     manifest = manifest[Double],
-    isUnion = true
+    discriminantValue = Some(11)
   )
 
   val text = new FieldDescriptor[String, Value, Value.type](
@@ -2059,7 +2059,7 @@ object Value extends MetaStruct[Value] {
     default = Option(""),
     getter = _.text,
     manifest = manifest[String],
-    isUnion = true
+    discriminantValue = Some(12)
   )
 
   val data = new FieldDescriptor[Array[Byte], Value, Value.type](
@@ -2068,7 +2068,7 @@ object Value extends MetaStruct[Value] {
     default = Option(Array[Byte]()),
     getter = _.data,
     manifest = manifest[Array[Byte]],
-    isUnion = true
+    discriminantValue = Some(13)
   )
 
   val list = new FieldDescriptor[Pointer[_], Value, Value.type](
@@ -2077,7 +2077,7 @@ object Value extends MetaStruct[Value] {
     default = Option(null),
     getter = _.list,
     manifest = manifest[Pointer[_]],
-    isUnion = true
+    discriminantValue = Some(14)
   )
 
   val __enum = new FieldDescriptor[Short, Value, Value.type](
@@ -2086,7 +2086,7 @@ object Value extends MetaStruct[Value] {
     default = Option(0.toShort),
     getter = _.__enum,
     manifest = manifest[Short],
-    isUnion = true
+    discriminantValue = Some(15)
   )
 
   val __struct = new FieldDescriptor[Pointer[_], Value, Value.type](
@@ -2095,7 +2095,7 @@ object Value extends MetaStruct[Value] {
     default = Option(null),
     getter = _.__struct,
     manifest = manifest[Pointer[_]],
-    isUnion = true
+    discriminantValue = Some(16)
   )
 
   val interface = new FieldDescriptor[Unit, Value, Value.type](
@@ -2104,7 +2104,7 @@ object Value extends MetaStruct[Value] {
     default = Option(Unit),
     getter = _.interface,
     manifest = manifest[Unit],
-    isUnion = true
+    discriminantValue = Some(17)
   )
 
   val __object = new FieldDescriptor[Pointer[_], Value, Value.type](
@@ -2113,7 +2113,7 @@ object Value extends MetaStruct[Value] {
     default = Option(null),
     getter = _.__object,
     manifest = manifest[Pointer[_]],
-    isUnion = true
+    discriminantValue = Some(18)
   )
   override val fields: Seq[FieldDescriptor[_, Value, Value.type]] = Seq(void, bool, int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64, text, data, list, __enum, __struct, interface, __object)
 }
@@ -2228,7 +2228,7 @@ object Annotation extends MetaStruct[Annotation] {
     default = Option(0L),
     getter = _.id,
     manifest = manifest[Long],
-    isUnion = false
+    discriminantValue = None
   )
 
   val value = new FieldDescriptor[com.capnproto.schema.Value, Annotation, Annotation.type](
@@ -2237,7 +2237,7 @@ object Annotation extends MetaStruct[Annotation] {
     default = Option(null),
     getter = _.value,
     manifest = manifest[com.capnproto.schema.Value],
-    isUnion = false
+    discriminantValue = None
   )
   override val fields: Seq[FieldDescriptor[_, Annotation, Annotation.type]] = Seq(id, value)
 }
@@ -2393,7 +2393,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
         default = Option(0L),
         getter = _.id,
         manifest = manifest[Long],
-        isUnion = false
+        discriminantValue = None
       )
 
       val name = new FieldDescriptor[String, __Import, __Import.type](
@@ -2402,7 +2402,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
         default = Option(""),
         getter = _.name,
         manifest = manifest[String],
-        isUnion = false
+        discriminantValue = None
       )
       override val fields: Seq[FieldDescriptor[_, __Import, __Import.type]] = Seq(id, name)
     }
@@ -2430,7 +2430,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
       default = Option(0L),
       getter = _.id,
       manifest = manifest[Long],
-      isUnion = false
+      discriminantValue = None
     )
 
     val filename = new FieldDescriptor[String, RequestedFile, RequestedFile.type](
@@ -2439,7 +2439,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
       default = Option(""),
       getter = _.filename,
       manifest = manifest[String],
-      isUnion = false
+      discriminantValue = None
     )
 
     val imports = new FieldDescriptor[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import], RequestedFile, RequestedFile.type](
@@ -2448,7 +2448,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
       default = Option(null),
       getter = x => Some(x.imports),
       manifest = manifest[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile.__Import]],
-      isUnion = false
+      discriminantValue = None
     )
     override val fields: Seq[FieldDescriptor[_, RequestedFile, RequestedFile.type]] = Seq(id, filename, imports)
   }
@@ -2478,7 +2478,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     default = Option(null),
     getter = x => Some(x.nodes),
     manifest = manifest[Seq[com.capnproto.schema.Node]],
-    isUnion = false
+    discriminantValue = None
   )
 
   val requestedFiles = new FieldDescriptor[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile], CodeGeneratorRequest, CodeGeneratorRequest.type](
@@ -2487,7 +2487,7 @@ object CodeGeneratorRequest extends MetaStruct[CodeGeneratorRequest] {
     default = Option(null),
     getter = x => Some(x.requestedFiles),
     manifest = manifest[Seq[com.capnproto.schema.CodeGeneratorRequest.RequestedFile]],
-    isUnion = false
+    discriminantValue = None
   )
   override val fields: Seq[FieldDescriptor[_, CodeGeneratorRequest, CodeGeneratorRequest.type]] = Seq(nodes, requestedFiles)
 }

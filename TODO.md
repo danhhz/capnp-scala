@@ -11,7 +11,6 @@ Before v0.1
 * port one of Kenton's benchmarks
 * write basic runtime docs
 * support top level consts
-* generate valid constants in .toString
 
 After
 -----
@@ -21,7 +20,6 @@ After
 * hook in [https://github.com/kaos/capnp_test]
 * hook up rogue/mongo
 * control rogue support with annotation
-* json printer
 * dynamic api
 * support exhaustiveMatch annotation for union fields
 * annotations for retired and deprecated
