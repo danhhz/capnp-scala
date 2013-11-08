@@ -1,6 +1,6 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.core
+package com.capnp.core
 
 abstract class Enum[T <: Enum[T]] extends Ordered[T] { self: T =>
   def meta: EnumMeta[T]

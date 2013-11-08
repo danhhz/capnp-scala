@@ -1,6 +1,6 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.codegen
+package com.capnp.codegen
 
 object CodegenUtil {
   // List of Scala reserved words from Scala Language Specification (SLS) Section 1.1

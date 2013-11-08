@@ -1,9 +1,9 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.examples.addressbook
+package com.capnp.examples.addressbook
 
-import com.capnproto.core.{CapnpArena, CapnpArenaBuilder}
-import com.capnproto.addressbook.{AddressBook, Person}
+import com.capnp.core.{CapnpArena, CapnpArenaBuilder}
+import com.capnp.addressbook.{AddressBook, Person}
 
 object AddressBookExample {
 

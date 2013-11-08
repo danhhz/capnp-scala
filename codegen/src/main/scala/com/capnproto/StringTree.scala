@@ -1,6 +1,6 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.codegen
+package com.capnp.codegen
 
 trait StringTree {
   def flatten: String

@@ -1,9 +1,9 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.examples.interface
+package com.capnp.examples.interface
 
-import com.capnproto.core.CapnpArenaBuilder
-import com.capnproto.rpc.RpcServer
+import com.capnp.core.CapnpArenaBuilder
+import com.capnp.rpc.RpcServer
 import com.twitter.finatra.{Controller, FinatraServer, Request}
 import com.twitter.server.Admin
 import com.twitter.util.Future

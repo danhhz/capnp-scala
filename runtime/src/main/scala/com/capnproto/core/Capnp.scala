@@ -1,6 +1,6 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.core
+package com.capnp.core
 
 import com.foursquare.field.{OptionalField => RField}
 import com.twitter.util.Future

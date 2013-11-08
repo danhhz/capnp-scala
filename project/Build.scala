@@ -2,14 +2,14 @@
 
 import sbt._
 import Keys._
-import com.capnproto.plugin.CapnpCodegenPlugin
+import com.capnp.plugin.CapnpCodegenPlugin
 import sbtassembly.{Plugin => SbtAssemblyPlugin}
 import sbtassembly.Plugin.AssemblyKeys._
 
 object CapnpScalaBuild extends Build {
   override lazy val settings = super.settings ++ Seq(
     name := "capnp-scala",
-    organization := "com.capnproto",
+    organization := "com.capnp",
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.10.3",
     resolvers += twitterRepo

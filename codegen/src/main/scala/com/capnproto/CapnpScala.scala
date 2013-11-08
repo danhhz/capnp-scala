@@ -1,9 +1,9 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.codegen
+package com.capnp.codegen
 
-import com.capnproto.core.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
-import com.capnproto.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
+import com.capnp.core.{Pointer, CapnpArena, CapnpList, CapnpStruct, CapnpArenaBuilder}
+import com.capnp.schema.{Node, CodeGeneratorRequest, __Type, Value, Field}
 
 import java.io.{File, FileWriter}
 import java.nio.{ByteBuffer, ByteOrder}
@@ -569,7 +569,7 @@ object CapnpScala {
       StringTree(
         "// ", file.displayName, "\n\n",
         if (filePackage.isEmpty) StringTree() else StringTree("package ", filePackage, "\n\n"),
-        "import com.capnproto.core.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,\n",
+        "import com.capnp.core.{HasUnion, UnionMeta, UnionValue, UntypedFieldDescriptor,\n",
         "  FieldDescriptor, UntypedStruct, Struct, UntypedMetaStruct, MetaStruct,\n",
         "  StructBuilder, MetaStructBuilder, MetaInterface, UntypedMetaInterface,\n",
         "  Interface, UntypedInterface, MethodDescriptor, CapnpStruct, CapnpStructBuilder,\n",

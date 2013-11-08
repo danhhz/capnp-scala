@@ -1,6 +1,6 @@
 // Copyright 2013 Daniel Harrison. All Rights Reserved.
 
-package com.capnproto.plugin
+package com.capnp.plugin
 
 import sbt._
 import sbt.Keys.TaskStreams
@@ -19,7 +19,7 @@ object CapnpCodegenPlugin extends Plugin {
     Keys.ivyConfigurations += Capnp,
     capnpCodegenVersion := "0.0.1-SNAPSHOT",
     capnpCodegenBinaryLibs <<= (capnpCodegenVersion, Keys.scalaVersion)((v, _) => {
-      Seq("com.capnproto" %% "codegen" % v)
+      Seq("com.capnp" %% "codegen" % v)
     }),
     Keys.libraryDependencies <++= (capnpCodegenBinaryLibs, capnpCodegenBinaryLibs)((binary, _) => {
       binary.map(_ % "capnp")
@@ -76,7 +76,7 @@ object CapnpCodegenPlugin extends Plugin {
         val jars = Classpaths.managedJars(Capnp, classpathTypes, updateReport).map(_.data)
         jars.mkString(File.pathSeparator)
       }
-      val mainClass = "com.capnproto.codegen.CapnpScala"
+      val mainClass = "com.capnp.codegen.CapnpScala"
       val contents = (
         "#! /bin/bash" + "\n" +
         "java -classpath %s %s".format(classpathParam, mainClass) + "\n"
