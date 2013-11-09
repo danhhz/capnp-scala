@@ -36,7 +36,7 @@ object CapnpScalaBuild extends Build {
 
   lazy val runtimeCore = Project(
     id = "runtime-core",
-    base = file("runtime/src/main/scala/com/capnproto/core"),
+    base = file("runtime/src/main/scala/com/capnp/core"),
     settings = commonProjectSettings ++ Seq(
       libraryDependencies ++= Seq(rogueField, twitterUtilCore)
     )
@@ -44,7 +44,7 @@ object CapnpScalaBuild extends Build {
 
   lazy val runtimeRpc = Project(
     id = "runtime-rpc",
-    base = file("runtime/src/main/scala/com/capnproto/rpc"),
+    base = file("runtime/src/main/scala/com/capnp/rpc"),
     settings = commonProjectSettings ++ Seq(
       libraryDependencies ++= Seq(twitterServer, twitterFinatra)
     )
